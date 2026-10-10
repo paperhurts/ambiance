@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ambiance</title>
+<meta name="description" content="Realistic ambient soundscapes from real field recordings: a storm at sea, a forest waterfall, a sunrise garden, a haunted mansion, snowy woods, and a blank canvas to mix your own.">
+<meta name="theme-color" content="#1B6676" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A2430" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ambiance">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/fraunces-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/nunito.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<main class="home" id="home">
+  <svg class="rings" viewBox="0 0 620 420" aria-hidden="true">
+    <ellipse cx="310" cy="210" rx="70" ry="35"/>
+    <ellipse cx="310" cy="210" rx="120" ry="60"/>
+    <ellipse cx="310" cy="210" rx="175" ry="88"/>
+    <ellipse cx="310" cy="210" rx="235" ry="118"/>
+    <ellipse cx="310" cy="210" rx="300" ry="150"/>
+  </svg>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="brand"><span id="logo"></span>Sounds of somewhere else</div>
+      <h1>Ambiance</h1>
+      <p class="lede">Real recordings, never on a loop you can hear. Pick a place and stay a while.</p>
+    </header>
+
+    <ul class="scenes" id="scene-list" aria-label="Scenes"></ul>
+
+    <section class="settings" aria-labelledby="settings-title">
+      <h2 id="settings-title">Settings</h2>
+      <div class="row">
+        <div><b>Headphones mode</b><span>Places birds, creaks and footsteps all around you in 3D. Best with headphones on.</span></div>
+        <button class="switch" id="set-headphones" role="switch" aria-checked="false" aria-label="Headphones mode"></button>
+      </div>
+      <div class="row">
+        <div><b>Keep the screen on</b><span>Stops the phone sleeping while a scene plays. Use Dim to darken it.</span></div>
+        <button class="switch" id="set-awake" role="switch" aria-checked="false" aria-label="Keep the screen on"></button>
+      </div>
+      <div class="row">
+        <div><b>Offline</b><span id="offline-note">Scenes you've played are kept on this device. Save the rest for flights and cabins.</span></div>
+        <button class="text-btn" id="save-offline">Save all</button>
+      </div>
+      <div class="row" id="install-row" hidden>
+        <div><b>Put it on your home screen</b><span id="install-note"></span></div>
+        <button class="text-btn" id="install-btn" hidden>Install</button>
+      </div>
+      <div class="row">
+        <div><b>The recordings</b><span>Every sound is a real field recording, used under an open licence. Who made them.</span></div>
+        <button class="text-btn" id="open-credits">Credits</button>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p>Made for Sid. Palette borrowed from <i>Beyond the Buoys</i>.</p>
+    </footer>
+  </div>
+
+  <div class="now" id="now" hidden>
+    <button class="label" id="now-open"><span id="now-name"></span><small id="now-state"></small></button>
+    <button class="round" id="now-toggle" aria-label="Play or pause"></button>
+  </div>
+</main>
+
+<section class="player" id="player" hidden aria-label="Scene">
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <div class="veil" id="veil"></div>
+  <header class="bar top">
+    <button class="icon-btn" id="back" aria-label="All scenes"></button>
+    <div class="title"><small id="scene-kicker"></small><h2 id="scene-title"></h2></div>
+    <button class="icon-btn" id="dim" aria-label="Dim the screen"></button>
+  </header>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <footer class="bar bottom">
+    <button class="pill-btn" id="timer-btn" aria-haspopup="true"></button>
+    <button class="play" id="play" aria-label="Play"></button>
+    <button class="pill-btn" id="mix-btn" aria-haspopup="true"></button>
+  </footer>
+
+  <div class="sheet closed" id="mix-sheet" role="dialog" aria-label="Mix">
+    <div class="grip"></div>
+    <div class="sheet-head">
+      <div><h3 id="mix-title">Mix</h3><p class="hint" id="mix-hint">Everything here is a real recording. Slide to taste.</p></div>
+      <button class="icon-btn" data-close aria-label="Close"></button>
+    </div>
+    <div class="chips" id="mixes" hidden></div>
+    <div id="mix-rows"></div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn" id="mix-reset">Reset</button>
+      <button class="btn primary" id="mix-save" hidden>Save this mix</button>
+    </div>
+  </div>
+
+  <div class="sheet closed" id="timer-sheet" role="dialog" aria-label="Sleep timer">
+    <div class="grip"></div>
+    <div class="sheet-head">
+      <div><h3>Sleep timer</h3><p class="hint">The sound fades out slowly over the last minute and a half.</p></div>
+      <button class="icon-btn" data-close aria-label="Close"></button>
+    </div>
+    <div class="chips" id="timer-chips"></div>
+  </div>
+</section>
+
+<dialog id="credits">
+  <h2>The recordings</h2>
+  <p class="hint">Field recordists who shared their work openly. Thank you.</p>
+  <ul id="credit-list"></ul>
+  <div class="actions"><button class="btn primary" data-close-dialog>Close</button></div>
+</dialog>
+
+<dialog id="save-mix">
+  <h2>Save this mix</h2>
+  <label for="mix-name" class="hint">Give it a name</label>
+  <input type="text" id="mix-name" maxlength="40" placeholder="Rainy cabin">
+  <div class="actions"><button class="btn" data-close-dialog>Cancel</button><button class="btn primary" id="mix-name-ok">Save</button></div>
+</dialog>
+</body>
+</html>
