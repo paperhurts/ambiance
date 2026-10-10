@@ -1,0 +1,1306 @@
+{
+ "pools": {
+  "garden/blackbird": [
+   {
+    "file": "audio/garden/blackbird-1.f98a036d.mp3",
+    "dur": 3.8
+   },
+   {
+    "file": "audio/garden/blackbird-2.3b128310.mp3",
+    "dur": 3.1
+   },
+   {
+    "file": "audio/garden/blackbird-3.b000142d.mp3",
+    "dur": 3.5
+   },
+   {
+    "file": "audio/garden/blackbird-4.65c35982.mp3",
+    "dur": 2.3
+   }
+  ],
+  "garden/breeze": [
+   {
+    "file": "audio/garden/breeze-1.4eb0f5ed.mp3",
+    "dur": 82.5
+   }
+  ],
+  "garden/chorus": [
+   {
+    "file": "audio/garden/chorus-1.fb04e39b.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/garden/chorus-2.f62eb391.mp3",
+    "dur": 90.0
+   }
+  ],
+  "garden/fountain": [
+   {
+    "file": "audio/garden/fountain-1.9a8008a0.mp3",
+    "dur": 59.0
+   }
+  ],
+  "garden/great-tit": [
+   {
+    "file": "audio/garden/great-tit-1.6662d62e.mp3",
+    "dur": 2.95
+   },
+   {
+    "file": "audio/garden/great-tit-2.d2de59be.mp3",
+    "dur": 2.85
+   },
+   {
+    "file": "audio/garden/great-tit-3.6e3c14ae.mp3",
+    "dur": 3.65
+   }
+  ],
+  "garden/robin": [
+   {
+    "file": "audio/garden/robin-1.e0f33e13.mp3",
+    "dur": 3.05
+   },
+   {
+    "file": "audio/garden/robin-2.b415ee62.mp3",
+    "dur": 3.05
+   },
+   {
+    "file": "audio/garden/robin-3.6322f8b3.mp3",
+    "dur": 2.5
+   },
+   {
+    "file": "audio/garden/robin-4.3f92b134.mp3",
+    "dur": 3.3
+   }
+  ],
+  "garden/rooster": [
+   {
+    "file": "audio/garden/rooster-1.4ad9e896.mp3",
+    "dur": 2.6
+   },
+   {
+    "file": "audio/garden/rooster-2.57615f41.mp3",
+    "dur": 2.25
+   },
+   {
+    "file": "audio/garden/rooster-3.3486ec84.mp3",
+    "dur": 2.35
+   },
+   {
+    "file": "audio/garden/rooster-4.5bb701aa.mp3",
+    "dur": 2.9
+   }
+  ],
+  "garden/song-thrush": [
+   {
+    "file": "audio/garden/song-thrush-1.84631331.mp3",
+    "dur": 3.75
+   },
+   {
+    "file": "audio/garden/song-thrush-2.2e53f03f.mp3",
+    "dur": 4.5
+   },
+   {
+    "file": "audio/garden/song-thrush-3.94f8d93d.mp3",
+    "dur": 3.3
+   },
+   {
+    "file": "audio/garden/song-thrush-4.653af8ce.mp3",
+    "dur": 1.7
+   }
+  ],
+  "garden/wood-pigeon": [
+   {
+    "file": "audio/garden/wood-pigeon-1.ae5af5cd.mp3",
+    "dur": 9.45
+   },
+   {
+    "file": "audio/garden/wood-pigeon-2.0c78e1ee.mp3",
+    "dur": 9.0
+   },
+   {
+    "file": "audio/garden/wood-pigeon-3.ae2bf667.mp3",
+    "dur": 9.05
+   },
+   {
+    "file": "audio/garden/wood-pigeon-4.847dfc2b.mp3",
+    "dur": 8.8
+   }
+  ],
+  "garden/wren": [
+   {
+    "file": "audio/garden/wren-1.f8ea0bb1.mp3",
+    "dur": 4.5
+   },
+   {
+    "file": "audio/garden/wren-2.00b84741.mp3",
+    "dur": 5.1
+   },
+   {
+    "file": "audio/garden/wren-3.41b7c320.mp3",
+    "dur": 4.75
+   }
+  ],
+  "mansion/chime": [
+   {
+    "file": "audio/mansion/chime-1.e493d07a.mp3",
+    "dur": 13.2
+   },
+   {
+    "file": "audio/mansion/chime-2.467310fa.mp3",
+    "dur": 6.2
+   }
+  ],
+  "mansion/clock": [
+   {
+    "file": "audio/mansion/clock-1.f8b2196a.mp3",
+    "dur": 24.0
+   }
+  ],
+  "mansion/creak": [
+   {
+    "file": "audio/mansion/creak-1.0569c6c5.mp3",
+    "dur": 1.05
+   },
+   {
+    "file": "audio/mansion/creak-2.d1cb1a3b.mp3",
+    "dur": 1.05
+   },
+   {
+    "file": "audio/mansion/creak-3.8194a218.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/mansion/creak-4.2d8f7b3c.mp3",
+    "dur": 2.4
+   },
+   {
+    "file": "audio/mansion/creak-5.c10ffdec.mp3",
+    "dur": 1.55
+   },
+   {
+    "file": "audio/mansion/creak-6.2f0fc1f2.mp3",
+    "dur": 0.95
+   },
+   {
+    "file": "audio/mansion/creak-7.f3595f9a.mp3",
+    "dur": 1.4
+   },
+   {
+    "file": "audio/mansion/creak-8.25da0ce1.mp3",
+    "dur": 2.3
+   }
+  ],
+  "mansion/crow": [
+   {
+    "file": "audio/mansion/crow-1.f14215f3.mp3",
+    "dur": 5.35
+   }
+  ],
+  "mansion/door": [
+   {
+    "file": "audio/mansion/door-1.b4408204.mp3",
+    "dur": 3.7
+   },
+   {
+    "file": "audio/mansion/door-2.e99b8e17.mp3",
+    "dur": 3.7
+   },
+   {
+    "file": "audio/mansion/door-3.91dd3003.mp3",
+    "dur": 6.2
+   }
+  ],
+  "mansion/fire": [
+   {
+    "file": "audio/mansion/fire-1.bd08a1ae.mp3",
+    "dur": 72.5
+   },
+   {
+    "file": "audio/mansion/fire-2.ed13cc37.mp3",
+    "dur": 81.0
+   }
+  ],
+  "mansion/gale": [
+   {
+    "file": "audio/mansion/gale-1.0832c9c0.mp3",
+    "dur": 90.0
+   }
+  ],
+  "mansion/knock": [
+   {
+    "file": "audio/mansion/knock-1.92d7f201.mp3",
+    "dur": 1.4
+   },
+   {
+    "file": "audio/mansion/knock-2.91369e7b.mp3",
+    "dur": 1.9
+   }
+  ],
+  "mansion/musicbox": [
+   {
+    "file": "audio/mansion/musicbox-1.8635c946.mp3",
+    "dur": 14.95
+   }
+  ],
+  "mansion/owl": [
+   {
+    "file": "audio/mansion/owl-1.953bd525.mp3",
+    "dur": 5.1
+   },
+   {
+    "file": "audio/mansion/owl-2.fe8add34.mp3",
+    "dur": 4.8
+   },
+   {
+    "file": "audio/mansion/owl-3.6edc115f.mp3",
+    "dur": 4.7
+   },
+   {
+    "file": "audio/mansion/owl-4.21028e26.mp3",
+    "dur": 5.1
+   }
+  ],
+  "mansion/rain": [
+   {
+    "file": "audio/mansion/rain-1.e302a42f.mp3",
+    "dur": 90.0
+   }
+  ],
+  "mansion/rattle": [
+   {
+    "file": "audio/mansion/rattle-1.c662f9ae.mp3",
+    "dur": 2.95
+   },
+   {
+    "file": "audio/mansion/rattle-2.cc41b08f.mp3",
+    "dur": 1.6
+   }
+  ],
+  "mansion/slam": [
+   {
+    "file": "audio/mansion/slam-1.3af281c5.mp3",
+    "dur": 1.9
+   }
+  ],
+  "mansion/steps": [
+   {
+    "file": "audio/mansion/steps-1.46ec9814.mp3",
+    "dur": 12.5
+   },
+   {
+    "file": "audio/mansion/steps-2.e567e61c.mp3",
+    "dur": 10.0
+   },
+   {
+    "file": "audio/mansion/steps-3.d5b93892.mp3",
+    "dur": 9.0
+   }
+  ],
+  "mansion/wind": [
+   {
+    "file": "audio/mansion/wind-1.36bdcc9c.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/mansion/wind-2.89cced81.mp3",
+    "dur": 90.0
+   }
+  ],
+  "mansion/wolf": [
+   {
+    "file": "audio/mansion/wolf-1.ddf19200.mp3",
+    "dur": 14.0
+   },
+   {
+    "file": "audio/mansion/wolf-2.b90547a6.mp3",
+    "dur": 6.5
+   },
+   {
+    "file": "audio/mansion/wolf-3.6ad83b09.mp3",
+    "dur": 8.1
+   }
+  ],
+  "snow/blizzard": [
+   {
+    "file": "audio/snow/blizzard-1.4dbc3d3f.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/snow/blizzard-2.c7fb3e74.mp3",
+    "dur": 90.0
+   }
+  ],
+  "snow/fire": [
+   {
+    "file": "audio/snow/fire-1.98449c36.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/snow/fire-2.c5db0621.mp3",
+    "dur": 80.0
+   }
+  ],
+  "snow/ice": [
+   {
+    "file": "audio/snow/ice-1.d2851ad1.mp3",
+    "dur": 3.3
+   },
+   {
+    "file": "audio/snow/ice-2.e5b36c30.mp3",
+    "dur": 2.3
+   },
+   {
+    "file": "audio/snow/ice-3.e126f72d.mp3",
+    "dur": 2.4
+   },
+   {
+    "file": "audio/snow/ice-4.080b9407.mp3",
+    "dur": 3.0
+   },
+   {
+    "file": "audio/snow/ice-5.63de3022.mp3",
+    "dur": 2.4
+   }
+  ],
+  "snow/nutcracker": [
+   {
+    "file": "audio/snow/nutcracker-1.a3e20b5c.mp3",
+    "dur": 2.9
+   }
+  ],
+  "snow/nuthatch": [
+   {
+    "file": "audio/snow/nuthatch-1.533c2f80.mp3",
+    "dur": 3.4
+   }
+  ],
+  "snow/owl": [
+   {
+    "file": "audio/snow/owl-1.900a9b56.mp3",
+    "dur": 3.1
+   }
+  ],
+  "snow/raven": [
+   {
+    "file": "audio/snow/raven-1.b070564f.mp3",
+    "dur": 2.95
+   },
+   {
+    "file": "audio/snow/raven-2.b91f1dae.mp3",
+    "dur": 2.55
+   }
+  ],
+  "snow/snowfall": [
+   {
+    "file": "audio/snow/snowfall-1.da51982a.mp3",
+    "dur": 3.0
+   },
+   {
+    "file": "audio/snow/snowfall-2.f2f8ce25.mp3",
+    "dur": 2.4
+   },
+   {
+    "file": "audio/snow/snowfall-3.3cc1ce1c.mp3",
+    "dur": 2.7
+   }
+  ],
+  "snow/snowsteps": [
+   {
+    "file": "audio/snow/snowsteps-1.0ccb4f1e.mp3",
+    "dur": 4.0
+   },
+   {
+    "file": "audio/snow/snowsteps-2.b5e8f0bc.mp3",
+    "dur": 4.7
+   },
+   {
+    "file": "audio/snow/snowsteps-3.c4a67a11.mp3",
+    "dur": 8.65
+   }
+  ],
+  "snow/treecreak": [
+   {
+    "file": "audio/snow/treecreak-1.e2eaac11.mp3",
+    "dur": 1.7,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/snow/treecreak-2.feb4931d.mp3",
+    "dur": 3.2,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/snow/treecreak-3.b3e70f1a.mp3",
+    "dur": 2.15
+   },
+   {
+    "file": "audio/snow/treecreak-4.e246ee19.mp3",
+    "dur": 1.7
+   }
+  ],
+  "snow/wind": [
+   {
+    "file": "audio/snow/wind-1.644fb34f.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/snow/wind-2.b2c51aaa.mp3",
+    "dur": 90.0
+   }
+  ],
+  "storm/rain": [
+   {
+    "file": "audio/storm/rain-1.3fdbfad6.mp3",
+    "dur": 90.0
+   }
+  ],
+  "storm/surf": [
+   {
+    "file": "audio/storm/surf-1.21075df9.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/storm/surf-2.0dd2ed3f.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/storm/surf-3.0a95fbf4.mp3",
+    "dur": 90.0
+   }
+  ],
+  "storm/thunder": [
+   {
+    "file": "audio/storm/thunder-1.41ef5f32.mp3",
+    "dur": 49.7,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-2.d4a7b6ae.mp3",
+    "dur": 57.15,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-3.4139f2b3.mp3",
+    "dur": 55.24,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-4.45da5762.mp3",
+    "dur": 32.0,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-5.1a9d1cd4.mp3",
+    "dur": 34.3,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-6.16c04f19.mp3",
+    "dur": 25.1,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-7.ba2c2bcd.mp3",
+    "dur": 19.2,
+    "tag": "far"
+   },
+   {
+    "file": "audio/storm/thunder-8.6fc02897.mp3",
+    "dur": 36.0,
+    "tag": "far"
+   },
+   {
+    "file": "audio/storm/thunder-9.91b88cae.mp3",
+    "dur": 49.2,
+    "tag": "near"
+   },
+   {
+    "file": "audio/storm/thunder-10.f8234437.mp3",
+    "dur": 15.7,
+    "tag": "near"
+   }
+  ],
+  "storm/wind": [
+   {
+    "file": "audio/storm/wind-1.d64df258.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/storm/wind-2.a39f8fe0.mp3",
+    "dur": 90.0
+   }
+  ],
+  "waterfall/blackbird": [
+   {
+    "file": "audio/waterfall/blackbird-1.caca7c85.mp3",
+    "dur": 3.8
+   },
+   {
+    "file": "audio/waterfall/blackbird-2.2981354c.mp3",
+    "dur": 3.9
+   },
+   {
+    "file": "audio/waterfall/blackbird-3.21d9934d.mp3",
+    "dur": 5.6
+   },
+   {
+    "file": "audio/waterfall/blackbird-4.00c643f9.mp3",
+    "dur": 2.9
+   }
+  ],
+  "waterfall/chaffinch": [
+   {
+    "file": "audio/waterfall/chaffinch-1.032f54c8.mp3",
+    "dur": 2.7
+   },
+   {
+    "file": "audio/waterfall/chaffinch-2.34466835.mp3",
+    "dur": 3.0
+   },
+   {
+    "file": "audio/waterfall/chaffinch-3.2d9d5170.mp3",
+    "dur": 3.1
+   }
+  ],
+  "waterfall/creek": [
+   {
+    "file": "audio/waterfall/creek-1.f4c5eb0c.mp3",
+    "dur": 90.0
+   }
+  ],
+  "waterfall/falls": [
+   {
+    "file": "audio/waterfall/falls-1.80edda21.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/waterfall/falls-2.2bb3cad2.mp3",
+    "dur": 90.0
+   }
+  ],
+  "waterfall/forest": [
+   {
+    "file": "audio/waterfall/forest-1.9cb9c5eb.mp3",
+    "dur": 90.0
+   }
+  ],
+  "waterfall/leaves": [
+   {
+    "file": "audio/waterfall/leaves-1.11e6c508.mp3",
+    "dur": 90.0
+   }
+  ],
+  "waterfall/raven": [
+   {
+    "file": "audio/waterfall/raven-1.1e9f97c2.mp3",
+    "dur": 4.7
+   },
+   {
+    "file": "audio/waterfall/raven-2.e7628526.mp3",
+    "dur": 4.9
+   }
+  ],
+  "waterfall/robin": [
+   {
+    "file": "audio/waterfall/robin-1.519bcc07.mp3",
+    "dur": 3.4
+   },
+   {
+    "file": "audio/waterfall/robin-2.713e2230.mp3",
+    "dur": 3.2
+   },
+   {
+    "file": "audio/waterfall/robin-3.f6d94ad7.mp3",
+    "dur": 3.4
+   },
+   {
+    "file": "audio/waterfall/robin-4.d04e6039.mp3",
+    "dur": 3.3
+   }
+  ],
+  "waterfall/song-thrush": [
+   {
+    "file": "audio/waterfall/song-thrush-1.a6b06b17.mp3",
+    "dur": 4.7
+   },
+   {
+    "file": "audio/waterfall/song-thrush-2.b0dc9afa.mp3",
+    "dur": 2.0
+   },
+   {
+    "file": "audio/waterfall/song-thrush-3.1c472577.mp3",
+    "dur": 5.7
+   }
+  ],
+  "waterfall/woodpecker": [
+   {
+    "file": "audio/waterfall/woodpecker-1.6ca64cbb.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/waterfall/woodpecker-2.fa76af64.mp3",
+    "dur": 1.4
+   },
+   {
+    "file": "audio/waterfall/woodpecker-3.ff0bab94.mp3",
+    "dur": 1.4
+   }
+  ],
+  "waterfall/wren": [
+   {
+    "file": "audio/waterfall/wren-1.3c489083.mp3",
+    "dur": 4.7
+   },
+   {
+    "file": "audio/waterfall/wren-2.019495da.mp3",
+    "dur": 4.3
+   },
+   {
+    "file": "audio/waterfall/wren-3.e458f77c.mp3",
+    "dur": 3.8
+   },
+   {
+    "file": "audio/waterfall/wren-4.883d3cae.mp3",
+    "dur": 4.5
+   }
+  ]
+ },
+ "files": [
+  "audio/garden/blackbird-1.f98a036d.mp3",
+  "audio/garden/blackbird-2.3b128310.mp3",
+  "audio/garden/blackbird-3.b000142d.mp3",
+  "audio/garden/blackbird-4.65c35982.mp3",
+  "audio/garden/breeze-1.4eb0f5ed.mp3",
+  "audio/garden/chorus-1.fb04e39b.mp3",
+  "audio/garden/chorus-2.f62eb391.mp3",
+  "audio/garden/fountain-1.9a8008a0.mp3",
+  "audio/garden/great-tit-1.6662d62e.mp3",
+  "audio/garden/great-tit-2.d2de59be.mp3",
+  "audio/garden/great-tit-3.6e3c14ae.mp3",
+  "audio/garden/robin-1.e0f33e13.mp3",
+  "audio/garden/robin-2.b415ee62.mp3",
+  "audio/garden/robin-3.6322f8b3.mp3",
+  "audio/garden/robin-4.3f92b134.mp3",
+  "audio/garden/rooster-1.4ad9e896.mp3",
+  "audio/garden/rooster-2.57615f41.mp3",
+  "audio/garden/rooster-3.3486ec84.mp3",
+  "audio/garden/rooster-4.5bb701aa.mp3",
+  "audio/garden/song-thrush-1.84631331.mp3",
+  "audio/garden/song-thrush-2.2e53f03f.mp3",
+  "audio/garden/song-thrush-3.94f8d93d.mp3",
+  "audio/garden/song-thrush-4.653af8ce.mp3",
+  "audio/garden/wood-pigeon-1.ae5af5cd.mp3",
+  "audio/garden/wood-pigeon-2.0c78e1ee.mp3",
+  "audio/garden/wood-pigeon-3.ae2bf667.mp3",
+  "audio/garden/wood-pigeon-4.847dfc2b.mp3",
+  "audio/garden/wren-1.f8ea0bb1.mp3",
+  "audio/garden/wren-2.00b84741.mp3",
+  "audio/garden/wren-3.41b7c320.mp3",
+  "audio/mansion/chime-1.e493d07a.mp3",
+  "audio/mansion/chime-2.467310fa.mp3",
+  "audio/mansion/clock-1.f8b2196a.mp3",
+  "audio/mansion/creak-1.0569c6c5.mp3",
+  "audio/mansion/creak-2.d1cb1a3b.mp3",
+  "audio/mansion/creak-3.8194a218.mp3",
+  "audio/mansion/creak-4.2d8f7b3c.mp3",
+  "audio/mansion/creak-5.c10ffdec.mp3",
+  "audio/mansion/creak-6.2f0fc1f2.mp3",
+  "audio/mansion/creak-7.f3595f9a.mp3",
+  "audio/mansion/creak-8.25da0ce1.mp3",
+  "audio/mansion/crow-1.f14215f3.mp3",
+  "audio/mansion/door-1.b4408204.mp3",
+  "audio/mansion/door-2.e99b8e17.mp3",
+  "audio/mansion/door-3.91dd3003.mp3",
+  "audio/mansion/fire-1.bd08a1ae.mp3",
+  "audio/mansion/fire-2.ed13cc37.mp3",
+  "audio/mansion/gale-1.0832c9c0.mp3",
+  "audio/mansion/knock-1.92d7f201.mp3",
+  "audio/mansion/knock-2.91369e7b.mp3",
+  "audio/mansion/musicbox-1.8635c946.mp3",
+  "audio/mansion/owl-1.953bd525.mp3",
+  "audio/mansion/owl-2.fe8add34.mp3",
+  "audio/mansion/owl-3.6edc115f.mp3",
+  "audio/mansion/owl-4.21028e26.mp3",
+  "audio/mansion/rain-1.e302a42f.mp3",
+  "audio/mansion/rattle-1.c662f9ae.mp3",
+  "audio/mansion/rattle-2.cc41b08f.mp3",
+  "audio/mansion/slam-1.3af281c5.mp3",
+  "audio/mansion/steps-1.46ec9814.mp3",
+  "audio/mansion/steps-2.e567e61c.mp3",
+  "audio/mansion/steps-3.d5b93892.mp3",
+  "audio/mansion/wind-1.36bdcc9c.mp3",
+  "audio/mansion/wind-2.89cced81.mp3",
+  "audio/mansion/wolf-1.ddf19200.mp3",
+  "audio/mansion/wolf-2.b90547a6.mp3",
+  "audio/mansion/wolf-3.6ad83b09.mp3",
+  "audio/silence.mp3",
+  "audio/snow/blizzard-1.4dbc3d3f.mp3",
+  "audio/snow/blizzard-2.c7fb3e74.mp3",
+  "audio/snow/fire-1.98449c36.mp3",
+  "audio/snow/fire-2.c5db0621.mp3",
+  "audio/snow/ice-1.d2851ad1.mp3",
+  "audio/snow/ice-2.e5b36c30.mp3",
+  "audio/snow/ice-3.e126f72d.mp3",
+  "audio/snow/ice-4.080b9407.mp3",
+  "audio/snow/ice-5.63de3022.mp3",
+  "audio/snow/nutcracker-1.a3e20b5c.mp3",
+  "audio/snow/nuthatch-1.533c2f80.mp3",
+  "audio/snow/owl-1.900a9b56.mp3",
+  "audio/snow/raven-1.b070564f.mp3",
+  "audio/snow/raven-2.b91f1dae.mp3",
+  "audio/snow/snowfall-1.da51982a.mp3",
+  "audio/snow/snowfall-2.f2f8ce25.mp3",
+  "audio/snow/snowfall-3.3cc1ce1c.mp3",
+  "audio/snow/snowsteps-1.0ccb4f1e.mp3",
+  "audio/snow/snowsteps-2.b5e8f0bc.mp3",
+  "audio/snow/snowsteps-3.c4a67a11.mp3",
+  "audio/snow/treecreak-1.e2eaac11.mp3",
+  "audio/snow/treecreak-2.feb4931d.mp3",
+  "audio/snow/treecreak-3.b3e70f1a.mp3",
+  "audio/snow/treecreak-4.e246ee19.mp3",
+  "audio/snow/wind-1.644fb34f.mp3",
+  "audio/snow/wind-2.b2c51aaa.mp3",
+  "audio/storm/rain-1.3fdbfad6.mp3",
+  "audio/storm/surf-1.21075df9.mp3",
+  "audio/storm/surf-2.0dd2ed3f.mp3",
+  "audio/storm/surf-3.0a95fbf4.mp3",
+  "audio/storm/thunder-1.41ef5f32.mp3",
+  "audio/storm/thunder-10.f8234437.mp3",
+  "audio/storm/thunder-2.d4a7b6ae.mp3",
+  "audio/storm/thunder-3.4139f2b3.mp3",
+  "audio/storm/thunder-4.45da5762.mp3",
+  "audio/storm/thunder-5.1a9d1cd4.mp3",
+  "audio/storm/thunder-6.16c04f19.mp3",
+  "audio/storm/thunder-7.ba2c2bcd.mp3",
+  "audio/storm/thunder-8.6fc02897.mp3",
+  "audio/storm/thunder-9.91b88cae.mp3",
+  "audio/storm/wind-1.d64df258.mp3",
+  "audio/storm/wind-2.a39f8fe0.mp3",
+  "audio/waterfall/blackbird-1.caca7c85.mp3",
+  "audio/waterfall/blackbird-2.2981354c.mp3",
+  "audio/waterfall/blackbird-3.21d9934d.mp3",
+  "audio/waterfall/blackbird-4.00c643f9.mp3",
+  "audio/waterfall/chaffinch-1.032f54c8.mp3",
+  "audio/waterfall/chaffinch-2.34466835.mp3",
+  "audio/waterfall/chaffinch-3.2d9d5170.mp3",
+  "audio/waterfall/creek-1.f4c5eb0c.mp3",
+  "audio/waterfall/falls-1.80edda21.mp3",
+  "audio/waterfall/falls-2.2bb3cad2.mp3",
+  "audio/waterfall/forest-1.9cb9c5eb.mp3",
+  "audio/waterfall/leaves-1.11e6c508.mp3",
+  "audio/waterfall/raven-1.1e9f97c2.mp3",
+  "audio/waterfall/raven-2.e7628526.mp3",
+  "audio/waterfall/robin-1.519bcc07.mp3",
+  "audio/waterfall/robin-2.713e2230.mp3",
+  "audio/waterfall/robin-3.f6d94ad7.mp3",
+  "audio/waterfall/robin-4.d04e6039.mp3",
+  "audio/waterfall/song-thrush-1.a6b06b17.mp3",
+  "audio/waterfall/song-thrush-2.b0dc9afa.mp3",
+  "audio/waterfall/song-thrush-3.1c472577.mp3",
+  "audio/waterfall/woodpecker-1.6ca64cbb.mp3",
+  "audio/waterfall/woodpecker-2.fa76af64.mp3",
+  "audio/waterfall/woodpecker-3.ff0bab94.mp3",
+  "audio/waterfall/wren-1.3c489083.mp3",
+  "audio/waterfall/wren-2.019495da.mp3",
+  "audio/waterfall/wren-3.e458f77c.mp3",
+  "audio/waterfall/wren-4.883d3cae.mp3"
+ ],
+ "credits": [
+  {
+   "what": "Dawn chorus",
+   "title": "The Long Man of Wilmington, South Downs, UK - The Long Man of Wilmington Dawn Chorus",
+   "author": "Curtis James",
+   "page": "https://archive.org/details/aporee_53571_61226",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Breeze",
+   "title": "Vall\u00e9e des Traouiero, 22730 Tr\u00e9gastel, France - Wind in the trees leaves [Valley Traou\u00efero]",
+   "author": "Yponomeutaneko !",
+   "page": "https://archive.org/details/aporee_45007_51137",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Fountain",
+   "title": "Castello, Agli\u00e8, Torino, Piemonte, 10011, Italia - Canavesound: Small fountain in the Castle's gardens / Fontana piccola nei giardini del Castello",
+   "author": "collettivocromocinque",
+   "page": "https://archive.org/details/aporee_68847_79866",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Blackbird",
+   "title": "4CMX+FF Malton, UK - blackbird song ...",
+   "author": "david m",
+   "page": "https://archive.org/details/aporee_58929_67628",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Robin",
+   "title": "Plymouth, UK - Robin and pigeons",
+   "author": "TonyW",
+   "page": "https://archive.org/details/aporee_23505_27326",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Robin",
+   "title": "Plymouth, UK - Robin",
+   "author": "TonyW",
+   "page": "https://archive.org/details/aporee_23506_27327",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Song thrush",
+   "title": "Luttons, UK - Singing song thrush ... horse and rider approaching ...",
+   "author": "david m",
+   "page": "https://archive.org/details/aporee_36989_42387",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Wren",
+   "title": "Dartington, Devon, UK - soundcamp2015dartington wren",
+   "author": "TonyW",
+   "page": "https://archive.org/details/aporee_27784_32017",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Great tit",
+   "title": "Luttons, UK - Great tit territory ...",
+   "author": "david m",
+   "page": "https://archive.org/details/aporee_34845_40050",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Wood pigeon",
+   "title": "in the Forest Garden - Wood pigeon",
+   "author": "Sophie Standford",
+   "page": "https://archive.org/details/aporee_63844_79783",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Rooster",
+   "title": "Am Rohrbusch, L\u00fcbars, Berlin, Germany - Rooster",
+   "author": "Peter Stets",
+   "page": "https://archive.org/details/aporee_66561_76966",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Wind moaning at the window",
+   "title": "Shap, UK - Moaning wind",
+   "author": "Justin Bennett",
+   "page": "https://archive.org/details/aporee_55329_63227",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Storm round the house",
+   "title": "Fishermans Bothy, Isle of Mull PA69 6ER, UK - Raging storm from inside bothy on Kilfinichen Bay",
+   "author": "mike",
+   "page": "https://archive.org/details/aporee_47258_53699",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Gale outside",
+   "title": "Troon, Camborne, Cornwall TR14, UK - Howling Wind",
+   "author": "djake@live...",
+   "page": "https://archive.org/details/aporee_30717_35328",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Fire in the grate",
+   "title": "Colonel's House (fireplace), K\u0142odzko, Poland - 944 fireplace hiss and crackling",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_60408_69385",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Fire in the grate",
+   "title": "Colonel's House (fireplace), K\u0142odzko, Poland - 945 fireplace close-up (hiss)",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_60408_69386",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Rain on the window",
+   "title": "Troon, Camborne, Cornwall TR14, UK - Rain On The Window From Inside",
+   "author": "djake@live...",
+   "page": "https://archive.org/details/aporee_30723_35334",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Grandfather clock",
+   "title": "Grandfather Clock, Hackney, London, UK - Time Passes",
+   "author": "david.j.pitt",
+   "page": "https://archive.org/details/aporee_52813_60333",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Creaking floorboards",
+   "title": "Red Library: Creaks",
+   "author": "USC Cinema / Sunset Editorial sound-effects collection (digitized tapes, uploaded to archive.org by jscott)",
+   "page": "https://archive.org/details/Red_Library_Creaks",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Doors",
+   "title": "Red Library: Doors",
+   "author": "USC Cinema / Sunset Editorial sound-effects collection (digitized tapes, uploaded to archive.org by jscott)",
+   "page": "https://archive.org/details/Red_Library_Doors",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Footsteps",
+   "title": "Hof van Busleyden, 2800 Mechelen, Belgi\u00eb - Footsteps",
+   "author": "deridder_robin",
+   "page": "https://archive.org/details/aporee_42608_48591",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Footsteps",
+   "title": "Red Library: Footsteps 2",
+   "author": "USC Cinema / Sunset Editorial sound-effects collection (digitized tapes, uploaded to archive.org by jscott)",
+   "page": "https://archive.org/details/Red_Library_Footsteps_2",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Great horned owl",
+   "title": "Leeper House ACA Soundscape Fieldstation - Great Horned Owl Duet at Canaveral Seashore",
+   "author": "Felix BLUME",
+   "page": "https://archive.org/details/aporee_55185_63075",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Spotted owl",
+   "title": "Sound Gallery - Spotted Owl",
+   "author": "U.S. National Park Service (Yosemite NP)",
+   "page": "https://www.nps.gov/subjects/sound/sounds-spotted-owl.htm",
+   "license": "Public domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Wolves",
+   "title": "Lake Superior Provincial Park, ON, Canada - Wolves Howling at Rabbit Blanket",
+   "author": "ariejvdven",
+   "page": "https://archive.org/details/aporee_54063_61795",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Wolf",
+   "title": "Sound Library - Wolf",
+   "author": "U.S. National Park Service (Denali NP)",
+   "page": "https://www.nps.gov/subjects/sound/sounds-wolf.htm",
+   "license": "Public domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Raven",
+   "title": "Sound Gallery - Common Raven",
+   "author": "U.S. National Park Service (Grand Teton NP)",
+   "page": "https://www.nps.gov/subjects/sound/sounds-common-raven.htm",
+   "license": "Public domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Door slam",
+   "title": "GOLD TAPE: 31 Doors",
+   "author": "USC Cinema / Sunset Editorial sound-effects collection (digitized tapes, uploaded to archive.org by jscott)",
+   "page": "https://archive.org/details/GOLD_TAPE_31_Doors",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Music box",
+   "title": "Red Library: Music",
+   "author": "USC Cinema / Sunset Editorial sound-effects collection (digitized tapes, uploaded to archive.org by jscott)",
+   "page": "https://archive.org/details/Red_Library_Music",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Wind in the pines",
+   "title": "Unnamed Road, 5291 Miren, Slovenia - Pine forest in the wind",
+   "author": "Bojan Marusic",
+   "page": "https://archive.org/details/aporee_51715_59066",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Blizzard",
+   "title": "Nanos 10a, 5271 Vipava, Slovenia - Wind in pine forest",
+   "author": "Bojan Marusic",
+   "page": "https://archive.org/details/aporee_59166_67894",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Blizzard",
+   "title": "Trnovo, Slovenia - Wind in Trnovo forest",
+   "author": "Bojan Marusic",
+   "page": "https://archive.org/details/aporee_59135_67863",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Cabin fire",
+   "title": "Spadelsberg, 72639 Neuffen, Deutschland - fireplace",
+   "author": "Hoerma",
+   "page": "https://archive.org/details/aporee_51595_58876",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Footsteps in snow",
+   "title": "Petersburg Borough, Alaska, United States - Snow Crunching on Frozen Lake",
+   "author": "isaiahbowenkarlyn (Isaiah Bowen-Karlyn)",
+   "page": "https://archive.org/details/aporee_70982_82777",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Footsteps in snow",
+   "title": "Walk in Snow",
+   "author": "Moodist (remvze); original uploader via Pixabay/CC0 (not credited in repo)",
+   "page": "https://github.com/remvze/moodist (public/sounds/nature/walk-in-snow.mp3)",
+   "license": "Pixabay/CC0 via Moodist",
+   "license_url": "https://pixabay.com/service/license-summary/"
+  },
+  {
+   "what": "Snow off the branches",
+   "title": "Utena, Lithuania, snow falls from trees",
+   "author": "alas23/sala",
+   "page": "https://archive.org/details/aporee_51963_59336",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Pines rubbing in the wind",
+   "title": "Utena, Lithuania, moaning tree in winters wind",
+   "author": "alas23/sala",
+   "page": "https://archive.org/details/aporee_52220_59612",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Frost cracks in the trees",
+   "title": "Utena, Lithuania, winterscape",
+   "author": "alas23/sala",
+   "page": "https://archive.org/details/aporee_62627_72063",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Lake ice",
+   "title": "Chuncheon Lake Ice Formation , Gangwon-do, South Korea - Chuncheon Lake Ice Formation",
+   "author": "abyssence",
+   "page": "https://archive.org/details/aporee_31033_35675",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Red-breasted nuthatch",
+   "title": "Sound Gallery - Red-breasted Nuthatch (Yosemite National Park)",
+   "author": "U.S. National Park Service (Natural Sounds & Night Skies)",
+   "page": "https://www.nps.gov/subjects/sound/sounds-nuthatch.htm",
+   "license": "Public domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Clark's nutcracker",
+   "title": "Sound Gallery - Clark's Nutcracker (Yosemite National Park)",
+   "author": "U.S. National Park Service (Natural Sounds & Night Skies)",
+   "page": "https://www.nps.gov/subjects/sound/sounds-clarks-nutcracker.htm",
+   "license": "Public domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Great horned owl",
+   "title": "HAMBIO #3862: Great Horned Owl @ Short Hills Nature Sanctuary, 2019-03-01 12:52:15.840",
+   "author": "Hamilton Naturalists' Club (Hamilton Bioacoustics Research Project)",
+   "page": "https://archive.org/details/ecolore-hamont-bioacoustic-observation-3862",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+   "what": "Atlantic breakers",
+   "title": "Soundctuary Clahane, County Clare, Ireland - rather noisy sea",
+   "author": "alfa00 (Soundctuary)",
+   "page": "https://archive.org/details/aporee_63160_72668",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "North Sea storm surf",
+   "title": "North Sea Storm, Slaughden, UK",
+   "author": "David Pitt",
+   "page": "https://archive.org/details/aporee_65330_75450",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Waves on the rocks",
+   "title": "Ploumanach, Lighthouse - Heavy waves crushing into rocks",
+   "author": "Yponomeutaneko",
+   "page": "https://archive.org/details/aporee_34704_39900",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Rain",
+   "title": "Vyzuoneles, Lithuania, under the rain",
+   "author": "alas23/sala",
+   "page": "https://archive.org/details/aporee_60715_69776",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Gale",
+   "title": "Piechowice, Poland - (888) Strong wind",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_55629_63589",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Gale",
+   "title": "Glendale Ln, Beaufort, SC 29902, USA - Violent Windstorm",
+   "author": "SoundHunter",
+   "page": "https://archive.org/details/aporee_65531_75690",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Thunder",
+   "title": "Wedmore, Somerset, UK - Big Thunder Storm",
+   "author": "bygravemax (radio aporee maps)",
+   "page": "https://archive.org/details/aporee_19025_22067",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Thunder",
+   "title": "Thunder (twice) on neighbourhood, Krak\u00f3w, Polska - (646 AB 18cm)",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_50432_57522",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Thunder",
+   "title": "Tangara, Rio Acima, Brazil - Rain and thunder during the night, in Brazil",
+   "author": "Felix Blume",
+   "page": "https://archive.org/details/aporee_42979_49032",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Waterfall",
+   "title": "1 Parking Poste de Secours, 19380 Albussac, France - Albussac grande cascade_",
+   "author": "kaoss012",
+   "page": "https://archive.org/details/aporee_61406_70626",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Waterfall",
+   "title": "QJCC+35 Saint-Mamet, France - Cascade de Sidonie",
+   "author": "kaoss012",
+   "page": "https://archive.org/details/aporee_60955_70073",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Creek",
+   "title": "Derrysallagh, Geevagh, Co. Sligo, Ireland - Babbling Stream",
+   "author": "Benjamin Burns",
+   "page": "https://archive.org/details/aporee_48967_55757",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Forest air",
+   "title": "Unnamed Road, 76596 Forbach, Deutschland - Rote Lache - Black Forest, morning birds",
+   "author": "avoelzing",
+   "page": "https://archive.org/details/aporee_44034_50101",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Wind in the trees",
+   "title": "Sherwood Forest - Wind in the Trees",
+   "author": "rcarlberg",
+   "page": "https://archive.org/details/aporee_50814_57967",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Song thrush",
+   "title": "Song thrush and woodpecker drumming, Vogelsang, ex Soviet base, Germany - Song thrush and woodpecker drumming",
+   "author": "Peter Cusack",
+   "page": "https://archive.org/details/aporee_27852_32098",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Blackbird",
+   "title": "Vara\u017edin, Croatia - Blackbird song in early dawn",
+   "author": "Vlatko Bla\u017eek",
+   "page": "https://archive.org/details/aporee_27735_31967",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Robin",
+   "title": "28 Chem. de la Chapelle, 73100 Brison-Saint-Innocent, France - rouge-gorge.",
+   "author": "georgescastagne",
+   "page": "https://archive.org/details/aporee_58559_67189",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Chaffinch",
+   "title": "Chaffinch March 2011",
+   "author": "Adam Clark",
+   "page": "https://archive.org/details/ChaffinchMarch2011",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Great spotted woodpecker",
+   "title": "London Borough of Hackney, Greater London, UK - Woodpecker drumming in the neighbour's back garden",
+   "author": "Peter Cusack",
+   "page": "https://archive.org/details/aporee_27199_31346",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Raven",
+   "title": "Warburg Nature Reserve, Bix UK - Raven and Bumble Bee",
+   "author": "mike",
+   "page": "https://archive.org/details/aporee_52649_60160",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  }
+ ]
+}
