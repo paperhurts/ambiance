@@ -254,15 +254,45 @@ function mediaSession(def) {
         { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
       ],
     });
-    navigator.mediaSession.setActionHandler('play', () => engine.unpause());
-    navigator.mediaSession.setActionHandler('pause', () => engine.pause());
-    navigator.mediaSession.setActionHandler('stop', () => {
-      engine.stop();
-      updateNowBar();
-    });
   } catch {
     /* partial support */
   }
+  // one at a time: a browser that doesn't know an action throws, and the rest should still go on
+  const on = (action, fn) => {
+    try {
+      navigator.mediaSession.setActionHandler(action, fn);
+    } catch {
+      /* not supported */
+    }
+  };
+  on('play', () => engine.unpause());
+  on('pause', () => engine.pause());
+  on('stop', () => {
+    engine.stop();
+    updateNowBar();
+  });
+  on('previoustrack', () => skip(-1));
+  on('nexttrack', () => skip(1));
+  // A scene has no end. Without this the lock screen shows the 10-second silent loop that keeps
+  // iOS playing in the background as if it were the track.
+  try {
+    navigator.mediaSession.setPositionState({ duration: Infinity });
+  } catch {
+    /* not supported */
+  }
+}
+
+// The lock screen's ◀◀ ▶▶ step through the scenes (the blank canvas only once something's in it).
+function skip(dir) {
+  const cur = engine.scene?.def.id;
+  const list = scenes.filter((s) => s.id !== 'mixer' || s.id === cur || Object.values(levelsFor(s)).some((v) => v > 0));
+  const i = list.findIndex((s) => s.id === cur);
+  const next = list[(i + dir + list.length) % list.length];
+  if (!next || next.id === cur) return;
+  mediaSession(next);
+  start(next);
+  // an open player follows along
+  if (shown) location.hash = '#/' + next.id;
 }
 
 let wakeLock = null;
