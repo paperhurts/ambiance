@@ -71,7 +71,7 @@ const passion = (x, y, r) =>
   at(x, y, ring(10, (a) => `<ellipse cy="${-r * 0.55}" rx="${r * 0.16}" ry="${r * 0.45}" fill="#f3edf9" transform="rotate(${a})"/>`) +
     `<circle r="${r * 0.62}" fill="none" stroke="#8c5cc8" stroke-width="${r * 0.3}" stroke-dasharray="${r * 0.08} ${r * 0.08}"/><circle r="${r * 0.3}" fill="#4b1f73"/><circle r="${r * 0.14}" fill="#a8c66c"/>`);
 const FRONDS = [-200, -172, -146, -121, -96, -71, -46, -21, 4, 26];
-// a tropical hibiscus like the ones in Sid's yard: five ruffled lobes round a dark eye, a long
+// a tropical hibiscus: five ruffled lobes round a dark eye, a long
 // column dusted with pollen and five round stigma pads
 const LOBE = Array.from({ length: 13 }, (_, i) => {
   const a = -0.74 + (1.48 * i) / 12;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""App icons from Sid's painting (tools/originals/app-icon-source.png).
+"""App icons from the painting (tools/originals/app-icon-source.png).
 
 The source is a mock-up: the painting sits on a navy card as a rounded tile with a glassy rim and a
 drop shadow. This cuts the painting out square from inside the rim, paints the corners the tile had
