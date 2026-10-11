@@ -162,7 +162,7 @@ export function buildScenes(pools) {
         ? { id: 'bees', type: 'bed', label: 'Bees in the flowers', icon: 'bee', files: files('florida/bees'), level: 0.45, gain: 0.8, wander: [0.4, 1] }
         : { id: 'bees', type: 'shots', label: 'Bees', icon: 'bee', pool: items('florida/bees'), every: [40, 140], level: 0.35, gain: 0.75, space: { az: [-120, 120], el: [-10, 10], dist: [1.2, 3], move: { az: [80, 180], dist: [3, 7] } } },
       { id: 'chimes', type: 'bed', label: 'Wind chimes', icon: 'bell', files: files('florida/chimes'), level: 0, gain: 0.6, pan: 0.4 },
-      { id: 'hummingbird', type: 'shots', label: 'Hummingbirds', icon: 'hummingbird', group: 'Birds', pool: items('florida/hummingbird'), every: [40, 140], first: [8, 30], level: 0.55, gain: 0.85, reverb: 0.1, space: { az: [-100, 100], el: [-5, 15], dist: [1.2, 3.5], move: { az: [60, 160], dist: [2, 5] } } },
+      { id: 'hummingbird', type: 'shots', label: 'Hummingbirds', icon: 'hummingbird', group: 'Birds', pool: items('florida/hummingbird'), every: [40, 140], first: [8, 30], level: 0.55, gain: 0.1, reverb: 0.1, space: { az: [-100, 100], el: [-5, 15], dist: [1.2, 3.5], move: { az: [60, 160], dist: [2, 5] } } },
       ...birds('florida', ['morning', 'palms', 'cicadas', 'bees', 'chimes', 'hummingbird'], { count: 1, quiet: 1.4, level: 0.6, gain: 0.85, reverb: 0.25 }),
     ],
   };

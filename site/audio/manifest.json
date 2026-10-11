@@ -92,7 +92,7 @@
   ],
   "florida/hummingbird": [
    {
-    "file": "audio/florida/hummingbird-1.0cca51b4.mp3",
+    "file": "audio/florida/hummingbird-1.93652007.mp3",
     "dur": 1.3
    },
    {
@@ -102,10 +102,6 @@
    {
     "file": "audio/florida/hummingbird-3.7a4039ed.mp3",
     "dur": 1.1
-   },
-   {
-    "file": "audio/florida/hummingbird-4.9e8f2731.mp3",
-    "dur": 3.7
    }
   ],
   "florida/mockingbird": [
@@ -945,10 +941,9 @@
   "audio/florida/ground-dove-2.48395db2.mp3",
   "audio/florida/ground-dove-3.aad7e1c9.mp3",
   "audio/florida/ground-dove-4.d25be7c2.mp3",
-  "audio/florida/hummingbird-1.0cca51b4.mp3",
+  "audio/florida/hummingbird-1.93652007.mp3",
   "audio/florida/hummingbird-2.b38fb838.mp3",
   "audio/florida/hummingbird-3.7a4039ed.mp3",
-  "audio/florida/hummingbird-4.9e8f2731.mp3",
   "audio/florida/mockingbird-1.aa0a317b.mp3",
   "audio/florida/mockingbird-2.79caa1ac.mp3",
   "audio/florida/mockingbird-3.172f6b95.mp3",
