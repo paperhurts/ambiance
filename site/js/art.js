@@ -42,6 +42,10 @@ export const icons = {
   cicada: svg('<ellipse cx="12" cy="13" rx="3" ry="6"/><path d="M9.5 9C6 7 3 8.5 2.5 12c3 .5 5.5-.5 7-2.5M14.5 9C18 7 21 8.5 21.5 12c-3 .5-5.5-.5-7-2.5M10 7l-1.5-2M14 7l1.5-2" />'),
   hummingbird: svg('<path d="M3 11l7.5 1M10.5 12c1.5-3 4-4 6-3.5 1.5.4 2.5 1.6 2.5 3 0 2.5-2.5 4.5-6 4.5L9 20l2.5-5.5M16 7.5c0-2 1.5-4 4-4.5-1 2-1.5 3.5-2 5M13 12c-1-2.5-.5-5.5 1.5-8" />'),
   butterfly: svg('<path d="M12 7v12M12 9C9 3 3 3.5 3 8s4 5 9 4c5 1 9 .5 9-4s-6-5-9 1zM12 13c-3 0-6 1.5-6 4s3 3 6-1c3 4 6 3 6 1s-3-4-6-4zM12 7l-2-3M12 7l2-3" />'),
+  sun: svg('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />'),
+  frog: svg('<path d="M4 15c0-3.5 3.5-6 8-6s8 2.5 8 6-3 5-8 5-8-1.5-8-5z"/><circle cx="8" cy="8.5" r="2.3"/><circle cx="16" cy="8.5" r="2.3"/><path d="M9 15.5c1.8 1 4.2 1 6 0M4.5 17L2 19.5M19.5 17L22 19.5" />'),
+  cricket: svg('<path d="M5 15.5l9-5a2.8 2.8 0 0 1 3 4.6l-9 4.2a2.5 2.5 0 0 1-3-3.8zM15.5 10.5L21 4M16.5 11.5l5.5-3M8 18.5L6.5 21.5M12 16.5l1 3.5M15 14.5l3.5 2.5" />'),
+  gator: svg('<path d="M2.5 14.5c3-2.5 6-3.5 10-3.5h3.5c2 0 3.5 1 5.5 2-2 1.2-4 2-8.5 2H2.5z"/><circle cx="15.5" cy="10.2" r="1.2"/><path d="M2 18.5c3 0 3-1.5 6-1.5s3 1.5 6 1.5 3-1.5 6-1.5" />'),
   headphones: svg('<path d="M4 15v-3a8 8 0 1 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/>'),
 };
 
@@ -180,6 +184,45 @@ export const thumbs = {
     <g transform="translate(116 66) rotate(8)"><path d="M0 0C-4-8-12-8-11-2C-10 2-4 2 0 0C4-8 12-8 11-2C10 2 4 2 0 0" fill="#e8741a"/><path d="M0 0C-3 4-8 5-8 2.5C-8 1-4 0 0 0C3 4 8 5 8 2.5C8 1 4 0 0 0" fill="#e8741a"/><path d="M-1-1L-9-4M1-1L9-4" stroke="#1a1a1a" stroke-width=".8"/><ellipse rx=".7" ry="3.2" fill="#1a1a1a"/></g>
     <g transform="translate(47 85) scale(1.35)"><ellipse rx="4.4" ry="2.2" fill="#2e8b57" transform="rotate(-20)"/><circle cx="-3.4" cy="-1.6" r="1.8" fill="#2e8b57"/><circle cx="-3" cy="-.2" r="1.3" fill="#c1121f"/><path d="M-5 -1.6L-11 1" stroke="#222" stroke-width=".8"/><path d="M4 .6L8 2.6L7.5 .2Z" fill="#245c3c"/><ellipse cx="1" cy="-4.5" rx="2" ry="5" fill="#dcebf0" opacity=".75" transform="rotate(30 1 -4.5)"/></g>
     <g transform="translate(104 56)"><path d="M-9 0H3" stroke="#3b6fb6" stroke-width="1.3"/><circle cx="4" r="1.5" fill="#3b6fb6"/><g fill="#e6f3fa" opacity=".8"><ellipse cx="1" cy="-3.6" rx="1.2" ry="3.6"/><ellipse cx="-1.5" cy="-3.2" rx="1.1" ry="3.2"/><ellipse cx="1" cy="3.6" rx="1.2" ry="3.6"/><ellipse cx="-1.5" cy="3.2" rx="1.1" ry="3.2"/></g></g>
+  </svg>`,
+  glades: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="tgl-sky" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5aa4d6"/><stop offset=".55" stop-color="#7c98ad"/><stop offset="1" stop-color="#3b4652"/></linearGradient>
+    <linearGradient id="tgl-cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdfcf8"/><stop offset=".6" stop-color="#e3e1db"/><stop offset="1" stop-color="#9aa3ad"/></linearGradient>
+    <linearGradient id="tgl-rain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a5562" stop-opacity=".8"/><stop offset="1" stop-color="#5b6672" stop-opacity=".35"/></linearGradient>
+    <linearGradient id="tgl-grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a39a55"/><stop offset="1" stop-color="#5d5b2d"/></linearGradient></defs>
+    <rect width="160" height="120" fill="url(#tgl-sky)"/>
+    <path d="M84 14Q88 8 102 7L152 9Q158 11 150 13Q128 14 116 22Z" fill="#e9e7e1"/>
+    <g fill="url(#tgl-cb)">${[[96, 30, 11], [108, 26, 12], [102, 40, 13], [116, 36, 12], [94, 50, 12], [110, 48, 14], [124, 46, 11], [100, 58, 11], [114, 58, 12], [126, 56, 10]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>
+    <path d="M84 62H134V66H84Z" fill="#59636e"/><path d="M84 66H134L140 78H80Z" fill="url(#tgl-rain)"/>
+    <path d="M118 66l-4 6 3 1-5 8" stroke="#f4f7ff" stroke-width="1.3" fill="none"/>
+    <g fill="#465a45"><path d="M0 79Q8 72 16 79Z"/><path d="M40 79Q50 71 62 79Z"/><path d="M138 79Q148 73 160 79Z"/></g>
+    <rect y="78" width="160" height="42" fill="url(#tgl-grass)"/>
+    <path d="M14 92Q60 86 110 92Q70 99 14 96Z" fill="#9db7c7" opacity=".85"/>
+    <g stroke="#6c6a33" stroke-width="1.1" stroke-linecap="round"><path d="M6 120l3-26M12 120l-1-22M20 120l4-24M30 120l-2-20M118 120l3-24M126 120l-2-28M134 120l4-22M146 120l-1-26M154 120l3-20"/></g>
+    <g stroke="#5d6b34" stroke-width="1.2"><path d="M24 120V86M140 120V82"/></g><g fill="#5a3a22"><ellipse cx="24" cy="89" rx="1.6" ry="4.5"/><ellipse cx="140" cy="85" rx="1.6" ry="4.5"/></g>
+    <g transform="translate(40 40)" stroke="#f6f4ec" stroke-width="1.4" fill="none" stroke-linecap="round"><path d="M-9 -2Q-4 -6 0 0Q4 -6 9 -2"/></g>
+  </svg>`,
+  pond: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="tpd-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#060b16"/><stop offset="1" stop-color="#1c2a3d"/></linearGradient>
+    <radialGradient id="tpd-moon"><stop offset="0" stop-color="#e6e8d8" stop-opacity=".4"/><stop offset="1" stop-color="#e6e8d8" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tpd-fly"><stop offset="0" stop-color="#eeff9a"/><stop offset=".3" stop-color="#c8f060" stop-opacity=".7"/><stop offset="1" stop-color="#b0e040" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tpd-eye"><stop offset="0" stop-color="#ff9a50"/><stop offset="1" stop-color="#e05020" stop-opacity="0"/></radialGradient></defs>
+    <rect width="160" height="120" fill="url(#tpd-sky)"/>
+    <g fill="#dfe6ff">${[[20, 12], [44, 22], [70, 8], [86, 30], [132, 40], [150, 14], [60, 36], [28, 40], [118, 8]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".6"/>`).join('')}</g>
+    <circle cx="104" cy="20" r="24" fill="url(#tpd-moon)"/><circle cx="104" cy="20" r="7" fill="#efeadb"/>
+    <path d="M0 62Q10 50 20 60Q28 46 40 58Q52 48 62 59Q74 46 86 58Q98 50 108 60Q120 46 132 58Q146 50 160 60V68H0Z" fill="#070c10"/>
+    <rect y="66" width="160" height="54" fill="#0a121b"/>
+    <path d="M0 68Q10 76 20 70Q28 80 40 70Q52 78 62 70Q74 80 86 70Q98 76 108 70Q120 80 132 70Q146 76 160 70V66H0Z" fill="#0d151d"/>
+    <g fill="#e8e4c8" opacity=".55"><rect x="100" y="70" width="8" height=".8"/><rect x="98" y="75" width="12" height=".8"/><rect x="99" y="81" width="10" height=".8"/><rect x="97" y="88" width="14" height=".8"/></g>
+    <path d="M12 0V112M14 112Q10 106 6 120H26Q20 106 16 112" stroke="#0b1014" stroke-width="7" fill="#0b1014"/>
+    <path d="M14 30Q30 24 46 28M14 50Q28 44 40 48" stroke="#0c1216" stroke-width="2" fill="none"/>
+    <g stroke="#8d9aa4" stroke-width=".6" fill="none" opacity=".75"><path d="M24 28q1 8-1 14q2 4 0 8M30 27q-1 6 1 12q-2 5 0 9M36 27q1 7-1 11M42 28q-1 5 1 9q-1 4 1 6M22 47q1 6-1 10M28 46q-1 7 1 12M34 46q1 5-1 8"/></g>
+    <g fill="#16301f"><ellipse cx="60" cy="96" rx="12" ry="3.2"/><ellipse cx="92" cy="106" rx="14" ry="3.6"/><ellipse cx="128" cy="92" rx="10" ry="2.8"/><ellipse cx="44" cy="110" rx="12" ry="3.2"/></g>
+    <g fill="#dcdccf"><ellipse cx="96" cy="104" rx="3" ry="1.4"/><ellipse cx="131" cy="91" rx="2.4" ry="1.1"/></g>
+    <g transform="translate(62 93)"><ellipse rx="5" ry="3.2" fill="#5f9e48"/><ellipse cx="4" cy="-2.6" rx="2.6" ry="2" fill="#5f9e48"/><path d="M-4 -0.4Q0 -2 5 -3.4" stroke="#e8e6c8" stroke-width=".9" fill="none"/><circle cx="5.2" cy="-3.6" r=".7" fill="#0c1210"/><circle cx="6.4" cy="-0.6" r="2.4" fill="#f2efc4"/></g>
+    <g fill="url(#tpd-eye)"><circle cx="118" cy="84" r="2.2"/><circle cx="123" cy="84" r="2.2"/></g>
+    <g fill="url(#tpd-fly)">${[[36, 76], [78, 66], [140, 70], [110, 98], [52, 84], [148, 104], [24, 96]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.2"/>`).join('')}</g>
+    <g stroke="#0e1a12" stroke-width="1.2"><path d="M140 120l2-20M146 120l-1-16M152 120l3-22M4 120l-1-14"/></g>
   </svg>`,
   mixer: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <rect width="160" height="120" fill="#000"/>

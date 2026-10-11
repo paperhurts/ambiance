@@ -639,7 +639,7 @@
   "license": "CC BY-NC-SA 4.0",
   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
   "what": "Ruby-throated hummingbird",
-  "hp": 40,
+  "hp": 200,
   "notes": "Fly-by wing whirr: ~0.5 s swell of wing hum (1.7-2.2; harmonic series on ~60 Hz wingbeat, 60-800 Hz) plus two high 'chip' notes (1.75, 2.45). +21 dB over floor (hp 40). Noise-reduced source; hp must stay low (<=40 Hz) to keep the hum fundamental. Source: Skidaway Island, Chatham County, Georgia, Sep 2014, at a feeder cluster; XC rating A; recordist's compilation of 4 short recordings 'to capture t"
  },
  {
@@ -673,22 +673,6 @@
   "what": "Ruby-throated hummingbird",
   "hp": 1000,
   "notes": "Short chip series (6-7 squeaky descending chips, 10.0-10.8), +35 dB over floor at hp 1000, clean edges. Source: Skidaway Island, Chatham County, Georgia, Sep 2014, at a feeder cluster; XC rating A; recordist's compilation of 4 short recordings 'to capture the vocalizations as well as the sound of the wing-beat', gain balanced and noise reduction used on three of them; 128 kbps MP3, 44.1 kHz."
- },
- {
-  "key": "florida/hummingbird-4",
-  "kind": "shot",
-  "channels": 1,
-  "start": 15.95,
-  "end": 19.65,
-  "source_url": "https://xeno-canto.org/195616/download",
-  "page": "https://xeno-canto.org/195616",
-  "title": "XC195616 Ruby-throated Hummingbird",
-  "author": "Russ Wigh",
-  "license": "CC BY-NC-SA 4.0",
-  "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-  "what": "Ruby-throated hummingbird",
-  "hp": 40,
-  "notes": "Hover wing hum at a feeder: ~3 s sustained hum (16.2-19.3, harmonic series on ~60 Hz) with natural fade in/out, faint wing-whirr transients at 16.4 and 19.1. Only ~+17-20 dB over the (noise-reduced) floor - weakest pick; use quietly or drop if it reads as noise. Source: Skidaway Island, Chatham County, Georgia, Sep 2014, at a feeder cluster; XC rating A; recordist's compilation of 4 short recordin"
  },
  {
   "key": "florida/morning-1",
