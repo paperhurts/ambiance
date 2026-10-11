@@ -155,7 +155,7 @@ export function buildScenes(pools) {
     gain: 2.25,
     reverb: { type: 'forest', level: 0.45 },
     layers: [
-      // the East Hampton waterfall, recorded for this; the French falls are there too, off to begin with
+      // the East Hampton waterfall, recorded for this app; the French falls are there too, off to begin with
       { id: 'east-hampton', type: 'bed', label: 'East Hampton Waterfall', icon: 'falls', files: files('waterfall/east-hampton'), level: 0.78 },
       { id: 'french-falls', type: 'bed', label: 'Waterfall in France', icon: 'falls', files: files('waterfall/falls'), level: 0 },
       { id: 'creek', type: 'bed', label: 'Creek', icon: 'water', files: files('waterfall/creek'), level: 0.55, gain: 0.9 },
