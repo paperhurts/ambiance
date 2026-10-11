@@ -222,6 +222,42 @@
    {
     "file": "audio/florida/tufted-titmouse-4.75774953.mp3",
     "dur": 1.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-5.e70e0465.mp3",
+    "dur": 1.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-6.58b2a284.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-7.24a68879.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-8.f9dda0be.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-9.e25c130b.mp3",
+    "dur": 1.8,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-10.2c308214.mp3",
+    "dur": 1.55,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-11.737c42db.mp3",
+    "dur": 1.5,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-12.cf92fe2c.mp3",
+    "dur": 2.3,
+    "weight": 0.5
    }
   ],
   "garden/blackbird": [
@@ -935,9 +971,17 @@
   "audio/florida/red-shouldered-hawk-2.4515d760.mp3",
   "audio/florida/red-shouldered-hawk-3.aa9b34bd.mp3",
   "audio/florida/tufted-titmouse-1.7d503bd6.mp3",
+  "audio/florida/tufted-titmouse-10.2c308214.mp3",
+  "audio/florida/tufted-titmouse-11.737c42db.mp3",
+  "audio/florida/tufted-titmouse-12.cf92fe2c.mp3",
   "audio/florida/tufted-titmouse-2.fb4a42d5.mp3",
   "audio/florida/tufted-titmouse-3.096103b1.mp3",
   "audio/florida/tufted-titmouse-4.75774953.mp3",
+  "audio/florida/tufted-titmouse-5.e70e0465.mp3",
+  "audio/florida/tufted-titmouse-6.58b2a284.mp3",
+  "audio/florida/tufted-titmouse-7.24a68879.mp3",
+  "audio/florida/tufted-titmouse-8.f9dda0be.mp3",
+  "audio/florida/tufted-titmouse-9.e25c130b.mp3",
   "audio/garden/blackbird-1.f98a036d.mp3",
   "audio/garden/blackbird-2.3b128310.mp3",
   "audio/garden/blackbird-3.b000142d.mp3",
@@ -1285,6 +1329,22 @@
    "page": "https://archive.org/details/aporee_49442_56376",
    "license": "CC BY 3.0",
    "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Tufted titmouse",
+   "title": "XC348110 Tufted Titmouse",
+   "author": "Patrick Blake",
+   "page": "https://xeno-canto.org/348110",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tufted titmouse",
+   "title": "XC164758 Tufted Titmouse",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/164758",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
   },
   {
    "what": "Dawn chorus",

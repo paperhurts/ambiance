@@ -565,6 +565,7 @@ class FlockLayer extends Layer {
     super(scene, def);
     this.birds = [];
     this.species = [];
+    this.seq = 0;
   }
 
   async load() {
@@ -590,11 +591,16 @@ class FlockLayer extends Layer {
     this.ready = true;
   }
 
-  newBird(sp, now, initial) {
+  newBird(sp, now, initial, except) {
     const s = { ...this.def.space, ...sp.space };
+    // birds that keep together (a pair of titmice) settle near one another
+    const mate = sp.together && this.birds.find((b) => b.sp === sp && b !== except);
     return {
+      id: ++this.seq,
       sp,
-      pos: { az: val(s.az, rand(-170, 170)), el: val(s.el, rand(0, 30)), dist: val(s.dist, rand(8, 40)) },
+      pos: mate
+        ? { az: mate.pos.az + rand(-35, 35), el: clamp(mate.pos.el + rand(-8, 8), -10, 80), dist: mate.pos.dist * rand(0.7, 1.3) }
+        : { az: val(s.az, rand(-170, 170)), el: val(s.el, rand(0, 30)), dist: val(s.dist, rand(8, 40)) },
       // stagger the start so the scene fades in naturally rather than all at once
       next: now + (initial ? rand(0.5, val(sp.rest ?? [10, 40]) * 0.8) : val(sp.rest ?? [10, 40])),
       left: 0,
@@ -627,11 +633,11 @@ class FlockLayer extends Layer {
           gain: (item.gain ?? 1) * (b.sp.gain ?? 1),
           rate: rand(0.985, 1.015),
         });
-        this.scene.emit({ type: 'bird', layer: this.id, species: b.sp.id, at, dur, az: b.pos.az, dist: b.pos.dist });
+        this.scene.emit({ type: 'bird', layer: this.id, species: b.sp.id, bird: b.id, at, dur, az: b.pos.az, dist: b.pos.dist });
         b.left -= 1;
         b.next = at + dur + (b.left > 0 ? val(b.sp.gap ?? [1.5, 5]) : gap(b.sp.rest ?? [10, 40], activity));
         if (b.left <= 0 && b.next > b.moveAt) {
-          this.birds[i] = this.newBird(b.sp, b.next, false);
+          this.birds[i] = this.newBird(b.sp, b.next, false, b);
           this.birds[i].next = b.next;
           break;
         }
