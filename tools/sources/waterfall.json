@@ -445,5 +445,22 @@
   "what": "Raven",
   "hp": 250,
   "notes": "Common raven, series of three calls. ~33-36 dB over floor."
+ },
+ {
+  "key": "waterfall/east-hampton-1",
+  "kind": "bed",
+  "channels": 2,
+  "start": 1.5,
+  "end": 60.5,
+  "max_len": 60,
+  "file": "tools/originals/east-hampton-waterfall.m4a",
+  "source_url": "",
+  "page": "",
+  "title": "East Hampton Waterfall",
+  "author": "paperhurts",
+  "license": "recorded for Ambiance, used with permission",
+  "license_url": "",
+  "what": "East Hampton Waterfall",
+  "notes": "Recorded on a phone by the app's owner at the waterfall she drove her son to so he'd fall asleep, 31 Dec 2019, specifically as background sound. Steady (LRA 0.2 LU), no voices, handling or clipping; first and last moments of the clip left out."
  }
 ]

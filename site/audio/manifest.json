@@ -1262,6 +1262,12 @@
     "dur": 90.0
    }
   ],
+  "waterfall/east-hampton": [
+   {
+    "file": "audio/waterfall/east-hampton-1.75b20170.mp3",
+    "dur": 56.0
+   }
+  ],
   "waterfall/falls": [
    {
     "file": "audio/waterfall/falls-1.80edda21.mp3",
@@ -1626,6 +1632,7 @@
   "audio/waterfall/chaffinch-2.34466835.mp3",
   "audio/waterfall/chaffinch-3.2d9d5170.mp3",
   "audio/waterfall/creek-1.f4c5eb0c.mp3",
+  "audio/waterfall/east-hampton-1.75b20170.mp3",
   "audio/waterfall/falls-1.80edda21.mp3",
   "audio/waterfall/falls-2.2bb3cad2.mp3",
   "audio/waterfall/forest-1.9cb9c5eb.mp3",
@@ -2855,6 +2862,14 @@
    "page": "https://archive.org/details/aporee_52649_60160",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "East Hampton Waterfall",
+   "title": "East Hampton Waterfall",
+   "author": "paperhurts",
+   "page": "",
+   "license": "recorded for Ambiance, used with permission",
+   "license_url": ""
   }
  ]
 }
