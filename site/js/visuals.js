@@ -1989,7 +1989,8 @@ class Butterfly extends Painting {
     }
     const look = BIRD_LOOKS[e.species];
     if (!look) return;
-    const existing = this.birds.find((b) => b.species === e.species);
+    const key = e.bird ?? e.species;
+    const existing = this.birds.find((b) => b.key === key);
     if (existing) {
       existing.sing = this.t;
       existing.until = this.t + (e.dur || 2);
@@ -2009,9 +2010,12 @@ class Butterfly extends Painting {
       let list = look.where === 'shrub' && shrubs.length ? shrubs : free('branch');
       if (look.where === 'top') list = list.sort((a, b) => a.y - b.y).slice(0, 2);
       if (!list.length) list = shrubs.length ? shrubs : this.perches;
+      // a pair keeps together: perch near the mate if it's in view
+      const mate = this.birds.find((b) => b.species === e.species && !b.spot.ground);
+      if (mate) list = [...list].sort((a, b) => Math.hypot(a.x - mate.spot.x, a.y - mate.spot.y) - Math.hypot(b.x - mate.spot.x, b.y - mate.spot.y)).slice(0, 1);
       spot = list[Math.floor(Math.random() * list.length)];
     }
-    this.birds.push({ species: e.species, look, spot, sing: this.t, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(8, 16), flip: (e.az ?? 0) > 0 });
+    this.birds.push({ key, species: e.species, look, spot, sing: this.t, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(8, 16), flip: (e.az ?? 0) > 0 });
   }
 
   frame(dt) {

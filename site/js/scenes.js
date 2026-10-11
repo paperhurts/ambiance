@@ -38,7 +38,8 @@ const HABITS = {
   crow: { bout: [1, 3], gap: [2, 5], rest: [60, 200], el: [15, 45], dist: [40, 100] },
   // Florida
   cardinal: { bout: [3, 6], gap: [3, 7], rest: [20, 80], el: [10, 35], dist: [10, 30] },
-  'tufted-titmouse': { bout: [2, 5], gap: [2, 5], rest: [30, 90], el: [10, 35], dist: [10, 30] },
+  // a pair that keeps together, answering each other
+  'tufted-titmouse': { bout: [2, 5], gap: [1.4, 3.5], rest: [25, 75], el: [10, 35], dist: [10, 30], n: 2, together: true },
   'blue-jay': { bout: [1, 3], gap: [1.5, 4], rest: [45, 150], el: [10, 40], dist: [15, 45] },
   'red-bellied-woodpecker': { bout: [1, 3], gap: [3, 8], rest: [45, 150], el: [15, 45], dist: [15, 45] },
   'northern-parula': { bout: [3, 8], gap: [6, 12], rest: [30, 90], el: [20, 50], dist: [15, 40] },
@@ -71,7 +72,7 @@ export function buildScenes(pools) {
         const id = k.slice(scene.length + 1);
         const h = HABITS[id] || DEFAULT_HABIT;
         const solo = id.includes('pigeon') || id.includes('dove') || id === 'raven' || id === 'crow';
-        return { id, files: files(k), count: solo ? 1 : count, bout: h.bout, gap: h.gap, rest: [h.rest[0] * quiet, h.rest[1] * quiet], gain: h.gain ?? 1, space: { el: h.el, dist: h.dist } };
+        return { id, files: items(k), count: h.n ?? (solo ? 1 : count), together: h.together, bout: h.bout, gap: h.gap, rest: [h.rest[0] * quiet, h.rest[1] * quiet], gain: h.gain ?? 1, space: { el: h.el, dist: h.dist } };
       });
 
   // One slider per species, gathered under a "Birds" heading in the mix.
