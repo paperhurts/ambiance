@@ -2738,88 +2738,323 @@ class Butterfly extends Painting {
 // islands. A thunderhead builds ahead, comes overhead with the downpour and moves off again; then
 // the low sun behind us lights the wet prairie gold, with a rainbow over the departing storm.
 
-// a cumulonimbus: one billowing, flat-based body under a smooth anvil that spreads downwind.
-// One shape, painted twice (sunlit and in shadow) so the storm can darken by crossfading.
+// a cumulonimbus: a towering, cauliflowered body on a broad, flat base, under an anvil that
+// spreads downwind. The tower is a crowd of billows with smaller ones boiling out of them, lit as
+// one surface: each pixel takes the billow nearest us there and is shaded by the sun on it, so
+// billows merge into creases rather than sitting there as separate balls. Shading is worked out
+// at a fraction of the size (it's soft anyway) and drawn back inside the crisp outline. One
+// shape, painted twice (sunlit and in shadow) so the storm can darken by crossfading.
 function cumulonimbus(W, H, r) {
   const baseY = H * 0.86;
-  const tower = [];
-  for (let i = 0; i < 110; i++) {
+  const lobes = [];
+  // the tower: broad billows low down, smaller and tighter toward the top, leaning downwind
+  for (let i = 0; i < 70; i++) {
     const t = r() ** 0.8;
-    const rad = W * (0.045 + r() * 0.05) * (1 - t * 0.3);
-    tower.push({ x: W / 2 + (r() * 2 - 1) * W * (0.26 - t * 0.1), y: lerp(baseY - H * 0.04, H * 0.2, t), r: rad });
+    const rad = W * (0.055 + r() * 0.05) * (1 - t * 0.45);
+    lobes.push({ x: W * 0.5 + (r() * 2 - 1) * W * (0.27 - t * 0.12) + t * W * 0.04, y: lerp(baseY - H * 0.05, H * 0.27, t), r: rad });
   }
-  // a row of billows along the bottom, cut flat below: the broad, level base of a thunderhead
-  for (let x = W * 0.22; x <= W * 0.78; x += W * 0.05) tower.push({ x: x + (r() - 0.5) * W * 0.02, y: baseY - H * 0.005, r: W * (0.05 + r() * 0.025) });
+  // the broad, flat base
+  for (let x = W * 0.22; x <= W * 0.78; x += W * 0.04) lobes.push({ x: x + (r() - 0.5) * W * 0.02, y: baseY - H * 0.015, r: W * (0.05 + r() * 0.03) });
+  // depth: the middle of the tower bulges toward us, its sides curve away
+  for (const p of lobes) p.z = p.r * (-0.5 + 0.4 * (1 - Math.min(1, Math.abs(p.x - W * 0.5) / (W * 0.3))) + r() * 0.15);
+  // cauliflower: small billows boiling out of the big ones, mostly on top and on the sunny side
+  const big = lobes.length;
+  for (let i = 0; i < 70; i++) {
+    const p = lobes[Math.floor(r() * big)];
+    const a = -Math.PI * (0.08 + r() * 0.84) - (r() < 0.3 ? 0.35 : 0);
+    const d = p.r * (0.5 + r() * 0.3);
+    const sr = p.r * (0.3 + r() * 0.22);
+    lobes.push({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, r: sr, z: p.z + Math.sqrt(Math.max(0, p.r * p.r - d * d)) - sr * 0.6 });
+  }
   const anvil = new Path2D();
-  anvil.moveTo(W * 0.36, H * 0.3);
-  anvil.bezierCurveTo(W * 0.29, H * 0.21, W * 0.31, H * 0.12, W * 0.46, H * 0.1);
-  anvil.lineTo(W * 0.97, H * 0.12);
-  anvil.bezierCurveTo(W * 1.0, H * 0.13, W * 0.99, H * 0.16, W * 0.92, H * 0.165);
-  anvil.bezierCurveTo(W * 0.78, H * 0.175, W * 0.64, H * 0.2, W * 0.58, H * 0.3);
+  anvil.moveTo(W * 0.34, H * 0.32);
+  anvil.bezierCurveTo(W * 0.26, H * 0.22, W * 0.3, H * 0.12, W * 0.45, H * 0.1);
+  anvil.bezierCurveTo(W * 0.62, H * 0.085, W * 0.85, H * 0.095, W * 0.99, H * 0.115);
+  anvil.bezierCurveTo(W * 1.01, H * 0.125, W * 0.99, H * 0.155, W * 0.92, H * 0.16);
+  anvil.bezierCurveTo(W * 0.78, H * 0.17, W * 0.66, H * 0.2, W * 0.6, H * 0.32);
   anvil.closePath();
-  const body = new Path2D();
-  body.addPath(anvil);
-  for (const p of tower) {
-    body.moveTo(p.x + p.r, p.y);
-    body.arc(p.x, p.y, p.r, 0, TAU);
+  const outline = new Path2D();
+  for (const p of lobes) {
+    outline.moveTo(p.x + p.r, p.y);
+    outline.arc(p.x, p.y, p.r, 0, TAU);
   }
+  // the cloud's surface, at low resolution: the billows blended where they meet (a soft maximum
+  // of their heights), so creases are soft folds rather than seams; then lit by its slope
+  const S = Math.max(2, Math.round(W / 320));
+  const w3 = Math.ceil(W / S);
+  const h3 = Math.ceil(H / S);
+  const K = 2.4; // how soft the folds are, in low-res pixels
+  const acc = new Float64Array(w3 * h3);
+  for (const p of lobes) {
+    const cx = p.x / S;
+    const cy = p.y / S;
+    const rr = p.r / S;
+    const reach = rr + 1.5; // a little past the edge, so the crisp outline never shows a gap
+    for (let y = Math.max(0, Math.floor(cy - reach)); y <= Math.min(h3 - 1, Math.ceil(cy + reach)); y++) {
+      for (let x = Math.max(0, Math.floor(cx - reach)); x <= Math.min(w3 - 1, Math.ceil(cx + reach)); x++) {
+        const d2 = (x - cx) ** 2 + (y - cy) ** 2;
+        if (d2 > reach * reach) continue;
+        acc[y * w3 + x] += Math.exp((p.z / S + Math.sqrt(Math.max(0, rr * rr - d2))) / K);
+      }
+    }
+  }
+  const hf = new Float32Array(w3 * h3).map((_, i) => (acc[i] > 0 ? K * Math.log(acc[i]) : NaN));
+  const light = new Float32Array(w3 * h3);
+  const [lx, ly, lz] = [-0.5, -0.62, 0.6];
+  for (let y = 0; y < h3; y++) {
+    for (let x = 0; x < w3; x++) {
+      const i = y * w3 + x;
+      const c = hf[i];
+      if (Number.isNaN(c)) continue;
+      // past the edge the surface falls steeply away: that's the cloud's rounded limb
+      const e = x + 1 < w3 ? hf[i + 1] : NaN;
+      const wv = x > 0 ? hf[i - 1] : NaN;
+      const sv = y + 1 < h3 ? hf[i + w3] : NaN;
+      const nv = y > 0 ? hf[i - w3] : NaN;
+      const gx = ((Number.isNaN(e) ? c - 4 : e) - (Number.isNaN(wv) ? c - 4 : wv)) / 2;
+      const gy = ((Number.isNaN(sv) ? c - 4 : sv) - (Number.isNaN(nv) ? c - 4 : nv)) / 2;
+      const n = Math.hypot(gx, gy, 1);
+      // clouds scatter light into their own shadows, so the dark side never goes black
+      light[i] = 0.32 + 0.68 * Math.max(0, ((-gx * lx - gy * ly + lz) / n + 0.25) / 1.25);
+    }
+  }
+  const top = hf.map((v) => (Number.isNaN(v) ? -1e9 : v));
   const paint = (pal) => {
+    const lut = Array.from({ length: 256 }, (_, k) => hex(ramp(pal.ramp, k / 255)));
+    const small = layer(w3, h3);
+    const sg = small.getContext('2d');
+    const img = sg.createImageData(w3, h3);
+    for (let y = 0; y < h3; y++) {
+      // the lower cloud sits in its own shadow, darkest at the base
+      const v = clamp((y * S - H * 0.4) / (baseY - H * 0.4), 0, 1);
+      const dim = 1 - pal.under * v ** 1.3;
+      for (let x = 0; x < w3; x++) {
+        const i = y * w3 + x;
+        if (top[i] < -1e8) continue;
+        const c = lut[Math.round(clamp(light[i] * dim, 0, 1) * 255)];
+        const o = i * 4;
+        img.data[o] = c[0];
+        img.data[o + 1] = c[1];
+        img.data[o + 2] = c[2];
+        img.data[o + 3] = 255;
+      }
+    }
+    sg.putImageData(img, 0, 0);
     const c = layer(W, H);
     const g = c.getContext('2d');
     g.save();
     g.beginPath();
     g.rect(0, 0, W, baseY);
     g.clip();
-    g.fillStyle = vgrad(g, 0, baseY, [
-      [0, pal.top],
-      [0.45, pal.mid],
-      [1, pal.low],
+    // the anvil: smooth, pale on top, its underside in the shadow of itself
+    g.fillStyle = vgrad(g, H * 0.08, H * 0.32, [
+      [0, ramp(pal.ramp, 0.97)],
+      [0.55, ramp(pal.ramp, 0.75)],
+      [1, ramp(pal.ramp, 0.42)],
     ]);
-    g.fill(body);
-    g.clip(body);
-    // each billow is sunlit on its upper left and shadowed on its lower right
-    for (const p of tower) {
-      const sh = g.createRadialGradient(p.x + p.r * 0.5, p.y + p.r * 0.6, 0, p.x + p.r * 0.5, p.y + p.r * 0.6, p.r * 0.9);
-      sh.addColorStop(0, pal.shade);
-      sh.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = sh;
-      g.fillRect(p.x - p.r, p.y - p.r, p.r * 2.6, p.r * 2.6);
-      const hi = g.createRadialGradient(p.x - p.r * 0.3, p.y - p.r * 0.4, 0, p.x - p.r * 0.3, p.y - p.r * 0.4, p.r * 0.95);
-      hi.addColorStop(0, pal.light);
-      hi.addColorStop(1, 'rgba(255,255,255,0)');
-      g.fillStyle = hi;
-      g.fillRect(p.x - p.r * 1.2, p.y - p.r * 1.3, p.r * 1.8, p.r * 1.8);
-    }
-    // the underside of the anvil in its own shadow
-    const ag = g.createLinearGradient(0, H * 0.12, 0, H * 0.3);
-    ag.addColorStop(0, 'rgba(0,0,0,0)');
-    ag.addColorStop(0.5, pal.shade);
-    ag.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = ag;
     g.fill(anvil);
-    // the dark, flat base the rain falls from
-    const bg = g.createLinearGradient(0, baseY - H * 0.06, 0, baseY);
-    bg.addColorStop(0, 'rgba(0,0,0,0)');
-    bg.addColorStop(1, pal.base);
-    g.fillStyle = bg;
-    g.fillRect(0, baseY - H * 0.06, W, H * 0.06);
+    g.clip(outline);
+    g.imageSmoothingEnabled = true;
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(small, 0, 0, w3 * S, h3 * S);
     g.restore();
     // ice streaming off the far end of the anvil
     g.strokeStyle = pal.wisp;
     g.lineWidth = H * 0.004;
     for (let i = 0; i < 14; i++) {
-      const y = H * (0.11 + r() * 0.07);
+      const y = H * (0.11 + r() * 0.06);
       g.beginPath();
       g.moveTo(W * (0.85 + r() * 0.08), y);
-      g.quadraticCurveTo(W * 0.97, y + H * 0.005, W * (1 + r() * 0.0), y + H * (0.01 + r() * 0.02));
+      g.quadraticCurveTo(W * 0.97, y + H * 0.005, W, y + H * (0.01 + r() * 0.02));
       g.stroke();
     }
     return c;
   };
   return {
-    lit: paint({ top: '#fdfcf8', mid: '#eeebe4', low: '#b4bcc6', shade: 'rgba(110,125,145,0.16)', light: 'rgba(255,255,255,0.7)', base: 'rgba(92,102,116,0.95)', wisp: 'rgba(240,240,236,0.5)' }),
-    dark: paint({ top: '#8c96a2', mid: '#5e6773', low: '#323a44', shade: 'rgba(18,24,32,0.22)', light: 'rgba(150,160,176,0.25)', base: 'rgba(24,29,37,0.97)', wisp: 'rgba(120,130,140,0.4)' }),
+    lit: paint({ ramp: [[0, '#5d6878'], [0.4, '#99a5b3'], [0.7, '#dde2e7'], [1, '#ffffff']], under: 0.5, wisp: 'rgba(240,240,236,0.5)' }),
+    dark: paint({ ramp: [[0, '#171c23'], [0.4, '#353d48'], [0.7, '#5d6672'], [1, '#929ba6']], under: 0.55, wisp: 'rgba(120,130,140,0.4)' }),
   };
+}
+
+// A bald cypress: a straight trunk flaring into buttresses at the waterline, knees poking up
+// round it, rising limbs carrying flat, feathery masses of foliage. Returns the places where
+// Spanish moss can hang.
+function baldCypress(g, x, y, ht, u, r, o = {}) {
+  const near = o.near;
+  const bark = o.bark ?? '#6c645a';
+  const tw = o.trunk ?? ht * 0.035; // half the trunk's width above the buttress
+  const flare = tw * (near ? 3 : 2.3);
+  const topX = x + (o.lean ?? (r() - 0.5) * 0.04) * ht;
+  const topY = y - ht;
+  const at = (k) => lerp(x, topX, k);
+  const water = (fn) => {
+    if (!o.water) return;
+    g.save();
+    g.clip(o.water);
+    fn();
+    g.restore();
+  };
+  // its reflection, under everything, kept to the water
+  water(() => {
+    g.fillStyle = 'rgba(40,46,40,0.35)';
+    g.beginPath();
+    g.moveTo(x - flare, y);
+    g.quadraticCurveTo(x - tw * 1.1, y + ht * 0.04, x - tw, y + ht * 0.14);
+    g.lineTo(x - tw * 0.85, y + ht * 0.3);
+    g.lineTo(x + tw * 0.85, y + ht * 0.3);
+    g.lineTo(x + tw, y + ht * 0.14);
+    g.quadraticCurveTo(x + tw * 1.1, y + ht * 0.04, x + flare, y);
+    g.fill();
+  });
+  // the trunk: bell-bottomed, then nearly straight, thinning where the crown begins
+  const buttress = near ? 0.2 : 0.13;
+  const trunk = new Path2D();
+  trunk.moveTo(x - flare, y);
+  trunk.bezierCurveTo(x - tw * 1.2, y - ht * 0.01, x - tw * 1.05, y - ht * buttress * 0.5, x - tw, y - ht * buttress);
+  trunk.lineTo(topX - tw * 0.4, topY + ht * 0.05);
+  trunk.lineTo(topX + tw * 0.4, topY + ht * 0.05);
+  trunk.lineTo(x + tw, y - ht * buttress);
+  trunk.bezierCurveTo(x + tw * 1.05, y - ht * buttress * 0.5, x + tw * 1.2, y - ht * 0.01, x + flare, y);
+  trunk.closePath();
+  g.fillStyle = bark;
+  g.fill(trunk);
+  g.save();
+  g.clip(trunk);
+  // afternoon light down the sunny side, shade down the other
+  const lg = g.createLinearGradient(x - flare, 0, x + flare, 0);
+  lg.addColorStop(0, 'rgba(0,0,0,0)');
+  lg.addColorStop(0.3, 'rgba(225,212,190,0.28)');
+  lg.addColorStop(0.5, 'rgba(0,0,0,0)');
+  lg.addColorStop(0.8, 'rgba(30,24,20,0.3)');
+  g.fillStyle = lg;
+  g.fillRect(x - flare * 1.5, topY, flare * 3 + Math.abs(topX - x), ht + 2);
+  // stringy, ridged bark, and the flutes of the buttress
+  g.lineWidth = Math.max(0.5, tw * (near ? 0.05 : 0.1));
+  for (let k = 0; k < (near ? 26 : 6); k++) {
+    const f = (r() - 0.5) * 1.8;
+    g.strokeStyle = r() < 0.5 ? 'rgba(40,34,28,0.35)' : 'rgba(200,188,166,0.2)';
+    g.beginPath();
+    g.moveTo(x + f * flare * 0.55, y);
+    g.bezierCurveTo(x + f * tw * 0.7, y - ht * buttress * 0.6, x + f * tw * 0.5, y - ht * 0.3, at(0.8) + f * tw * 0.25, y - ht * 0.8);
+    g.stroke();
+  }
+  g.restore();
+  // knees: knobbly stumps poking up out of the water round the tree
+  for (let i = 0; i < (o.knees ?? 0); i++) {
+    const side = o.kneesSide ? (r() < 0.8 ? o.kneesSide : -o.kneesSide) : i % 2 ? 1 : -1;
+    const kx = x + side * flare * (1.05 + r() * (near ? 1.8 : 2));
+    const ky = y + (r() - 0.35) * (near ? 1.6 * u : flare * 0.3);
+    const kh = near ? (1.6 + r() * 3) * u : ht * (0.02 + r() * 0.03);
+    const kw = kh * (0.32 + r() * 0.12);
+    const tip = (r() - 0.5) * kw * 0.6;
+    water(() => {
+      g.fillStyle = 'rgba(40,46,40,0.3)';
+      g.beginPath();
+      g.moveTo(kx - kw, ky);
+      g.quadraticCurveTo(kx, ky + kh * 1.5, kx + kw, ky);
+      g.fill();
+    });
+    g.fillStyle = bark;
+    g.beginPath();
+    g.moveTo(kx - kw, ky);
+    g.bezierCurveTo(kx - kw * 0.75, ky - kh * 0.6, kx + tip - kw * 0.55, ky - kh * 1.05, kx + tip, ky - kh);
+    g.bezierCurveTo(kx + tip + kw * 0.55, ky - kh * 1.05, kx + kw * 0.75, ky - kh * 0.6, kx + kw, ky);
+    g.closePath();
+    g.fill();
+    g.fillStyle = 'rgba(215,205,185,0.3)';
+    g.beginPath();
+    g.ellipse(kx + tip - kw * 0.15, ky - kh * 0.88, kw * 0.32, kh * 0.1, 0, 0, TAU);
+    g.fill();
+  }
+  // limbs, rising from the upper trunk
+  const greens = o.greens ?? ['#4a6531', '#58763a', '#678545', '#7d9a52'];
+  const limbs = [];
+  const n = o.limbs ?? 5;
+  for (let i = 0; i < n; i++) {
+    const k = (o.from ?? 0.45) + (i / n) * (0.95 - (o.from ?? 0.45)) + (r() - 0.5) * 0.06;
+    const dir = o.side ? (r() < 0.2 ? -o.side : o.side) : i % 2 ? 1 : -1;
+    const len = ht * (0.12 + r() * 0.12) * (o.reach ?? 1) * (1 - k * 0.4);
+    const rise = 0.25 + r() * 0.45;
+    const x0 = at(k);
+    const y0 = y - ht * k;
+    const x1 = x0 + dir * len;
+    const y1 = y0 - len * rise;
+    const mx = lerp(x0, x1, 0.45);
+    const my = lerp(y0, y1, 0.45) + len * 0.06;
+    g.strokeStyle = bark;
+    g.lineCap = 'round';
+    g.lineWidth = tw * (near ? 0.42 : 0.5) * (1 - k * 0.3);
+    g.beginPath();
+    g.moveTo(x0, y0);
+    g.quadraticCurveTo(mx, my, x1, y1);
+    g.stroke();
+    // a couple of side branches
+    g.lineWidth *= 0.45;
+    for (let j = 0; j < 2; j++) {
+      const t = 0.45 + j * 0.25;
+      const bx = lerp(x0, x1, t);
+      const by = lerp(y0, y1, t) + len * 0.03;
+      g.beginPath();
+      g.moveTo(bx, by);
+      g.lineTo(bx + dir * len * 0.25, by - len * (j ? 0.22 : -0.04));
+      g.stroke();
+    }
+    limbs.push({ x0, y0, x1, y1, len, dir });
+  }
+  // foliage: flat, feathery masses along the limbs and round the top, lighter on top where the sun
+  // catches it, with the sky showing through
+  const mass = (cx, cy, rw) => {
+    const rh = rw * 0.4;
+    const nTufts = near ? 170 : 16;
+    // a soft body of shade under the sprays, so the mass reads as foliage, not scattered leaves
+    g.fillStyle = 'rgba(52,72,36,0.35)';
+    g.beginPath();
+    g.ellipse(cx, cy + rh * 0.15, rw * 0.85, rh * 0.75, 0, 0, TAU);
+    g.fill();
+    const sprays = greens.map(() => new Path2D());
+    for (let j = 0; j < nTufts; j++) {
+      const a = r() * TAU;
+      const d = Math.sqrt(r());
+      const px = cx + Math.cos(a) * rw * d;
+      const py = cy + Math.sin(a) * rh * d;
+      const up = (cy - py) / rh; // +1 at the top of the mass, -1 underneath
+      const shade = clamp(Math.round(1.6 + up * 1.6 + (r() - 0.5)), 0, greens.length - 1);
+      g.fillStyle = greens[shade];
+      if (near) {
+        // a little spray of needles, drooping at the tip
+        const len = (0.8 + r() * 1.1) * u;
+        const ang = (r() - 0.5) * 0.8 + (r() < 0.5 ? 0 : Math.PI);
+        sprays[shade].moveTo(px, py);
+        sprays[shade].quadraticCurveTo(px + Math.cos(ang) * len * 0.6, py + Math.sin(ang) * len * 0.3, px + Math.cos(ang) * len, py + len * 0.35);
+      } else {
+        g.beginPath();
+        g.ellipse(px, py, rw * (0.22 + r() * 0.2), rh * (0.3 + r() * 0.25), 0, 0, TAU);
+        g.fill();
+      }
+    }
+    if (near) {
+      g.lineWidth = 0.32 * u;
+      g.lineCap = 'round';
+      sprays.forEach((path, k) => {
+        g.strokeStyle = greens[k];
+        g.stroke(path);
+      });
+    }
+  };
+  const hangs = [];
+  for (const l of limbs) {
+    const k = near ? 5 : 3;
+    for (let j = 0; j < k; j++) {
+      const t = 0.3 + (j / (k - 1 || 1)) * 0.7;
+      const cx = lerp(l.x0, l.x1, t);
+      const cy = lerp(l.y0, l.y1, t) - l.len * 0.04;
+      const rw = l.len * (near ? 0.17 : 0.42) * (1.15 - t * 0.3);
+      mass(cx, cy, rw);
+      hangs.push({ x: cx + (r() - 0.5) * rw, y: cy + rw * 0.25 });
+    }
+  }
+  for (let j = 0; j < (near ? 4 : 3); j++) mass(topX + (r() - 0.5) * ht * 0.12, topY + ht * (0.03 + r() * 0.08), ht * (near ? 0.05 : 0.09));
+  return hangs;
 }
 
 // the storm overhead: a low, rolling, mottled cloud base filling the sky
@@ -2861,29 +3096,59 @@ class Glades extends Painting {
     const r = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
     this.cloud = cumulonimbus(Math.round(w * 1.1), Math.round(h * 0.72), r);
     this.over = overcast(w, Math.round(this.horizon + h * 0.02), r);
-    // the far side: cypress domes and tree islands with cabbage palms, on a hazy horizon
+    // the far side, hazy with distance: trees all along the horizon, cypress domes (tallest in
+    // the middle, where the water's deepest) and hammocks of hardwoods with cabbage palms
     this.far = layer(w, h);
     let g = this.far.getContext('2d');
-    for (let i = 0; i < 9; i++) {
-      const x = r() * w;
-      const wd = (6 + r() * 16) * u;
-      const ht = (1.6 + r() * 3.2) * u;
-      const dome = r() < 0.55;
-      g.fillStyle = dome ? '#4c5d47' : '#3f5240';
-      g.beginPath();
-      g.moveTo(x - wd / 2, this.horizon + 1);
-      g.quadraticCurveTo(x - wd * 0.35, this.horizon - ht * (dome ? 1.6 : 1), x, this.horizon - ht * (dome ? 1.7 : 1.1));
-      g.quadraticCurveTo(x + wd * 0.35, this.horizon - ht * (dome ? 1.6 : 1), x + wd / 2, this.horizon + 1);
-      g.fill();
-      if (!dome) {
-        // a few cabbage palms poking above the hammock
+    const hz = this.horizon;
+    g.fillStyle = '#7d8e86';
+    g.beginPath();
+    g.moveTo(0, hz + 1);
+    for (let x = 0; x <= w + 4 * u; x += (0.8 + r() * 1.6) * u) g.lineTo(x, hz - (0.3 + r() * 1) * u);
+    g.lineTo(w + 4 * u, hz + 1);
+    g.fill();
+    for (const [i, fx] of [0.06, 0.24, 0.41, 0.58, 0.76, 0.93].entries()) {
+      const x = (fx + (r() - 0.5) * 0.06) * w;
+      if (i % 2 === 0) {
+        // a cypress dome: a crowd of narrow, flat-topped crowns on pale trunks
+        const wd = (12 + r() * 12) * u;
+        const ht = (4.5 + r() * 3) * u;
+        const n = Math.round(wd / (0.75 * u));
+        for (let k = 0; k < n; k++) {
+          const f = (k + r() * 0.6) / n;
+          const tx = x - wd / 2 + f * wd;
+          const th = ht * (0.3 + 0.7 * Math.sqrt(Math.max(0, 1 - (2 * f - 1) ** 2))) * (0.8 + r() * 0.35);
+          g.strokeStyle = '#8b8d86';
+          g.lineWidth = 0.16 * u;
+          g.beginPath();
+          g.moveTo(tx, hz + 1);
+          g.lineTo(tx, hz - th * 0.7);
+          g.stroke();
+          g.fillStyle = ['#5d7152', '#68795a', '#53664a', '#71825f'][k % 4];
+          g.beginPath();
+          g.ellipse(tx, hz - th * 0.74, (0.55 + r() * 0.45) * u, th * 0.28, 0, 0, TAU);
+          g.fill();
+        }
+      } else {
+        // a hammock: a rounded mound of hardwoods, cabbage palms poking above it
+        const wd = (8 + r() * 12) * u;
+        const ht = (2 + r() * 2.2) * u;
+        g.fillStyle = '#41543f';
+        g.beginPath();
+        g.moveTo(x - wd / 2, hz + 1);
+        for (let k = 0; k <= 8; k++) {
+          const f = k / 8;
+          g.lineTo(x - wd / 2 + f * wd, hz - ht * Math.sin(f * Math.PI) ** 0.7 * (0.85 + r() * 0.3));
+        }
+        g.lineTo(x + wd / 2, hz + 1);
+        g.fill();
         for (let k = 0; k < 3; k++) {
           const px = x + (r() - 0.5) * wd * 0.6;
-          const top = this.horizon - ht * (1.5 + r());
-          g.strokeStyle = '#3f5240';
+          const top = hz - ht * (1.5 + r());
+          g.strokeStyle = '#41543f';
           g.lineWidth = 0.25 * u;
           g.beginPath();
-          g.moveTo(px, this.horizon - ht * 0.6);
+          g.moveTo(px, hz - ht * 0.6);
           g.lineTo(px, top);
           g.stroke();
           for (let f = 0; f < 7; f++) {
@@ -2941,6 +3206,19 @@ class Glades extends Painting {
     const lg = this.land.getContext('2d');
     lg.drawImage(this.far, 0, 0);
     lg.drawImage(this.prairie, 0, 0);
+    // a cypress strand off to the right, standing in the slough, hung with moss
+    const strand = this.sloughs[1];
+    for (let i = 0; i < 7; i++) {
+      const x = strand.x + (i / 6 - 0.45) * strand.rx * 1.5 + (r() - 0.5) * 4 * u;
+      const y = strand.y + (r() - 0.4) * strand.ry * 0.8;
+      const ht = h * (0.06 + r() * 0.11);
+      const hangs = baldCypress(lg, x, y, ht, u, r, { knees: 4, limbs: 3 + Math.floor(r() * 3), from: 0.4 + r() * 0.15, water: strand.path, trunk: ht * 0.028 });
+      for (const m0 of hangs) {
+        if (r() < 0.5) continue;
+        const m = mossBeard((1.4 + r() * 2.8) * u, (0.6 + r() * 0.6) * u, u * 0.45, r);
+        lg.drawImage(m.c, m0.x - m.ax, m0.y - m.ay);
+      }
+    }
     this.landDark = layer(w, h);
     const dg = this.landDark.getContext('2d');
     dg.drawImage(this.land, 0, 0);
@@ -2948,6 +3226,37 @@ class Glades extends Painting {
     dg.fillStyle = 'rgba(18,24,30,0.72)';
     dg.fillRect(0, 0, w, h);
     this.far = this.prairie = null;
+    // up close on the left, a big bald cypress at the edge of the slough, knees all round it and
+    // Spanish moss on its limbs (the moss drawn live, so it can blow about in the gust front)
+    this.near = layer(w, h);
+    const ng = this.near.getContext('2d');
+    const pool = this.sloughs[0];
+    const bx = w * 0.1;
+    const by = pool.y + pool.ry * 0.5;
+    const hangs = baldCypress(ng, bx, by, by + h * 0.1, u, r, { near: true, knees: 14, kneesSide: 1, limbs: 5, from: 0.5, side: 1, reach: 1.9, water: pool.path, trunk: w * 0.04, lean: 0.015 });
+    // only the part with the tree in it gets drawn every frame
+    this.near = trim({ c: this.near, ax: 0, ay: 0 });
+    this.nearDark = { ...this.near, c: layer(this.near.c.width, this.near.c.height) };
+    const nd = this.nearDark.c.getContext('2d');
+    nd.drawImage(this.near.c, 0, 0);
+    nd.globalCompositeOperation = 'source-atop';
+    nd.fillStyle = 'rgba(16,21,27,0.66)';
+    nd.fillRect(0, 0, this.near.c.width, this.near.c.height);
+    this.moss = [];
+    for (const m0 of hangs) {
+      if (r() < 0.35) continue;
+      const L = (6 + r() ** 1.5 * 22) * u;
+      const W = (1.8 + r() * 2.6) * u;
+      const lit = mossBeard(L, W, u, r, MOSS);
+      // the same beard in the storm's shadow
+      const dim = { ...lit, c: layer(lit.c.width, lit.c.height) };
+      const dg2 = dim.c.getContext('2d');
+      dg2.drawImage(lit.c, 0, 0);
+      dg2.globalCompositeOperation = 'source-atop';
+      dg2.fillStyle = 'rgba(30,36,40,0.62)';
+      dg2.fillRect(0, 0, dim.c.width, dim.c.height);
+      this.moss.push({ x: m0.x, y: m0.y, ph: r() * TAU, lit, dim });
+    }
     // the near grass: blades drawn live so the wind can push them about
     this.blades = Array.from({ length: Math.round(w / (0.9 * u)) }, () => ({
       x: r() * w,
@@ -2962,7 +3271,7 @@ class Glades extends Painting {
       { x: w * 0.78, hgt: h * 0.34, ph: 2.1 },
       { x: w * 0.9, hgt: h * 0.26, ph: 4 },
     ];
-    this.drops = Array.from({ length: Math.min(900, Math.round((w * h) / (9000 * this.dpr))) }, () => this.drop(true));
+    this.drops = Array.from({ length: Math.min(900, Math.round((w * h) / (2400 * this.dpr))) }, () => this.drop(true));
     // summer cumulus drifting about the rest of the sky
     this.puffs = Array.from({ length: 6 }, (_, i) => ({ x: r() * w, y: this.horizon - h * (0.06 + r() * 0.3), s: (2 + r() * 4) * u * (1 - i * 0.08), v: (0.2 + r() * 0.3) * u }));
     this.ripples = [];
@@ -2996,7 +3305,7 @@ class Glades extends Painting {
   cloudBox() {
     const { w, h } = this;
     const a = this.drivers.storm ?? 0.3;
-    const k = lerp(0.42, 1.7, a ** 1.5);
+    const k = lerp(0.6, 1.75, a ** 1.4);
     const cw = this.cloud.lit.width * k;
     const ch = this.cloud.lit.height * k;
     const cx = lerp(0.6, 0.5, a) * w;
@@ -3221,6 +3530,34 @@ class Glades extends Painting {
       g.fillStyle = `rgba(200,215,240,${flash * (near ? 0.3 : 0.08)})`;
       g.fillRect(0, this.horizon, w, h);
     }
+    // a grey veil of rain over everything far away
+    if (rain > 0) {
+      g.fillStyle = vgrad(g, 0, this.horizon + h * 0.16, [
+        [0, `rgba(120,130,140,${rain * 0.25})`],
+        [0.78, `rgba(120,130,140,${rain * 0.3})`],
+        [1, 'rgba(120,130,140,0)'],
+      ]);
+      g.fillRect(0, 0, w, this.horizon + h * 0.16);
+    }
+
+    // the big cypress up close, in the storm's shadow as it comes over, its moss blowing about
+    g.drawImage(this.near.c, -this.near.ax, -this.near.ay);
+    if (dark > 0) {
+      g.globalAlpha = dark * 0.85;
+      g.drawImage(this.nearDark.c, -this.nearDark.ax, -this.nearDark.ay);
+      g.globalAlpha = 1;
+    }
+    for (const m of this.moss) {
+      const ang = Math.sin(t * (0.5 + wind * 1.6) + m.ph) * (0.025 + wind * 0.1) - wind * 0.16;
+      g.setTransform(Math.cos(ang), Math.sin(ang), -Math.sin(ang), Math.cos(ang), m.x, m.y);
+      g.drawImage(m.lit.c, -m.lit.ax, -m.lit.ay);
+      if (dark > 0) {
+        g.globalAlpha = Math.min(1, dark * 1.1);
+        g.drawImage(m.dim.c, -m.dim.ax, -m.dim.ay);
+        g.globalAlpha = 1;
+      }
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
 
     // the near sawgrass and cattails, pushed by the wind
     const lean = wind * 0.35;
@@ -3259,7 +3596,7 @@ class Glades extends Painting {
     if (rain > 0) {
       const slant = 0.12 + wind * 0.35;
       const count = Math.round(this.drops.length * rain);
-      g.strokeStyle = `rgba(210,222,232,${0.18 + rain * 0.14})`;
+      g.strokeStyle = `rgba(210,222,232,${0.2 + rain * 0.16})`;
       g.lineWidth = 1 * this.dpr;
       g.beginPath();
       for (let i = 0; i < count; i++) {
@@ -3273,13 +3610,6 @@ class Glades extends Painting {
         g.lineTo(d.x - L * slant, d.y - L);
       }
       g.stroke();
-      // a grey veil of rain over everything far away
-      g.fillStyle = vgrad(g, 0, this.horizon + h * 0.16, [
-        [0, `rgba(120,130,140,${rain * 0.25})`],
-        [0.78, `rgba(120,130,140,${rain * 0.3})`],
-        [1, 'rgba(120,130,140,0)'],
-      ]);
-      g.fillRect(0, 0, w, this.horizon + h * 0.16);
     }
   }
 
