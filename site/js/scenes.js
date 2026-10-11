@@ -26,10 +26,17 @@ const HABITS = {
   // each mockingbird recording is already a run of several phrases
   mockingbird: { bout: [2, 5], gap: [0.6, 1.8], rest: [30, 90], el: [10, 40], dist: [10, 30] },
   'hermit-thrush': { bout: [4, 8], gap: [3, 6], rest: [30, 90], el: [5, 30], dist: [20, 50] },
+  // eastern US woods: a hardwood and hemlock ravine in Connecticut
   'wood-thrush': { bout: [4, 8], gap: [3, 6], rest: [30, 90], el: [5, 30], dist: [20, 50] },
+  veery: { bout: [3, 6], gap: [4, 9], rest: [30, 100], el: [2, 20], dist: [15, 45] },
+  // the creek's own warbler, singing low over the water
+  'louisiana-waterthrush': { bout: [2, 5], gap: [6, 14], rest: [40, 120], el: [-5, 8], dist: [10, 35] },
   'winter-wren': { bout: [1, 3], gap: [4, 9], rest: [30, 90], el: [0, 10], dist: [10, 30], gain: 0.8 },
   'red-eyed-vireo': { bout: [6, 14], gap: [1, 2.5], rest: [30, 90], el: [20, 50], dist: [20, 45] },
+  'eastern-wood-pewee': { bout: [3, 8], gap: [5, 12], rest: [30, 100], el: [20, 50], dist: [15, 40] },
   'black-capped-chickadee': { bout: [1, 3], gap: [3, 8], rest: [40, 120], el: [5, 30], dist: [8, 30] },
+  'white-breasted-nuthatch': { bout: [1, 3], gap: [3, 8], rest: [40, 120], el: [5, 35], dist: [10, 35] },
+  'american-crow': { bout: [1, 2], gap: [3, 8], rest: [90, 300], el: [15, 45], dist: [50, 120], n: 1 },
   chickadee: { bout: [1, 3], gap: [3, 8], rest: [40, 120], el: [5, 30], dist: [8, 30] },
   nuthatch: { bout: [2, 5], gap: [2, 5], rest: [40, 120], el: [10, 35], dist: [10, 30] },
   nutcracker: { bout: [1, 3], gap: [2, 5], rest: [50, 150], el: [15, 45], dist: [25, 70] },
@@ -81,7 +88,10 @@ const NAMES = {
   'green-treefrog': 'Green treefrog', 'squirrel-treefrog': 'Squirrel treefrog', 'barking-treefrog': 'Barking treefrog',
   'pig-frog': 'Pig frog', 'leopard-frog': 'Leopard frog', 'southern-toad': 'Southern toad', 'oak-toad': 'Oak toad',
   'cricket-frog': 'Cricket frog', 'barred-owl': 'Barred owl', 'chuck-wills-widow': "Chuck-will's-widow",
-  'screech-owl': 'Screech owl',
+  'screech-owl': 'Screech owl', 'wood-thrush': 'Wood thrush', veery: 'Veery', 'louisiana-waterthrush': 'Louisiana waterthrush',
+  'winter-wren': 'Winter wren', 'red-eyed-vireo': 'Red-eyed vireo', 'eastern-wood-pewee': 'Eastern wood-pewee',
+  'black-capped-chickadee': 'Black-capped chickadee', 'white-breasted-nuthatch': 'White-breasted nuthatch',
+  'american-crow': 'American crow',
 };
 const FROGS = ['green-treefrog', 'squirrel-treefrog', 'barking-treefrog', 'pig-frog', 'leopard-frog', 'southern-toad', 'oak-toad', 'cricket-frog'];
 const NIGHT_BIRDS = ['barred-owl', 'chuck-wills-widow', 'screech-owl'];
@@ -151,8 +161,8 @@ export function buildScenes(pools) {
       { id: 'creek', type: 'bed', label: 'Creek', icon: 'water', files: files('waterfall/creek'), level: 0.55, gain: 0.9 },
       { id: 'forest', type: 'bed', label: 'Forest air', icon: 'leaf', files: files('waterfall/forest'), level: 0.5, gain: 0.8 },
       { id: 'leaves', type: 'bed', label: 'Leaves', icon: 'wind', files: files('waterfall/leaves'), level: 0.35, gain: 0.8, wander: [0.3, 1], wanderEvery: [4, 12], wanderTau: [2, 5] },
-      ...birds('waterfall', ['falls', 'east-hampton', 'creek', 'forest', 'leaves', 'woodpecker'], { count: 1, quiet: 2.2, level: 0.62, reverb: 0.35 }),
-      { id: 'woodpecker', type: 'shots', label: 'Woodpecker', icon: 'bird', group: 'Birds', pool: items('waterfall/woodpecker'), every: [50, 180], level: 0.4, gain: 0.8, reverb: 0.4, space: { dist: [30, 80], el: [5, 25] } },
+      ...birds('waterfall', ['falls', 'east-hampton', 'creek', 'forest', 'leaves', 'woodpecker'], { count: 1, quiet: 2.2, level: 0.62, gain: 1.25, reverb: 0.35 }),
+      { id: 'woodpecker', type: 'shots', label: 'Woodpeckers', icon: 'bird', group: 'Birds', pool: items('waterfall/woodpecker'), every: [50, 180], level: 0.4, gain: 0.8, reverb: 0.4, space: { dist: [30, 80], el: [5, 25] } },
     ],
   };
 
@@ -368,7 +378,7 @@ export function buildScenes(pools) {
       { ...pick(pond, 'insects'), id: 'night-insects', label: 'Night insects' },
       ...birdsFrom(butterfly, 'fl-', 'Florida birds'),
       ...birdsFrom(garden, 'uk-', 'English garden birds', { drive: null }),
-      ...birdsFrom(waterfall, 'wd-', 'Woodland birds', { skip: garden }),
+      ...birdsFrom(waterfall, 'wd-', 'Eastern woodland birds', { skip: butterfly }),
       ...birdsFrom(snow, 'wn-', 'Winter birds', { skip: waterfall }),
       ...birdsFrom(glades, 'gl-', 'Everglades birds', { drive: null }),
       ...birdsFrom(pond, 'fr-', 'Florida frogs', { from: 'Frogs', drive: null }),

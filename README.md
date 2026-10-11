@@ -9,7 +9,7 @@ None of them loops audibly: long recordings crossfade between random points, and
 | | |
 |---|---|
 | **Storm at Sea** | Breakers, rain and a gale; thunder that arrives after its lightning, later and duller the further away it is. A red buoy rides the swell. |
-| **Forest Waterfall** | The East Hampton waterfall: a cascade stepping down mossy slate into a pool under a sunlit canopy, painted after the real one and sounding like it (recorded there for this app). A creek, forest air and leaves; birds that each keep their own perch and sing in bouts. |
+| **Forest Waterfall** | The East Hampton waterfall: a cascade stepping down mossy slate into a pool under a sunlit canopy, painted after the real one and sounding like it (recorded there for this app). A creek, forest air and leaves, and the birds of a Connecticut ravine, each keeping its own perch and singing in bouts: wood thrush, veery, the Louisiana waterthrush that lives along creeks, winter wren, red-eyed vireo, eastern wood-pewee, black-capped chickadee, white-breasted nuthatch, a far-off crow, and pileated and downy woodpeckers. |
 | **Sunrise Garden** | A real dawn chorus that builds over 25 minutes as the sky (and the birds) wake up. |
 | **Butterfly Garden** | A Florida yard full of pollinators: big tropical hibiscus in sunset colours, milkweed and a rainbow of native wildflowers under a live oak hung with Spanish moss; zebra longwings and monarchs working the flowers, hummingbirds at the firebush and sage, cicadas, bees and a breeze in the palms. Ten Florida birds (cardinal, mockingbird, Carolina wren, blue jay, red-bellied woodpecker, northern parula, tufted titmouse, mourning and ground doves, a red-shouldered hawk overhead), each shown in its own colours when it sings. |
 | **Everglades Storm** | Summer thunderstorms over the sawgrass, seen from under a big bald cypress hung with moss, its knees poking out of the slough. The scene opens as the gust front hits; it rains most of the time, the downpour with thunder overhead easing to steady rain as each storm moves off, then dripping, frogs starting up and a rainbow, a short steamy lull and the next thunderhead building. Thunder comes from as far away as the storm is. |
@@ -86,6 +86,6 @@ recorded for Ambiance by its owner and is used with permission; the full list (w
 the app under **Settings → Credits**, and in `tools/sources/*.json`. Fonts: Fraunces and Nunito (SIL Open Font
 Licence). Palette borrowed from *Beyond the Buoys*.
 
-Most of the Florida birds and frogs come from [xeno-canto](https://xeno-canto.org) under CC BY-NC-SA (and a
+Most of the Florida birds and frogs, and all the eastern woodland birds, come from [xeno-canto](https://xeno-canto.org) under CC BY-NC-SA (and a
 few frogs from [iNaturalist](https://www.inaturalist.org) under CC BY-NC), which allow non-commercial use only.
 That's fine for a free app; if Ambiance were ever sold or carried ads, those recordings would need replacing.
