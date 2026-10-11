@@ -357,175 +357,632 @@ class Storm extends Painting {
 
 // ---------------------------------------------------------------------------------------------
 // A waterfall in a green, misty forest.
+// After the East Hampton waterfall, in summer: a stepped cascade over layered, mossy slate ledges, a broad
+// white fan over a rock slab, and the creek running out toward you between lichen-spotted boulders,
+// under a canopy lit from behind by the sun. The water moves along each fall, the fan and the
+// creek; there's foam where it lands and mist rising from the plunge.
+
+// where a point sits in a flow: u runs along it (0 at the top, 1 at the bottom), v across (-1..1)
+function flowAt(f, u, v) {
+  const n = f.secs.length - 1;
+  const p = clamp(u, 0, 1) * n;
+  const i = Math.min(n - 1, Math.floor(p));
+  const k = p - i;
+  const a = f.secs[i];
+  const b = f.secs[i + 1];
+  return [lerp(a.x, b.x, k) + v * lerp(a.hw, b.hw, k), lerp(a.y, b.y, k)];
+}
+function flowPath(f) {
+  const path = new Path2D();
+  f.secs.forEach((c, i) => (i ? path.lineTo(c.x - c.hw, c.y) : path.moveTo(c.x - c.hw, c.y)));
+  for (let i = f.secs.length - 1; i >= 0; i--) path.lineTo(f.secs[i].x + f.secs[i].hw, f.secs[i].y);
+  path.closePath();
+  return path;
+}
+
 class Waterfall extends Painting {
   build() {
     const { w, h, u } = this;
-    this.bg = layer(w, h);
-    const g = this.bg.getContext('2d');
     let seed = 7;
     const r = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
-    g.fillStyle = vgrad(g, 0, h, [
-      [0, '#cfe3dc'],
-      [0.3, '#8fbfb0'],
-      [0.6, '#3f7563'],
-      [1, '#16352b'],
-    ]);
+    this.bg = layer(w, h);
+    const g = this.bg.getContext('2d');
+    const sun = { x: w * 0.6, y: h * 0.07 };
+    const lit = (x, y) => Math.exp(-Math.hypot((x - sun.x) / w, (y - sun.y) / h) * 3);
+    const fx = w * 0.5;
+
+    // ---- light through the canopy
+    g.fillStyle = '#2a4f26';
     g.fillRect(0, 0, w, h);
-    treeline(g, w, h * 0.3, h * 0.1, 'rgba(90,140,125,0.5)', 'pine', 3);
-    treeline(g, w, h * 0.35, h * 0.13, 'rgba(55,105,88,0.7)', 'round', 7);
-    this.fx = w * 0.5;
-    this.fw = Math.max(w * 0.16, 14 * u);
-    this.top = h * 0.32;
-    this.base = h * 0.7;
-    // a jagged rock wall with the river pouring over its lip
-    const rock = (x0, x1, y0, y1, c0, c1, jag) => {
-      g.fillStyle = vgrad(g, y0, y1, [
-        [0, c0],
-        [1, c1],
-      ]);
-      g.beginPath();
-      g.moveTo(x0, y1);
-      const steps = 14;
-      for (let i = 0; i <= steps; i++) {
-        const x = lerp(x0, x1, i / steps);
-        g.lineTo(x, y0 + (r() - 0.5) * jag);
+    const glow = g.createRadialGradient(sun.x, sun.y, 0, sun.x, sun.y, Math.max(w, h) * 0.6);
+    glow.addColorStop(0, '#fdfde6');
+    glow.addColorStop(0.1, '#eef5a8');
+    glow.addColorStop(0.3, '#a6cf55');
+    glow.addColorStop(0.55, '#5a9238');
+    glow.addColorStop(1, '#244a22');
+    g.fillStyle = glow;
+    g.fillRect(0, 0, w, h * 0.62);
+
+    // leaves, batched by colour; lit ones yellow-green, shaded ones deep and bluish
+    const PAL = ['#14301a', '#1f4422', '#2d5e28', '#41782f', '#5f9a38', '#87bd42', '#b5da58', '#def08c'];
+    const leaves = (ctx, cx, cy, rx, ry, n, size, bias = 0) => {
+      const paths = PAL.map(() => new Path2D());
+      for (let i = 0; i < n; i++) {
+        const a = r() * TAU;
+        const d = Math.sqrt(r());
+        const x = cx + Math.cos(a) * rx * d;
+        const y = cy + Math.sin(a) * ry * d;
+        // lighter on top of the mass and toward the sun, darker underneath and inside
+        const k = clamp(0.3 + lit(x, y) * 0.9 + ((cy - y) / ry) * 0.22 - d * 0.08 + (r() - 0.5) * 0.3 + bias, 0, 0.999);
+        const P = paths[Math.floor(k * PAL.length)];
+        const z = size * (0.6 + r() * 0.7);
+        const ang = r() * TAU;
+        const ca = Math.cos(ang);
+        const sa = Math.sin(ang);
+        P.moveTo(x - ca * z, y - sa * z);
+        P.quadraticCurveTo(x - sa * z * 0.5, y + ca * z * 0.5, x + ca * z, y + sa * z);
+        P.quadraticCurveTo(x + sa * z * 0.5, y - ca * z * 0.5, x - ca * z, y - sa * z);
       }
-      g.lineTo(x1, y1);
-      g.closePath();
-      g.fill();
+      paths.forEach((P, i) => {
+        ctx.fillStyle = PAL[i];
+        ctx.fill(P);
+      });
     };
-    rock(-w * 0.05, w * 1.05, this.top - h * 0.015, this.base + h * 0.06, '#4b5a55', '#26302d', h * 0.02);
-    // strata: darker ledges across the face
-    g.strokeStyle = 'rgba(20,28,26,0.45)';
-    g.lineWidth = 0.5 * u;
-    for (let i = 0; i < 9; i++) {
-      const y = lerp(this.top + h * 0.02, this.base, i / 9) + r() * h * 0.01;
-      g.beginPath();
-      g.moveTo(0, y);
-      for (let x = 0; x <= w; x += w / 12) g.lineTo(x, y + (r() - 0.5) * h * 0.012);
-      g.stroke();
-    }
-    // nearer buttresses either side, darker
-    const side = (dir) => {
-      const xEdge = dir < 0 ? 0 : w;
-      const xIn = this.fx + dir * this.fw * 0.62;
-      g.fillStyle = vgrad(g, this.top, h, [
-        [0, '#34413d'],
-        [1, '#1a2321'],
-      ]);
-      g.beginPath();
-      g.moveTo(xEdge, this.top - h * 0.04);
-      for (let i = 0; i <= 8; i++) {
-        const t = i / 8;
-        g.lineTo(lerp(xEdge, xIn, t) + (r() - 0.5) * u * 2, this.top - h * 0.03 + t * h * 0.02 + (r() - 0.5) * h * 0.02);
-      }
-      for (let i = 0; i <= 8; i++) {
-        const t = i / 8;
-        g.lineTo(xIn + dir * t * w * 0.06 + (r() - 0.5) * u * 1.5, lerp(this.top, this.base + h * 0.05, t));
-      }
-      g.lineTo(xEdge, h * 0.86);
-      g.closePath();
-      g.fill();
+    const trunk = (ctx, x, y0, y1, wd, col, lean = 0) => {
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(x - wd, y1);
+      ctx.lineTo(x + lean - wd * 0.55, y0);
+      ctx.lineTo(x + lean + wd * 0.55, y0);
+      ctx.lineTo(x + wd, y1);
+      ctx.fill();
     };
-    side(-1);
-    side(1);
-    // foliage clinging to the rock
-    const greens = ['#1f4a36', '#2c5e42', '#24533b', '#183d2c'];
-    for (let i = 0; i < 70; i++) {
-      const dir = i % 2 ? 1 : -1;
-      const x = this.fx + dir * (this.fw * 0.65 + r() * w * 0.45);
-      const y = lerp(this.top - h * 0.05, this.base + h * 0.02, Math.pow(r(), 1.6));
-      g.fillStyle = greens[i % greens.length];
-      g.beginPath();
-      g.ellipse(x, y, (1.5 + r() * 4) * u, (1 + r() * 2.5) * u, r() * 0.6, 0, TAU);
-      g.fill();
-    }
-    // the canopy overhead, framing the clearing
-    g.fillStyle = '#0f2a20';
-    for (let i = 0; i < 60; i++) {
+    // far trunks, pale in the haze of light
+    for (let i = 0; i < 9; i++) trunk(g, w * (0.04 + i * 0.12 + (r() - 0.5) * 0.04), -h * 0.02, h * 0.36, (0.35 + r() * 0.5) * u, `rgba(225,232,205,${0.3 + r() * 0.2})`);
+    // the canopy: far, soft masses, then fuller nearer ones, leaving the bright gap round the sun
+    for (let i = 0; i < 30; i++) {
       const x = r() * w;
-      const y = -h * 0.02 + Math.pow(r(), 2.2) * h * 0.14 * (0.4 + Math.abs(x / w - 0.5) * 1.6);
-      g.beginPath();
-      g.ellipse(x, y, (3 + r() * 6) * u, (2 + r() * 4) * u, r() * TAU, 0, TAU);
-      g.fill();
+      const y = r() ** 1.3 * h * 0.34;
+      if (Math.hypot((x - sun.x) / w, (y - sun.y) / h) < 0.12) continue;
+      leaves(g, x, y, (5 + r() * 9) * u, (3 + r() * 5) * u, 160, 0.8 * u, 0.1);
     }
-    // pool
-    g.fillStyle = vgrad(g, this.base, h, [
-      [0, '#4f9a9a'],
-      [1, '#16353b'],
+    // nearer trunks leaning in over the creek
+    trunk(g, w * 0.07, -h * 0.02, h * 0.56, 2.2 * u, '#8b9787', w * 0.02);
+    trunk(g, w * 0.86, -h * 0.02, h * 0.5, 1.5 * u, '#97a28f', -w * 0.03);
+    g.fillStyle = 'rgba(30,40,30,0.3)';
+    g.beginPath();
+    g.moveTo(w * 0.07 + 0.3 * u, h * 0.56);
+    g.lineTo(w * 0.09 + 0.3 * u, -h * 0.02);
+    g.lineTo(w * 0.09 + 1.4 * u, -h * 0.02);
+    g.lineTo(w * 0.07 + 2.2 * u, h * 0.56);
+    g.fill();
+    for (let i = 0; i < 22; i++) {
+      const x = r() * w;
+      const y = r() ** 1.6 * h * 0.3;
+      if (Math.hypot((x - sun.x) / w, (y - sun.y) / h) < 0.1) continue;
+      leaves(g, x, y, (6 + r() * 10) * u, (3.5 + r() * 6) * u, 300, 1 * u);
+    }
+
+    // ---- the streambed: a staircase of slate, the water running across each step and dropping off
+    // its front edge, banked either side by a jumble of stones with ferns and moss between them
+    // behind the stones: the dark of the banks, shading into the forest floor further up
+    g.fillStyle = vgrad(g, h * 0.27, h * 0.72, [
+      [0, '#55702f'],
+      [0.12, '#3c5126'],
+      [0.4, '#273424'],
+      [1, '#1a2320'],
     ]);
     g.beginPath();
-    g.ellipse(this.fx, this.base + h * 0.08, w * 0.6, h * 0.12, 0, 0, TAU);
+    g.moveTo(0, h * 0.33);
+    for (let x = 0; x <= w; x += w / 10) g.lineTo(x, h * (0.285 + Math.abs(x / w - 0.5) * 0.07) + (r() - 0.5) * h * 0.01);
+    g.lineTo(w, h);
+    g.lineTo(0, h);
     g.fill();
-    // foreground ferns get drawn live (they sway)
-    this.ferns = Array.from({ length: 9 }, (_, i) => ({
-      x: (i / 8) * w + rand(-0.05, 0.05) * w,
-      y: h * rand(0.92, 1.02),
-      len: rand(12, 26) * u,
+    for (let i = 0; i < 10; i++) leaves(g, w * r(), h * (0.29 + r() * 0.05), (3 + r() * 5) * u, (1.5 + r() * 2) * u, 90, 0.9 * u, -0.1);
+
+    // a stone: rounded, a little flat on top the way slate breaks, lit from above, a dark crevice
+    // where it sits, pale lichen and tufts of moss along its top
+    const stone = (ctx, cx, cy, rx, ry, o = {}) => {
+      const n = 11;
+      const pts = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * TAU + r() * 0.3;
+        let k = 0.86 + r() * 0.24;
+        let y = cy + Math.sin(a) * ry * k;
+        if (Math.sin(a) < -0.2) y = cy - ry * (0.75 + r() * 0.12); // a flattish top
+        pts.push([cx + Math.cos(a) * rx * k, y]);
+      }
+      pts.sort((p1, p2) => Math.atan2(p1[1] - cy, p1[0] - cx) - Math.atan2(p2[1] - cy, p2[0] - cx));
+      const path = new Path2D();
+      pts.forEach(([x, y], i) => {
+        const [nx, ny] = pts[(i + 1) % n];
+        if (!i) path.moveTo((x + nx) / 2, (y + ny) / 2);
+        else path.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2);
+      });
+      path.quadraticCurveTo(pts[0][0], pts[0][1], (pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2);
+      path.closePath();
+      const tone = o.tone ?? r();
+      const base = mix('#6f7f7b', '#5d6a72', tone);
+      const gr = ctx.createLinearGradient(cx - rx * 0.4, cy - ry, cx + rx * 0.3, cy + ry);
+      gr.addColorStop(0, mix(base, '#dfe6dc', 0.45));
+      gr.addColorStop(0.35, base);
+      gr.addColorStop(1, mix(base, '#141a1a', 0.7));
+      ctx.fillStyle = gr;
+      ctx.fill(path);
+      ctx.save();
+      ctx.clip(path);
+      // the lit top facet
+      ctx.fillStyle = 'rgba(225,232,220,0.28)';
+      ctx.beginPath();
+      ctx.ellipse(cx - rx * 0.05, cy - ry * 0.75, rx * 0.95, ry * (0.32 + r() * 0.12), 0, 0, TAU);
+      ctx.fill();
+      // lichen and stain
+      for (let i = 0; i < Math.min(60, (rx * ry) / (u * u) * 0.25); i++) {
+        const x = cx + (r() - 0.5) * rx * 2;
+        const y = cy + (r() - 0.5) * ry * 2;
+        ctx.fillStyle = r() < 0.6 ? `rgba(220,230,212,${0.12 + r() * 0.2})` : 'rgba(30,40,44,0.2)';
+        ctx.beginPath();
+        ctx.ellipse(x, y, (0.25 + r() * 1) * u, (0.2 + r() * 0.6) * u, r() * 3, 0, TAU);
+        ctx.fill();
+      }
+      // wet and dark underneath
+      const wl = ctx.createLinearGradient(0, cy + ry * 0.1, 0, cy + ry);
+      wl.addColorStop(0, 'rgba(10,16,16,0)');
+      wl.addColorStop(1, 'rgba(10,16,16,0.6)');
+      ctx.fillStyle = wl;
+      ctx.fillRect(cx - rx * 1.2, cy, rx * 2.4, ry * 1.1);
+      ctx.restore();
+      // moss in fine tufts along the top
+      if (!o.bare) {
+        const tufts = Math.round(rx / u * 1.5);
+        const paths = [new Path2D(), new Path2D(), new Path2D()];
+        for (let i = 0; i < tufts; i++) {
+          const x = cx + (r() - 0.5) * rx * 1.5;
+          const y = cy - ry * (0.65 + r() * 0.2);
+          const P = paths[Math.floor(r() * 3)];
+          for (let k = 0; k < 4; k++) {
+            const tx = x + (r() - 0.5) * u * 1.2;
+            const ty = y + (r() - 0.5) * u * 0.4;
+            P.moveTo(tx + 0.35 * u, ty);
+            P.ellipse(tx, ty, 0.35 * u, 0.22 * u, 0, 0, TAU);
+          }
+        }
+        ['#557d2c', '#6f9a36', '#8db544'].forEach((c, i) => {
+          ctx.fillStyle = c;
+          ctx.fill(paths[i]);
+        });
+      }
+      return path;
+    };
+    // a crag of slate: a big block with a lit top plane, a darker face banded with layers, a shadowed
+    // side away from the light, moss and lichen on it. x0..x1 across, y0 its top, y1 its foot,
+    // ridge the share of its height that's top plane.
+    const crag = (ctx, x0, x1, y0, y1, o = {}) => {
+      const ridge = o.ridge ?? 0.3;
+      const topPts = [];
+      const n = 8;
+      for (let i = 0; i <= n; i++) {
+        const k = i / n;
+        // slate breaks flat: a level-ish top that drops away at the ends, a step or two in it
+        const shoulder = Math.min(1, Math.sin(k * Math.PI) * 2.2) ** 0.8;
+        topPts.push([lerp(x0, x1, k) + (r() - 0.5) * u, y1 - (y1 - y0) * (0.35 + 0.65 * shoulder) + (r() < 0.25 ? 1 : 0.3) * (r() - 0.5) * (y1 - y0) * 0.12 + (k - 0.5) * (o.tilt ?? 0) * (y1 - y0)]);
+      }
+      const outline = new Path2D();
+      outline.moveTo(x0, y1);
+      topPts.forEach(([x, y]) => outline.lineTo(x, y));
+      outline.lineTo(x1, y1);
+      outline.closePath();
+      ctx.save();
+      ctx.clip(outline);
+      // the face
+      ctx.fillStyle = vgrad(ctx, y0, y1, [
+        [0, '#66746f'],
+        [0.5, '#46524f'],
+        [1, '#232b2a'],
+      ]);
+      ctx.fillRect(x0 - u, y0 - u, x1 - x0 + 2 * u, y1 - y0 + 2 * u);
+      // layers in the slate, each with a lit lip over a dark seam
+      const bands = 3 + Math.floor(r() * 3);
+      for (let i = 1; i <= bands; i++) {
+        const yy = lerp(y0, y1, ridge + (i / (bands + 1)) * (1 - ridge)) + (r() - 0.5) * u;
+        const seam = new Path2D();
+        seam.moveTo(x0 - u, yy);
+        for (let x = x0; x <= x1 + u; x += (x1 - x0) / 7) seam.lineTo(x, yy + (r() - 0.5) * u * 0.8 + ((x - x0) / (x1 - x0)) * (o.dip ?? 0) * u);
+        ctx.strokeStyle = 'rgba(14,18,18,0.55)';
+        ctx.lineWidth = (0.4 + r() * 0.5) * u;
+        ctx.stroke(seam);
+        ctx.save();
+        ctx.translate(0, -0.55 * u);
+        ctx.strokeStyle = 'rgba(190,200,186,0.25)';
+        ctx.lineWidth = 0.25 * u;
+        ctx.stroke(seam);
+        ctx.restore();
+      }
+      // the top plane, lit
+      const top = new Path2D();
+      topPts.forEach(([x, y], i) => (i ? top.lineTo(x, y) : top.moveTo(x, y)));
+      const ph = r() * 6;
+      for (let i = n; i >= 0; i--) top.lineTo(topPts[i][0], topPts[i][1] + (y1 - y0) * ridge * (0.8 + 0.18 * Math.sin(i * 1.1 + ph)));
+      top.closePath();
+      ctx.fillStyle = vgrad(ctx, y0, y0 + (y1 - y0) * ridge, [
+        [0, '#a9b3a8'],
+        [1, '#808d86'],
+      ]);
+      ctx.fill(top);
+      // the side away from the light
+      const sh = ctx.createLinearGradient(lerp(x0, x1, 0.55), 0, x1, 0);
+      sh.addColorStop(0, 'rgba(10,14,16,0)');
+      sh.addColorStop(1, 'rgba(10,14,16,0.4)');
+      ctx.fillStyle = sh;
+      ctx.fillRect(x0, y0 - u, x1 - x0, y1 - y0 + 2 * u);
+      // lichen rosettes and dark stains
+      for (let i = 0; i < Math.min(140, ((x1 - x0) * (y1 - y0)) / (u * u) * 0.12); i++) {
+        ctx.fillStyle = r() < 0.6 ? `rgba(222,232,214,${0.12 + r() * 0.2})` : 'rgba(25,32,32,0.22)';
+        ctx.beginPath();
+        ctx.ellipse(lerp(x0, x1, r()), lerp(y0, y1, r()), (0.3 + r() * 1.3) * u, (0.25 + r() * 0.7) * u, r() * 3, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+      // moss in soft cushions on the top, a little spilling over the edge
+      ctx.save();
+      ctx.clip(outline);
+      for (let i = 0; i < 3 + (x1 - x0) / (w * 0.08); i++) {
+        if (o.bare) break;
+        const k = 0.1 + r() * 0.8;
+        const j = Math.min(n - 1, Math.floor(k * n));
+        const x = lerp(topPts[j][0], topPts[j + 1][0], k * n - j);
+        const y = lerp(topPts[j][1], topPts[j + 1][1], k * n - j);
+        const mw = (2 + r() * 5) * u;
+        const mh = (0.6 + r() * 1.2) * u;
+        const mg = ctx.createRadialGradient(x, y, 0, x, y + mh * 0.3, mw);
+        mg.addColorStop(0, 'rgba(126,168,60,0.95)');
+        mg.addColorStop(0.6, 'rgba(92,134,46,0.8)');
+        mg.addColorStop(1, 'rgba(70,104,40,0)');
+        ctx.fillStyle = mg;
+        ctx.beginPath();
+        ctx.ellipse(x, y + mh * 0.4, mw, mh * 1.4, 0, 0, TAU);
+        ctx.fill();
+        // a few tufts catching the light on it
+        ctx.fillStyle = 'rgba(170,205,90,0.7)';
+        for (let q = 0; q < 6; q++) {
+          ctx.beginPath();
+          ctx.ellipse(x + (r() - 0.5) * mw * 1.2, y + (r() - 0.3) * mh, 0.35 * u, 0.2 * u, 0, 0, TAU);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+      // the lit edge of the top
+      ctx.strokeStyle = 'rgba(230,236,222,0.5)';
+      ctx.lineWidth = 0.3 * u;
+      ctx.beginPath();
+      topPts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.stroke();
+      return outline;
+    };
+    // the banks: big blocks stepping down either side, a great layered outcrop on the right like the
+    // one by the real falls; ferns and saplings between them
+    crag(g, -w * 0.06, w * 0.3, h * 0.29, h * 0.37, { ridge: 0.35 });
+    crag(g, w * 0.6, w * 1.06, h * 0.25, h * 0.44, { ridge: 0.25, dip: 2 });
+    crag(g, w * 0.22, w * 0.44, h * 0.3, h * 0.39, { ridge: 0.3 });
+    crag(g, -w * 0.08, w * 0.4, h * 0.36, h * 0.5, { ridge: 0.3, dip: -1 });
+    crag(g, w * 0.56, w * 0.78, h * 0.33, h * 0.46, { ridge: 0.3 });
+    crag(g, w * 0.66, w * 1.08, h * 0.42, h * 0.58, { ridge: 0.28, dip: 1 });
+    crag(g, -w * 0.06, w * 0.34, h * 0.47, h * 0.6, { ridge: 0.3 });
+    for (const [x, y] of [[0.05, 0.36], [0.37, 0.355], [0.9, 0.42], [0.15, 0.47], [0.62, 0.45], [0.9, 0.56]]) leaves(g, w * x, h * y, (3 + r() * 4) * u, (1.5 + r() * 2) * u, 90, 0.9 * u, -0.08);
+
+    // the steps, top (far) to bottom (near): lip position, water width, how deep the step's top looks,
+    // how far the water drops off it
+    const steps = [
+      { cx: 0.53, y: 0.31, hw: 0.026, depth: 0.012, drop: 0.026, rock: 0.07 },
+      { cx: 0.47, y: 0.355, hw: 0.032, depth: 0.016, drop: 0.032, rock: 0.09 },
+      { cx: 0.525, y: 0.41, hw: 0.042, depth: 0.02, drop: 0.04, rock: 0.12 },
+      { cx: 0.485, y: 0.475, hw: 0.056, depth: 0.024, drop: 0.048, rock: 0.15 },
+    ];
+    this.flows = [];
+    for (const st of steps) {
+      const cx = w * st.cx;
+      const y = h * st.y;
+      // the step: a stone whose flat top the water crosses, its front face under the drop
+      crag(g, cx - w * st.rock, cx + w * st.rock, y - h * st.depth * 1.2, y + h * st.drop * 1.15, { ridge: (st.depth * 1.2) / (st.depth * 1.2 + st.drop * 1.15) });
+      this.flows.push({ kind: 'run', speed: 0.5, n: 5, secs: [{ x: cx + w * 0.004, y: y - h * st.depth, hw: w * st.hw * 0.75 }, { x: cx, y, hw: w * st.hw }] });
+      this.flows.push({ kind: 'fall', speed: 1.7, n: 12, secs: [{ x: cx, y: y + 0.2 * u, hw: w * st.hw }, { x: cx + w * 0.003, y: y + h * st.drop * 0.5, hw: w * st.hw * 0.93 }, { x: cx + w * 0.005, y: y + h * st.drop, hw: w * st.hw * 1.1 }] });
+    }
+    // the big slab at the bottom: the water spreads across its rounded back in a broad sheet, then
+    // pours off its front edge into the pool
+    const fanBack = h * 0.523;
+    const fanLip = h * 0.62;
+    crag(g, w * 0.1, w * 0.86, fanBack - h * 0.012, h * 0.69, { ridge: 0.62 });
+    this.flows.push({ kind: 'sheet', speed: 0.45, n: 50, secs: [{ x: fx - w * 0.01, y: fanBack, hw: w * 0.1 }, { x: fx - w * 0.035, y: lerp(fanBack, fanLip, 0.45), hw: w * 0.2 }, { x: fx - w * 0.06, y: fanLip, hw: w * 0.27 }] });
+    this.flows.push({ kind: 'curtain', speed: 1.3, n: 46, secs: [{ x: fx - w * 0.06, y: fanLip - 0.5 * u, hw: w * 0.27 }, { x: fx - w * 0.06, y: lerp(fanLip, h * 0.68, 0.5), hw: w * 0.276 }, { x: fx - w * 0.06, y: h * 0.68, hw: w * 0.285 }] });
+    for (const f of this.flows) f.path = flowPath(f);
+    // the water as painted: soft-edged and glassy, white strands running with it, ragged at the edges,
+    // rock showing through where it runs thin, bright where it spills over a lip
+    for (const f of this.flows) {
+      const sheet = f.kind === 'sheet';
+      const curtain = f.kind === 'curtain';
+      if (curtain) {
+        g.save();
+        g.clip(f.path);
+        g.fillStyle = vgrad(g, f.secs[0].y, f.secs[2].y, [
+          [0, 'rgba(235,244,240,0.75)'],
+          [1, 'rgba(220,234,230,0.35)'],
+        ]);
+        g.fill(f.path);
+        g.lineCap = 'round';
+        for (let i = 0; i < 130; i++) {
+          const v = r() * 2 - 1;
+          const u1 = 0.7 + r() * 0.3;
+          g.strokeStyle = `rgba(252,254,253,${0.25 + r() * 0.55})`;
+          g.lineWidth = (0.3 + r() * 0.8) * u;
+          const [ax, ay] = flowAt(f, 0, v);
+          const [bx, by] = flowAt(f, u1, v + (r() - 0.5) * 0.02);
+          g.beginPath();
+          g.moveTo(ax, ay);
+          g.lineTo(bx, by);
+          g.stroke();
+        }
+        g.restore();
+        const e = f.secs[2];
+        g.save();
+        g.shadowColor = 'rgba(255,255,255,0.9)';
+        g.shadowBlur = 2 * u;
+        g.fillStyle = 'rgba(250,253,252,0.9)';
+        g.beginPath();
+        for (let k = 0; k < 22; k++) {
+          const x = e.x + ((k / 21) * 2 - 1) * e.hw * 1.02;
+          const ry = (0.8 + r() * 1.4) * u;
+          g.moveTo(x + 3 * u, e.y);
+          g.ellipse(x, e.y - ry * 0.4, (1.6 + r() * 1.6) * u, ry, 0, 0, TAU);
+        }
+        g.fill();
+        g.restore();
+        continue;
+      }
+      if (!sheet) {
+        g.save();
+        g.shadowColor = 'rgba(235,245,242,0.9)';
+        g.shadowBlur = 1.4 * u;
+        g.fillStyle = f.kind === 'fall' ? 'rgba(225,238,234,0.6)' : 'rgba(205,224,218,0.5)';
+        g.fill(f.path);
+        g.restore();
+      }
+      g.save();
+      if (!sheet) g.clip(f.path);
+      g.lineCap = 'round';
+      const n = sheet ? 150 : f.kind === 'fall' ? 30 + (f.secs[0].hw / u) * 2.2 : 14;
+      for (let i = 0; i < n; i++) {
+        const v = sheet ? (r() * 2 - 1) * 1.05 : (i / n) * 2 - 1 + (r() - 0.5) * (2 / n);
+        const edge = 1 - Math.min(1, Math.abs(v)) ** 3;
+        // a sheet frays at its edges: strands there start late and stop short
+        const u0 = sheet ? r() * 0.25 + (1 - edge) * r() * 0.5 : r() * 0.15;
+        const u1 = sheet ? 1 - (1 - edge) * r() * 0.3 : 1;
+        g.strokeStyle = `rgba(252,254,253,${(sheet ? 0.25 + r() * 0.5 : 0.18 + r() * 0.5) * (0.35 + edge * 0.65)})`;
+        g.lineWidth = (sheet ? 0.5 + r() * 1.1 : 0.25 + r() * 0.6) * u;
+        g.beginPath();
+        for (let k = 0; k <= 8; k++) {
+          const [x, y] = flowAt(f, lerp(u0, u1, k / 8), v + Math.sin(k * 0.9 + i) * 0.015);
+          if (k) g.lineTo(x, y);
+          else g.moveTo(x, y);
+        }
+        g.stroke();
+      }
+      g.restore();
+      if (f.kind === 'fall') {
+        const s0 = f.secs[0];
+        g.strokeStyle = 'rgba(255,255,255,0.9)';
+        g.lineWidth = 0.4 * u;
+        g.beginPath();
+        g.moveTo(s0.x - s0.hw, s0.y + 0.3 * u);
+        g.quadraticCurveTo(s0.x, s0.y - 0.5 * u, s0.x + s0.hw, s0.y + 0.3 * u);
+        g.stroke();
+        // white water churning where it lands, ragged
+        const e = f.secs[f.secs.length - 1];
+        g.save();
+        g.shadowColor = 'rgba(255,255,255,0.9)';
+        g.shadowBlur = 1.5 * u;
+        g.fillStyle = 'rgba(250,253,252,0.85)';
+        g.beginPath();
+        const blobs = 5 + Math.round(e.hw / u);
+        for (let k = 0; k < blobs; k++) {
+          const x = e.x + ((k / (blobs - 1)) * 2 - 1) * e.hw * 1.05 + (r() - 0.5) * u;
+          const ry = (0.5 + r() * 0.8) * u;
+          g.moveTo(x + e.hw * 0.3, e.y);
+          g.ellipse(x, e.y - ry * 0.3 + (r() - 0.5) * u * 0.6, e.hw * (0.15 + r() * 0.15) + u * 0.4, ry, 0, 0, TAU);
+        }
+        g.fill();
+        g.restore();
+      }
+    }
+    // the pool below, dark green, gold where the canopy shows in it
+    const pool = new Path2D();
+    pool.moveTo(-w * 0.05, h * 0.695);
+    pool.bezierCurveTo(w * 0.2, h * 0.675, w * 0.8, h * 0.675, w * 1.05, h * 0.695);
+    pool.lineTo(w * 1.05, h * 1.02);
+    pool.lineTo(-w * 0.05, h * 1.02);
+    pool.closePath();
+    this.pool = pool;
+    g.fillStyle = vgrad(g, h * 0.675, h, [
+      [0, '#7da48f'],
+      [0.2, '#47705f'],
+      [0.6, '#2c4e45'],
+      [1, '#1b332f'],
+    ]);
+    g.fill(pool);
+    g.save();
+    g.clip(pool);
+    for (let i = 0; i < 40; i++) {
+      g.fillStyle = `rgba(${170 + r() * 60},${200 + r() * 40},120,${0.05 + r() * 0.1})`;
+      g.beginPath();
+      g.ellipse(w * r(), h * (0.69 + r() * 0.3), (3 + r() * 9) * u, (0.3 + r() * 0.6) * u, 0, 0, TAU);
+      g.fill();
+    }
+    const landing = g.createLinearGradient(0, h * 0.675, 0, h * 0.73);
+    landing.addColorStop(0, 'rgba(250,252,250,0.9)');
+    landing.addColorStop(1, 'rgba(250,252,250,0)');
+    g.fillStyle = landing;
+    g.beginPath();
+    g.ellipse(fx - w * 0.07, h * 0.687, w * 0.34, h * 0.028, 0, 0, TAU);
+    g.fill();
+    g.restore();
+    // stones in the pool and banking it, the near ones big
+    for (const [x, y, rx, ry] of [
+      [0.06, 0.72, 0.17, 0.04],
+      [0.95, 0.715, 0.16, 0.04],
+      [0.27, 0.8, 0.07, 0.016],
+      [0.72, 0.82, 0.08, 0.018],
+      [0.5, 0.885, 0.06, 0.014],
+      [0.08, 0.87, 0.16, 0.04],
+      [0.93, 0.89, 0.15, 0.04],
+    ]) crag(g, w * (x - rx), w * (x + rx), h * (y - ry * 1.1), h * (y + ry * 0.9), { ridge: 0.45, bare: y > 0.78 && x > 0.2 && x < 0.8, tilt: (r() - 0.5) * 0.3 });
+    const boulder = (ctx, cx, cy, rx, ry) => crag(ctx, cx - rx, cx + rx, cy - ry * 1.2, cy + ry, { ridge: 0.4, tilt: (r() - 0.5) * 0.3 });
+
+    // ---- in front, drawn over the water: a leafy bush leaning in from the right, ferns, near rocks
+    this.front = layer(w, h);
+    const fg = this.front.getContext('2d');
+    boulder(fg, w * 0.16, h * 0.97, w * 0.3, h * 0.05);
+    boulder(fg, w * 0.86, h * 0.985, w * 0.26, h * 0.05);
+    fg.strokeStyle = '#4c4a3a';
+    fg.lineCap = 'round';
+    for (let i = 0; i < 10; i++) {
+      const x0 = w * (0.95 + r() * 0.12);
+      const y0 = h * (0.8 + r() * 0.15);
+      const x1 = w * (0.62 + r() * 0.3);
+      const y1 = h * (0.5 + r() * 0.3);
+      fg.lineWidth = (0.2 + r() * 0.3) * u;
+      fg.beginPath();
+      fg.moveTo(x0, y0);
+      fg.quadraticCurveTo((x0 + x1) / 2 + u * 3, (y0 + y1) / 2, x1, y1);
+      fg.stroke();
+      for (let k = 0; k < 5; k++) {
+        const t = 0.35 + k * 0.16;
+        leaves(fg, lerp(x0, x1, t), lerp(y0, y1, t), (2.5 + r() * 3.5) * u, (2 + r() * 2.5) * u, 70, 1.15 * u, -0.05);
+      }
+    }
+    // the canopy's lowest leaves, framing the top, dark against the light
+    for (let i = 0; i < 10; i++) leaves(fg, w * r(), -h * 0.01 + r() * h * 0.05, (5 + r() * 8) * u, (3 + r() * 4) * u, 200, 1.2 * u, -0.3);
+    this.ferns = Array.from({ length: 7 }, (_, i) => ({
+      x: (i / 6) * w + rand(-0.05, 0.05) * w,
+      y: h * rand(0.96, 1.03),
+      len: rand(14, 26) * u,
       ph: rand(0, TAU),
       side: i % 2 ? 1 : -1,
     }));
-    this.streaks = Array.from({ length: 90 }, () => this.streak(true));
-    this.mist = Array.from({ length: 26 }, () => this.puff(true));
-    this.glints = Array.from({ length: 40 }, () => ({ x: rand(0.1, 0.9) * w, y: rand(this.base + h * 0.02, h * 0.95), ph: rand(0, TAU) }));
+
+    // ---- what moves
+    this.streaks = [];
+    for (const f of this.flows) {
+      for (let i = 0; i < f.n; i++) this.streaks.push(this.streak(f, true));
+    }
+    this.foams = this.flows.filter((f) => f.kind === 'fall').map((f) => {
+      const e = f.secs[f.secs.length - 1];
+      return { x: e.x, y: e.y, r: e.hw * 1.3 };
+    });
+    // foam and ripples drifting away from the fan across the pool, toward you
+    this.drift = Array.from({ length: 34 }, () => this.flake(true));
+    this.mist = Array.from({ length: 14 }, () => this.puff(true));
+    this.glints = Array.from({ length: 30 }, () => ({ x: rand(0.1, 0.9) * w, y: rand(0.7, 0.97) * h, ph: rand(0, TAU) }));
   }
-  streak(anywhere) {
+
+  streak(f, anywhere) {
     return {
-      x: this.fx + rand(-0.5, 0.5) * this.fw,
-      y: anywhere ? rand(this.top, this.base) : this.top - rand(0, 20),
-      v: rand(0.8, 1.3),
-      l: rand(3, 9) * this.u,
-      a: rand(0.25, 0.7),
+      f,
+      u: anywhere ? Math.random() : -Math.random() * 0.15,
+      v: rand(-0.9, 0.9),
+      sp: f.speed * rand(0.8, 1.25),
+      l: f.kind === 'fall' || f.kind === 'curtain' ? rand(0.2, 0.4) : f.kind === 'run' ? rand(0.2, 0.4) : rand(0.08, 0.16),
+      a: rand(0.25, 0.8),
     };
   }
+
+  // a fleck of foam or a ripple, carried from the foot of the fan out across the pool
+  flake(anywhere) {
+    const { w, h } = this;
+    const k = Math.random() * 2 - 1;
+    return {
+      x: w * 0.43 + k * w * 0.3,
+      y: h * (0.69 + (anywhere ? Math.random() * 0.3 : 0)),
+      vx: k * w * 0.012,
+      vy: h * rand(0.012, 0.022),
+      s: rand(0.6, 1.6) * this.u,
+      ring: Math.random() < 0.5,
+      ph: rand(0, TAU),
+    };
+  }
+
   puff(anywhere) {
+    const base = this.flows[this.flows.length - 1].secs[2];
     return {
-      x: this.fx + rand(-1, 1) * this.fw * 1.2,
-      y: this.base + rand(-0.04, 0.06) * this.h - (anywhere ? rand(0, 0.25) * this.h : 0),
-      r: rand(6, 16) * this.u,
-      vx: rand(-0.6, 0.6) * this.u,
-      vy: -rand(0.6, 1.8) * this.u,
-      a: rand(0.05, 0.14),
+      x: base.x + rand(-1, 1) * base.hw * 1.6,
+      y: base.y - (anywhere ? rand(0, 0.08) * this.h : 0),
+      r: rand(3, 9) * this.u,
+      vx: rand(-0.4, 0.4) * this.u,
+      vy: -rand(0.4, 1.2) * this.u,
+      a: rand(0.05, 0.12),
       age: anywhere ? rand(0, 8) : 0,
-      life: rand(7, 14),
+      life: rand(6, 11),
     };
   }
+
   frame(dt) {
     const { g, w, h, t, u } = this;
     g.drawImage(this.bg, 0, 0);
-    // falling water
-    const body = g.createLinearGradient(this.fx - this.fw / 2, 0, this.fx + this.fw / 2, 0);
-    body.addColorStop(0, 'rgba(220,240,240,0.15)');
-    body.addColorStop(0.5, 'rgba(240,250,250,0.55)');
-    body.addColorStop(1, 'rgba(220,240,240,0.15)');
-    g.fillStyle = body;
-    g.fillRect(this.fx - this.fw / 2, this.top, this.fw, this.base - this.top);
-    g.lineCap = 'round';
+    // the water moving: streaks riding down every drop and tongue, batched by brightness
+    const bands = [new Path2D(), new Path2D(), new Path2D()];
     for (const s of this.streaks) {
-      s.y += s.v * (this.base - this.top) * 0.9 * dt;
-      if (s.y > this.base) Object.assign(s, this.streak(false));
-      g.strokeStyle = `rgba(255,255,255,${s.a})`;
-      g.lineWidth = rand(0.6, 1.6) * this.dpr;
-      g.beginPath();
-      g.moveTo(s.x, s.y);
-      g.lineTo(s.x, s.y - s.l);
-      g.stroke();
+      s.u += s.sp * dt;
+      if (s.u - s.l > 1) Object.assign(s, this.streak(s.f, false));
+      const [x0, y0] = flowAt(s.f, s.u, s.v);
+      const [x1, y1] = flowAt(s.f, s.u - s.l, s.v);
+      const P = bands[s.a > 0.65 ? 2 : s.a > 0.45 ? 1 : 0];
+      P.moveTo(x0, y0);
+      P.lineTo(x1, y1);
     }
-    // foam at the foot
-    for (let i = 0; i < 6; i++) {
-      const r = (this.fw * 0.7 + Math.sin(t * 3 + i) * u) * (1 + i * 0.15);
-      g.fillStyle = `rgba(245,252,252,${0.12 - i * 0.015})`;
-      g.beginPath();
-      g.ellipse(this.fx, this.base + u * 0.5, r, r * 0.22, 0, 0, TAU);
-      g.fill();
+    g.lineCap = 'round';
+    bands.forEach((P, i) => {
+      g.strokeStyle = `rgba(255,255,255,${[0.35, 0.55, 0.8][i]})`;
+      g.lineWidth = [0.8, 1.1, 1.4][i] * this.dpr;
+      g.stroke(P);
+    });
+    // foam boiling at the foot of each drop
+    for (const [i, f] of this.foams.entries()) {
+      for (let k = 0; k < 3; k++) {
+        const rr = f.r * (0.6 + k * 0.25) * (1 + 0.08 * Math.sin(t * 3 + k * 2 + i));
+        g.fillStyle = `rgba(250,253,252,${0.3 - k * 0.08})`;
+        g.beginPath();
+        g.ellipse(f.x, f.y, rr, rr * 0.35, 0, 0, TAU);
+        g.fill();
+      }
     }
-    // glints on the pool
+    // foam and ripples drifting out across the pool, spreading as they come toward you
+    g.save();
+    g.clip(this.pool);
+    for (const d of this.drift) {
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      if (d.y > h * 1.02) Object.assign(d, this.flake(false));
+      const near = (d.y - h * 0.66) / (h * 0.36);
+      const fade = clamp(1 - near * 0.8, 0.15, 1);
+      if (d.ring) {
+        g.strokeStyle = `rgba(230,245,240,${0.3 * fade})`;
+        g.lineWidth = 0.18 * u;
+        g.beginPath();
+        g.ellipse(d.x, d.y, d.s * (1.5 + near * 4), d.s * (0.3 + near * 0.8), 0, Math.PI * 1.05, Math.PI * 1.95);
+        g.stroke();
+      } else {
+        g.fillStyle = `rgba(245,250,248,${0.4 * fade})`;
+        g.beginPath();
+        g.ellipse(d.x + Math.sin(t + d.ph) * u * 0.3, d.y, d.s * (1 + near * 2), d.s * (0.35 + near * 0.6), 0, 0, TAU);
+        g.fill();
+      }
+    }
+    g.restore();
+    // glints on the water
     for (const s of this.glints) {
-      const k = 0.5 + 0.5 * Math.sin(t * 2.2 + s.ph);
-      g.fillStyle = `rgba(230,250,250,${0.35 * k * k})`;
-      g.fillRect(s.x + Math.sin(t + s.ph) * u, s.y, 1.6 * u, 0.25 * u);
+      const k = 0.5 + 0.5 * Math.sin(t * 2.4 + s.ph);
+      g.fillStyle = `rgba(250,255,230,${0.45 * k * k})`;
+      g.fillRect(s.x + Math.sin(t + s.ph) * u * 0.5, s.y, 1.4 * u, 0.22 * u);
     }
-    // rising mist
+    // mist off the biggest drop
     for (const m of this.mist) {
       m.age += dt;
       m.x += m.vx * dt;
@@ -533,35 +990,47 @@ class Waterfall extends Painting {
       if (m.age > m.life) Object.assign(m, this.puff(false));
       const k = Math.sin((m.age / m.life) * Math.PI);
       const gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r * (1 + m.age / m.life));
-      gr.addColorStop(0, `rgba(240,250,250,${m.a * k})`);
-      gr.addColorStop(1, 'rgba(240,250,250,0)');
+      gr.addColorStop(0, `rgba(240,250,245,${m.a * k})`);
+      gr.addColorStop(1, 'rgba(240,250,245,0)');
       g.fillStyle = gr;
       g.fillRect(m.x - m.r * 2, m.y - m.r * 2, m.r * 4, m.r * 4);
     }
-    // sun shafts
+    // sun slanting down through the leaves
     g.save();
     g.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < 3; i++) {
-      const k = 0.04 + 0.025 * Math.sin(t * 0.3 + i * 2);
-      g.fillStyle = `rgba(255,246,229,${k})`;
+    // (each shaft feathered across its width, so it reads as light and not a stripe)
+    for (let i = 0; i < 4; i++) {
+      const k = 0.035 + 0.02 * Math.sin(t * 0.25 + i * 1.7);
+      const x0 = w * (0.52 + i * 0.06);
+      const xb = x0 - w * (0.15 + i * 0.07);
+      g.save();
       g.beginPath();
-      const x0 = w * (0.15 + i * 0.22);
-      g.moveTo(x0, 0);
-      g.lineTo(x0 + w * 0.08, 0);
-      g.lineTo(x0 + w * 0.35, h);
-      g.lineTo(x0 + w * 0.2, h);
+      g.moveTo(x0 - w * 0.01, 0);
+      g.lineTo(x0 + w * 0.05, 0);
+      g.lineTo(xb + w * 0.06, h * 0.85);
+      g.lineTo(xb - w * 0.07, h * 0.85);
       g.closePath();
-      g.fill();
+      g.clip();
+      const gr = g.createLinearGradient(xb - w * 0.07, 0, xb + w * 0.06, 0);
+      gr.addColorStop(0, 'rgba(255,248,210,0)');
+      gr.addColorStop(0.5, `rgba(255,248,210,${k})`);
+      gr.addColorStop(1, 'rgba(255,248,210,0)');
+      const fade = g.createLinearGradient(0, 0, 0, h * 0.85);
+      g.fillStyle = gr;
+      g.fillRect(0, 0, w, h * 0.85);
+      fade.addColorStop(0, 'rgba(0,0,0,0)');
+      g.restore();
     }
     g.restore();
+    g.drawImage(this.front, 0, 0);
     // ferns in front, swaying
     for (const f of this.ferns) {
-      const sway = Math.sin(t * 0.9 + f.ph) * 0.12;
+      const sway = Math.sin(t * 0.9 + f.ph) * 0.1;
       g.save();
       g.translate(f.x, f.y);
       g.rotate(-Math.PI / 2 + f.side * 0.5 + sway);
-      g.strokeStyle = '#0f2a22';
-      g.fillStyle = '#123227';
+      g.strokeStyle = '#1d4a22';
+      g.fillStyle = '#2f6a2c';
       g.lineWidth = 0.5 * u;
       g.beginPath();
       g.moveTo(0, 0);
