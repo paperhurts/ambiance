@@ -254,7 +254,7 @@ export function buildScenes(pools) {
     layers: [
       { id: 'chorus', type: 'bed', label: 'Frog chorus', icon: 'frog', files: files('pond/chorus'), level: 0.5, drive: { by: 'chorus', gain: [0.55, 1] } },
       { id: 'insects', type: 'bed', label: 'Crickets and katydids', icon: 'cricket', files: files('pond/insects'), level: 0.5, gain: 0.8 },
-      { id: 'water', type: 'bed', label: 'Water', icon: 'water', files: files('pond/water'), level: 0.2, gain: 0.7 },
+      { id: 'water', type: 'bed', label: 'Lapping water', icon: 'water', files: files('pond/water'), level: 0, gain: 0.7 },
       ...birds('pond', pondBeds, { only: FROGS, group: 'Frogs', icon: 'frog', level: 0.6, gain: 0.9, reverb: 0.3, relocate: [200, 600], drive: { by: 'chorus', rate: [0.5, 1.4] } }),
       ...birds('pond', pondBeds, { only: NIGHT_BIRDS, group: 'In the trees', icon: 'owl', count: 1, level: 0.5, gain: 0.9, reverb: 0.4 }),
       { id: 'alligator', type: 'shots', label: 'Alligator', icon: 'gator', group: 'In the water', pool: items('pond/alligator'), every: [200, 700], first: [60, 240], level: 0.35, gain: 0.9, reverb: 0.4, space: { dist: [25, 90], el: [-5, 0], air: 200 } },
