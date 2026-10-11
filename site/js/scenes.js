@@ -203,23 +203,24 @@ export function buildScenes(pools) {
     name: 'Everglades Storm',
     kicker: 'Summer, four in the afternoon',
     what: 'Sawgrass to the horizon and a thunderhead building over it. The storm comes, pours and passes.',
-    note: 'The storm comes and goes on its own, about every twenty minutes. Each slider sets how loud that part is while it’s here.',
+    note: 'The storm comes and goes on its own: it rains most of the time, with a short, steamy break between storms. Each slider sets how loud that part is while it’s here.',
     requires: ['glades/afternoon', 'glades/downpour'],
-    gain: 1.6,
+    gain: 1.45,
     reverb: { type: 'open', level: 0.3 },
     drivers: {
-      // the storm's life, repeating; the scene opens as it starts to build
+      // the storm's life, repeating; the scene opens as the gust front hits, and it's raining most
+      // of the time, with a short break between one storm and the next
       storm: {
         cycle: [
-          { to: 0.06, dur: [200, 360] }, // a hot, still afternoon
-          { to: 0.45, dur: [150, 240] }, // building: far thunder, the light going
-          { to: 0.82, dur: [40, 80] }, // the gust front
-          { to: 1, dur: [240, 480] }, // the downpour, thunder overhead
-          { to: 0.3, dur: [150, 260] }, // moving off
-          { to: 0, dur: [200, 360] }, // clearing
+          { to: 1, dur: [360, 660] }, // the downpour, thunder overhead
+          { to: 0.55, dur: [240, 420] }, // moving off: steady rain, the thunder rolling away
+          { to: 0.18, dur: [150, 240] }, // the rain thinning to drips; frogs, a rainbow
+          { to: 0.06, dur: [90, 180] }, // a short, steamy lull
+          { to: 0.5, dur: [120, 200] }, // the next one building: far thunder, the light going
+          { to: 0.85, dur: [40, 80] }, // the gust front
         ],
-        begin: 1,
-        start: 0.12,
+        begin: 5,
+        start: 0.45,
         wobble: 0.08,
       },
       // what the storm leaves behind: drips, and the frogs
