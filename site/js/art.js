@@ -67,6 +67,20 @@ const passion = (x, y, r) =>
   at(x, y, ring(10, (a) => `<ellipse cy="${-r * 0.55}" rx="${r * 0.16}" ry="${r * 0.45}" fill="#f3edf9" transform="rotate(${a})"/>`) +
     `<circle r="${r * 0.62}" fill="none" stroke="#8c5cc8" stroke-width="${r * 0.3}" stroke-dasharray="${r * 0.08} ${r * 0.08}"/><circle r="${r * 0.3}" fill="#4b1f73"/><circle r="${r * 0.14}" fill="#a8c66c"/>`);
 const FRONDS = [-200, -172, -146, -121, -96, -71, -46, -21, 4, 26];
+// a tropical hibiscus like the ones in Sid's yard: five ruffled lobes round a dark eye, a long
+// column dusted with pollen and five round stigma pads
+const LOBE = Array.from({ length: 13 }, (_, i) => {
+  const a = -0.74 + (1.48 * i) / 12;
+  const rr = 0.55 + 0.45 * Math.cos(a * 1.9);
+  return [Math.cos(a) * rr, Math.sin(a) * rr];
+});
+const tropical = (x, y, r, id, petal, eye, edge, eyeSize = 0.32) =>
+  at(x, y,
+    `<defs><radialGradient id="${id}" cx="0" cy="0" r="${r}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${eye}"/><stop offset="${eyeSize}" stop-color="${eye}"/><stop offset="${eyeSize + 0.15}" stop-color="${petal}"/><stop offset=".86" stop-color="${petal}"/><stop offset="1" stop-color="${edge}"/></radialGradient></defs>` +
+      ring(5, (a) => `<path d="M0 0L${LOBE.map(([u, v]) => `${(u * r).toFixed(2)} ${(v * r).toFixed(2)}`).join('L')}Z" fill="url(#${id})" stroke="rgba(80,20,10,.15)" stroke-width=".3" transform="rotate(${a - 72})"/>`) +
+      `<path d="M0 0Q${r * 0.27} ${-r * 0.06} ${r * 0.6} ${-r * 0.42}" stroke="#b3122f" stroke-width="${r * 0.07}" fill="none"/>` +
+      [0.62, 0.7, 0.78, 0.86].map((t, i) => `<circle cx="${(r * 0.6 * t + (i % 2 ? 1 : -1) * r * 0.05).toFixed(2)}" cy="${(-r * 0.42 * t * t).toFixed(2)}" r="${r * 0.045}" fill="#f8b61e"/>`).join('') +
+      ring(5, (a) => `<circle cx="${(r * 0.64 + Math.cos((a * Math.PI) / 180) * r * 0.06).toFixed(2)}" cy="${(-r * 0.47 + Math.sin((a * Math.PI) / 180) * r * 0.06).toFixed(2)}" r="${r * 0.05}" fill="#f28a10"/>`));
 // a clump of upright leaves fanning out from a base
 const bush = (x, y, w, h, col, light) =>
   at(x, y, `<ellipse cy="${-h * 0.15}" rx="${w * 0.5}" ry="${h * 0.32}" fill="${col}"/>` + Array.from({ length: 11 }, (_, i) => {
@@ -160,7 +174,7 @@ export const thumbs = {
     ${mallow(60, 91, 8, '#f6bcd0')}${umbel(88, 91, 6, '#c64480', '#f4a3c8')}${passion(112, 95, 7)}${daisy(136, 93, 5, 8, '#ffd21f', '#7b4a12')}
     ${[22, 64, 106, 148].map((x) => bush(x, 122, 44, 16, '#24492a', '#35663a')).join('')}
     <g stroke="#2a5230" stroke-width="1.3"><path d="M22 118V101M52 118V109M80 118V111M106 118V107M124 118V113M146 118V109"/></g>
-    ${hibiscus(22, 100, 15, 4)}${umbel(52, 108, 10, '#e35d16', '#ffa94d')}${daisy(80, 110, 8.5, 12, '#c0391b', '#6e1b14', '#f7c02a')}
+    ${tropical(24, 99, 17, 'tb-hib-y', '#f6cd1a', '#8e0f2b', '#fadc40')}${umbel(52, 108, 10, '#e35d16', '#ffa94d')}${daisy(80, 110, 8.5, 12, '#c0391b', '#6e1b14', '#f7c02a')}
     ${daisy(106, 106, 8, 12, '#f6ab0c', '#2b170a')}${daisy(124, 113, 6.5, 12, '#f9b918', '#2b170a')}${daisy(146, 108, 5.5, 6, '#fcfcf7', '#efbe2a')}${daisy(155, 116, 4.5, 6, '#fcfcf7', '#efbe2a')}
     <g transform="translate(80 46) rotate(-12)"><path d="M0 0C-8-15-26-14-24-6C-22 0-8 2 0 0C8-15 26-14 24-6C22 0 8 2 0 0" fill="#161616"/><path d="M0 0C-5 6-15 9-16 5C-17 2-8 0 0 0C5 6 15 9 16 5C17 2 8 0 0 0" fill="#161616"/><path d="M-3-3L-21-8M-3 1L-13 5M3-3L21-8M3 1L13 5" stroke="#ffe066" stroke-width="1.5"/><ellipse rx="1" ry="5" fill="#111"/></g>
     <g transform="translate(116 66) rotate(8)"><path d="M0 0C-4-8-12-8-11-2C-10 2-4 2 0 0C4-8 12-8 11-2C10 2 4 2 0 0" fill="#e8741a"/><path d="M0 0C-3 4-8 5-8 2.5C-8 1-4 0 0 0C3 4 8 5 8 2.5C8 1 4 0 0 0" fill="#e8741a"/><path d="M-1-1L-9-4M1-1L9-4" stroke="#1a1a1a" stroke-width=".8"/><ellipse rx=".7" ry="3.2" fill="#1a1a1a"/></g>
