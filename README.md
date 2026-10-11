@@ -11,17 +11,18 @@ None of them loops audibly: long recordings crossfade between random points, and
 | **Storm at Sea** | Breakers, rain and a gale; thunder that arrives after its lightning, later and duller the further away it is. A red buoy rides the swell. |
 | **Forest Waterfall** | Falls, a creek, forest air and leaves; birds that each keep their own perch and sing in bouts. |
 | **Sunrise Garden** | A real dawn chorus that builds over 25 minutes as the sky (and the birds) wake up. |
+| **Butterfly Garden** | A Florida yard full of pollinators: big tropical hibiscus in sunset colours, milkweed and a rainbow of native wildflowers under a live oak hung with Spanish moss; zebra longwings and monarchs working the flowers, hummingbirds at the firebush and sage, cicadas, bees and a breeze in the palms. Ten Florida birds (cardinal, mockingbird, Carolina wren, blue jay, red-bellied woodpecker, northern parula, tufted titmouse, mourning and ground doves, a red-shouldered hawk overhead), each shown in its own colours when it sings. |
 | **Haunted Mansion** | Wind in the eaves, a hall clock, the fire, the house settling, something walking upstairs (watch the candle move between windows). |
 | **Snowy Woods** | Wind in the pines, snow slumping off branches, footsteps passing, the lake ice singing. |
 | **Blank Canvas** | A black screen and every sound in the app, plus white/pink/brown noise. Save your own mixes. |
 
-Every scene has a **Mix** sheet (each layer on its own slider, remembered), a **sleep timer** that fades out
+Every scene has a **Mix** sheet (each layer on its own slider, every bird species too, remembered), a **sleep timer** that fades out
 over the last minute and a half, and **Dim** for a black screen. **Headphones mode** places sounds in 3D
 (behind, above, moving past) using the browser's HRTF panner.
 
 ## Put it on your phone
 
-The app is served from GitHub Pages: `https://paperhurts.github.io/ambiance/`
+The app is served from GitHub Pages: **https://ambiance.paperhurts.dev**
 
 - **iPhone / iPad:** open the link in Safari → Share → **Add to Home Screen**.
 - **Android:** open it in Chrome → menu → **Install app** (or use the Install button under Settings).
@@ -80,3 +81,7 @@ Check everything still runs: `node tools/check.mjs ui shots/` (Playwright + Chro
 All recordings are public domain or Creative Commons licensed; the full list (with links and licences) is in
 the app under **Settings → Credits**, and in `tools/sources/*.json`. Fonts: Fraunces and Nunito (SIL Open Font
 Licence). Palette borrowed from *Beyond the Buoys*.
+
+Most of the Florida birds (and the Florida soundscape) come from [xeno-canto](https://xeno-canto.org) under
+CC BY-NC-SA, which allows non-commercial use only. That's fine for a free app; if Ambiance were ever sold
+or carried ads, those recordings would need replacing.

@@ -23,7 +23,8 @@ const HABITS = {
   'carolina-wren': { bout: [3, 6], gap: [4, 8], rest: [30, 90], el: [0, 20], dist: [8, 25], gain: 0.8 },
   'song-sparrow': { bout: [3, 6], gap: [5, 10], rest: [30, 90], el: [0, 20], dist: [8, 25] },
   'house-finch': { bout: [2, 5], gap: [3, 8], rest: [30, 90], el: [10, 35], dist: [10, 30] },
-  mockingbird: { bout: [6, 14], gap: [0.5, 1.5], rest: [30, 90], el: [10, 40], dist: [10, 30] },
+  // each mockingbird recording is already a run of several phrases
+  mockingbird: { bout: [2, 5], gap: [0.6, 1.8], rest: [30, 90], el: [10, 40], dist: [10, 30] },
   'hermit-thrush': { bout: [4, 8], gap: [3, 6], rest: [30, 90], el: [5, 30], dist: [20, 50] },
   'wood-thrush': { bout: [4, 8], gap: [3, 6], rest: [30, 90], el: [5, 30], dist: [20, 50] },
   'winter-wren': { bout: [1, 3], gap: [4, 9], rest: [30, 90], el: [0, 10], dist: [10, 30], gain: 0.8 },
@@ -35,7 +36,27 @@ const HABITS = {
   cuckoo: { bout: [3, 8], gap: [1.2, 2.2], rest: [60, 180], el: [10, 30], dist: [60, 120] },
   raven: { bout: [1, 3], gap: [2, 5], rest: [60, 200], el: [20, 60], dist: [40, 120] },
   crow: { bout: [1, 3], gap: [2, 5], rest: [60, 200], el: [15, 45], dist: [40, 100] },
+  // Florida
+  cardinal: { bout: [3, 6], gap: [3, 7], rest: [20, 80], el: [10, 35], dist: [10, 30] },
+  // a pair that keeps together, answering each other
+  'tufted-titmouse': { bout: [2, 5], gap: [1.4, 3.5], rest: [25, 75], el: [10, 35], dist: [10, 30], n: 2, together: true },
+  'blue-jay': { bout: [1, 3], gap: [1.5, 4], rest: [45, 150], el: [10, 40], dist: [15, 45] },
+  'red-bellied-woodpecker': { bout: [1, 3], gap: [3, 8], rest: [45, 150], el: [15, 45], dist: [15, 45] },
+  'northern-parula': { bout: [3, 8], gap: [6, 12], rest: [30, 90], el: [20, 50], dist: [15, 40] },
+  'red-shouldered-hawk': { bout: [1, 2], gap: [3, 6], rest: [90, 300], el: [30, 70], dist: [60, 150] },
+  'ground-dove': { bout: [1, 2], gap: [6, 12], rest: [40, 120], el: [0, 10], dist: [8, 25] },
 };
+
+// What each species is called on its slider.
+const NAMES = {
+  blackbird: 'Blackbird', robin: 'Robin', 'song-thrush': 'Song thrush', wren: 'Wren', 'great-tit': 'Great tit',
+  'wood-pigeon': 'Wood pigeon', chaffinch: 'Chaffinch', raven: 'Raven', nuthatch: 'Red-breasted nuthatch',
+  nutcracker: "Clark's nutcracker", chickadee: 'Chickadee', mockingbird: 'Mockingbird', cardinal: 'Cardinal',
+  'carolina-wren': 'Carolina wren', 'mourning-dove': 'Mourning dove', 'tufted-titmouse': 'Tufted titmouse',
+  'blue-jay': 'Blue jay', 'red-bellied-woodpecker': 'Red-bellied woodpecker', 'northern-parula': 'Northern parula',
+  'red-shouldered-hawk': 'Red-shouldered hawk', 'ground-dove': 'Ground dove',
+};
+const nameOf = (id) => NAMES[id] || id.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
 const DEFAULT_HABIT = { bout: [2, 6], gap: [2, 6], rest: [20, 80], el: [5, 35], dist: [12, 40] };
 
 export function buildScenes(pools) {
@@ -51,8 +72,24 @@ export function buildScenes(pools) {
         const id = k.slice(scene.length + 1);
         const h = HABITS[id] || DEFAULT_HABIT;
         const solo = id.includes('pigeon') || id.includes('dove') || id === 'raven' || id === 'crow';
-        return { id, files: files(k), count: solo ? 1 : count, bout: h.bout, gap: h.gap, rest: [h.rest[0] * quiet, h.rest[1] * quiet], gain: h.gain ?? 1, space: { el: h.el, dist: h.dist } };
+        return { id, files: items(k), count: h.n ?? (solo ? 1 : count), together: h.together, bout: h.bout, gap: h.gap, rest: [h.rest[0] * quiet, h.rest[1] * quiet], gain: h.gain ?? 1, space: { el: h.el, dist: h.dist } };
       });
+
+  // One slider per species, gathered under a "Birds" heading in the mix.
+  const birds = (scene, exclude, { count, quiet, level = 0.6, gain = 0.9, reverb = 0.3, drive, relocate = [90, 300], prefix = '', group = 'Birds' } = {}) =>
+    flock(scene, exclude, { count, quiet }).map((sp) => ({
+      id: prefix + sp.id,
+      type: 'flock',
+      label: nameOf(sp.id),
+      icon: 'bird',
+      group,
+      level,
+      gain,
+      reverb,
+      relocate,
+      drive,
+      species: [sp],
+    }));
 
   const storm = {
     id: 'storm',
@@ -83,8 +120,8 @@ export function buildScenes(pools) {
       { id: 'creek', type: 'bed', label: 'Creek', icon: 'water', files: files('waterfall/creek'), level: 0.55, gain: 0.9 },
       { id: 'forest', type: 'bed', label: 'Forest air', icon: 'leaf', files: files('waterfall/forest'), level: 0.5, gain: 0.8 },
       { id: 'leaves', type: 'bed', label: 'Leaves', icon: 'wind', files: files('waterfall/leaves'), level: 0.35, gain: 0.8, wander: [0.3, 1], wanderEvery: [4, 12], wanderTau: [2, 5] },
-      { id: 'birds', type: 'flock', label: 'Birdsong', icon: 'bird', level: 0.62, gain: 0.9, reverb: 0.35, relocate: [90, 300], species: flock('waterfall', ['falls', 'creek', 'forest', 'leaves', 'woodpecker'], { count: 1, quiet: 2.2 }) },
-      { id: 'woodpecker', type: 'shots', label: 'Woodpecker', icon: 'bird', pool: items('waterfall/woodpecker'), every: [50, 180], level: 0.4, gain: 0.8, reverb: 0.4, space: { dist: [30, 80], el: [5, 25] } },
+      ...birds('waterfall', ['falls', 'creek', 'forest', 'leaves', 'woodpecker'], { count: 1, quiet: 2.2, level: 0.62, reverb: 0.35 }),
+      { id: 'woodpecker', type: 'shots', label: 'Woodpecker', icon: 'bird', group: 'Birds', pool: items('waterfall/woodpecker'), every: [50, 180], level: 0.4, gain: 0.8, reverb: 0.4, space: { dist: [30, 80], el: [5, 25] } },
     ],
   };
 
@@ -99,11 +136,34 @@ export function buildScenes(pools) {
     drivers: { dawn: { ramp: 1500, start: 0.12 } },
     layers: [
       { id: 'chorus', type: 'bed', label: 'Dawn chorus', icon: 'bird', files: files('garden/chorus'), level: 0.6, drive: { by: 'dawn', gain: [0.55, 1] } },
-      { id: 'birds', type: 'flock', label: 'Nearby birds', icon: 'bird', level: 0.68, gain: 0.85, reverb: 0.3, relocate: [80, 240], drive: { by: 'dawn', rate: [0.55, 1.35] }, species: flock('garden', ['chorus', 'breeze', 'fountain', 'bee', 'rooster']) },
       { id: 'breeze', type: 'bed', label: 'Breeze', icon: 'leaf', files: files('garden/breeze'), level: 0.3, gain: 0.8, wander: [0.35, 1], wanderEvery: [4, 12] },
       { id: 'fountain', type: 'bed', label: 'Fountain', icon: 'water', files: files('garden/fountain'), level: 0, gain: 0.8, pan: 0.35 },
       { id: 'bee', type: 'shots', label: 'Bumblebees', icon: 'bee', pool: items('garden/bee'), every: [60, 220], level: 0.3, gain: 0.7, space: { az: [-120, 120], el: [-5, 15], dist: [1.5, 4], move: { az: [90, 200], dist: [4, 9] } } },
-      { id: 'rooster', type: 'shots', label: 'Far-off rooster', icon: 'rooster', pool: items('garden/rooster'), every: [240, 720], level: 0, gain: 0.6, reverb: 0.4, space: { dist: [120, 260], el: [0, 3], air: 300 } },
+      ...birds('garden', ['chorus', 'breeze', 'fountain', 'bee', 'rooster'], { level: 0.68, gain: 0.85, relocate: [80, 240], drive: { by: 'dawn', rate: [0.55, 1.35] } }),
+      { id: 'rooster', type: 'shots', label: 'Far-off rooster', icon: 'rooster', group: 'Birds', pool: items('garden/rooster'), every: [240, 720], level: 0, gain: 0.6, reverb: 0.4, space: { dist: [120, 260], el: [0, 3], air: 300 } },
+    ],
+  };
+
+  // A native-plant pollinator garden in Florida. Every bird has its own slider.
+  const beesAreBed = list('florida/bees').some((i) => i.dur > 20);
+  const butterfly = {
+    id: 'butterfly',
+    name: 'Butterfly Garden',
+    kicker: 'A Florida yard, mid-morning',
+    what: 'Hibiscus, milkweed and wildflowers, butterflies and hummingbirds, a yard full of Florida birds.',
+    gain: 3.6,
+    reverb: { type: 'open', level: 0.25 },
+    drivers: { breeze: { range: [0.15, 0.85], every: [30, 110], tau: 12 } },
+    layers: [
+      { id: 'morning', type: 'bed', label: 'Florida air', icon: 'leaf', files: files('florida/morning'), level: 0.55 },
+      { id: 'palms', type: 'bed', label: 'Breeze in the palms', icon: 'palm', files: files('florida/palms'), level: 0.5, gain: 0.85, drive: { by: 'breeze', gain: [0.35, 1] }, wander: [0.6, 1] },
+      { id: 'cicadas', type: 'bed', label: 'Cicadas', icon: 'cicada', files: files('florida/cicadas'), level: 0.42, gain: 0.8, wander: [0.45, 1], wanderEvery: [10, 30], wanderTau: [4, 10] },
+      beesAreBed
+        ? { id: 'bees', type: 'bed', label: 'Bees in the flowers', icon: 'bee', files: files('florida/bees'), level: 0.45, gain: 0.8, wander: [0.4, 1] }
+        : { id: 'bees', type: 'shots', label: 'Bees', icon: 'bee', pool: items('florida/bees'), every: [40, 140], level: 0.35, gain: 0.75, space: { az: [-120, 120], el: [-10, 10], dist: [1.2, 3], move: { az: [80, 180], dist: [3, 7] } } },
+      { id: 'chimes', type: 'bed', label: 'Wind chimes', icon: 'bell', files: files('florida/chimes'), level: 0, gain: 0.6, pan: 0.4 },
+      { id: 'hummingbird', type: 'shots', label: 'Hummingbirds', icon: 'hummingbird', group: 'Birds', pool: items('florida/hummingbird'), every: [40, 140], first: [8, 30], level: 0.55, gain: 0.85, reverb: 0.1, space: { az: [-100, 100], el: [-5, 15], dist: [1.2, 3.5], move: { az: [60, 160], dist: [2, 5] } } },
+      ...birds('florida', ['morning', 'palms', 'cicadas', 'bees', 'chimes', 'hummingbird'], { count: 1, quiet: 1.4, level: 0.6, gain: 0.85, reverb: 0.25 }),
     ],
   };
 
@@ -151,8 +211,8 @@ export function buildScenes(pools) {
       { id: 'steps', type: 'shots', label: 'Footsteps in snow', icon: 'crunch', pool: items('snow/snowsteps'), every: [90, 280], level: 0.35, gain: 0.85, reverb: 0.2, space: { dist: [5, 18], el: [-10, 0], move: { az: [50, 120] } } },
       { id: 'branches', type: 'shots', label: 'Snow off the branches', icon: 'snow', pool: items('snow/snowfall', 'snow/treecreak'), every: [20, 80], level: 0.42, gain: 0.85, reverb: 0.25, space: { dist: [6, 35], el: [0, 30] } },
       { id: 'ice', type: 'shots', label: 'Lake ice', icon: 'ice', pool: items('snow/ice'), every: [40, 150], level: 0.4, gain: 0.85, reverb: 0.45, space: { dist: [40, 180], el: [-5, 0], air: 260 } },
-      { id: 'birds', type: 'flock', label: 'Winter birds', icon: 'bird', level: 0.32, gain: 0.8, reverb: 0.25, relocate: [90, 300], species: flock('snow', ['wind', 'blizzard', 'hush', 'fire', 'snowsteps', 'snowfall', 'treecreak', 'ice', 'owl'], { count: 1, quiet: 3.5 }) },
-      { id: 'owl', type: 'shots', label: 'Owl', icon: 'owl', pool: items('snow/owl', 'mansion/owl'), every: [90, 300], level: 0, gain: 0.8, reverb: 0.3, space: { dist: [30, 90], el: [10, 30] } },
+      ...birds('snow', ['wind', 'blizzard', 'hush', 'fire', 'snowsteps', 'snowfall', 'treecreak', 'ice', 'owl'], { count: 1, quiet: 3.5, level: 0.32, gain: 0.8, reverb: 0.25 }),
+      { id: 'owl', type: 'shots', label: 'Owl', icon: 'owl', group: 'Birds', pool: items('snow/owl', 'mansion/owl'), every: [90, 300], level: 0, gain: 0.8, reverb: 0.3, space: { dist: [30, 90], el: [10, 30] } },
     ],
   };
 
@@ -161,6 +221,13 @@ export function buildScenes(pools) {
   const pick = (scene, id) => {
     const l = scene.layers.find((x) => x.id === id);
     return l ? { ...l, level: 0, gain: (l.gain ?? 1) * (scene.gain ?? 1) } : {};
+  };
+  // every bird layer of a scene, renamed for the canvas (skipping species another region already has)
+  const birdsFrom = (scene, prefix, group, { drive, skip } = {}) => {
+    const taken = new Set((skip?.layers || []).filter((l) => l.group === 'Birds').map((l) => l.label));
+    return scene.layers
+      .filter((l) => l.group === 'Birds' && !taken.has(l.label))
+      .map((l) => ({ ...pick(scene, l.id), id: prefix + l.id, group, ...(drive !== undefined ? { drive } : {}) }));
   };
   const mixer = {
     id: 'mixer',
@@ -183,12 +250,19 @@ export function buildScenes(pools) {
       { ...pick(waterfall, 'leaves'), id: 'leaves' },
       { ...pick(mansion, 'fire'), id: 'fire', label: 'Crackling fire', pan: 0, group: 'Warmth' },
       { ...pick(mansion, 'clock'), id: 'clock', label: 'Grandfather clock', pan: 0 },
-      { ...pick(garden, 'chorus'), id: 'chorus', group: 'Creatures' },
-      { ...pick(garden, 'birds'), id: 'garden-birds', label: 'Garden birds', drive: null },
-      { ...pick(waterfall, 'birds'), id: 'forest-birds', label: 'Forest birds' },
+      { ...pick(butterfly, 'morning'), id: 'fl-morning', group: 'Outdoors' },
+      { ...pick(butterfly, 'palms'), id: 'palms' },
+      { ...pick(butterfly, 'cicadas'), id: 'cicadas' },
+      { ...pick(butterfly, 'bees'), id: 'bees' },
+      { ...pick(butterfly, 'chimes'), id: 'chimes', pan: 0 },
+      { ...pick(garden, 'chorus'), id: 'chorus', label: 'English dawn chorus' },
       { ...pick(waterfall, 'forest'), id: 'forest' },
       { ...pick(mansion, 'outside'), id: 'night', label: 'Owls & wolves', muffle: null },
       { ...pick(snow, 'ice'), id: 'ice', label: 'Singing lake ice' },
+      ...birdsFrom(butterfly, 'fl-', 'Florida birds'),
+      ...birdsFrom(garden, 'uk-', 'English garden birds', { drive: null }),
+      ...birdsFrom(waterfall, 'wd-', 'Woodland birds', { skip: garden }),
+      ...birdsFrom(snow, 'wn-', 'Winter birds', { skip: waterfall }),
       { id: 'brown', type: 'synth', synth: 'noise', color: 'brown', label: 'Brown noise', icon: 'noise', level: 0, gain: 0.5, group: 'Noise' },
       { id: 'pink', type: 'synth', synth: 'noise', color: 'pink', label: 'Pink noise', icon: 'noise', level: 0, gain: 0.35 },
       { id: 'white', type: 'synth', synth: 'noise', color: 'white', label: 'White noise', icon: 'noise', level: 0, gain: 0.18 },
@@ -204,5 +278,5 @@ export function buildScenes(pools) {
     (l.type === 'flock' && l.species?.some((s) => s.files.length)) ||
     (l.type === 'pulse' && l.tick);
 
-  return [storm, waterfall, garden, mansion, snow, mixer].map((s) => ({ ...s, layers: s.layers.filter((l) => l && l.id && usable(l)) }));
+  return [storm, waterfall, garden, butterfly, mansion, snow, mixer].map((s) => ({ ...s, layers: s.layers.filter((l) => l && l.id && usable(l)) }));
 }

@@ -46,8 +46,23 @@ async function boot() {
 function defaults(def) {
   return Object.fromEntries(def.layers.map((l) => [l.id, l.level ?? 0]));
 }
+// Birds used to share one slider per scene ('birds'; on the blank canvas 'garden-birds' and
+// 'forest-birds'). Carry a level saved for one of those over to each species that replaced it.
+const LEGACY_BIRDS = { birds: '', 'garden-birds': 'uk-', 'forest-birds': 'wd-' };
+function upgrade(def, saved) {
+  const out = { ...saved };
+  for (const [old, prefix] of Object.entries(LEGACY_BIRDS)) {
+    if (!(old in out)) continue;
+    for (const l of def.layers) if (l.type === 'flock' && l.id.startsWith(prefix) && !(l.id in saved)) out[l.id] = out[old];
+    delete out[old];
+  }
+  return out;
+}
 function levelsFor(def) {
-  return { ...defaults(def), ...store.get('levels:' + def.id, {}) };
+  const saved = store.get('levels:' + def.id, {});
+  const levels = upgrade(def, saved);
+  if (Object.keys(LEGACY_BIRDS).some((k) => k in saved)) store.set('levels:' + def.id, levels);
+  return { ...defaults(def), ...levels };
 }
 
 // ---------------------------------------------------------------- home
@@ -490,7 +505,7 @@ function renderMixes() {
     const b = e.target.closest('[data-mix]');
     if (!b) return;
     const m = all[b.dataset.mix];
-    applyLevels(shown, { ...Object.fromEntries(shown.layers.map((l) => [l.id, 0])), ...m.levels });
+    applyLevels(shown, { ...Object.fromEntries(shown.layers.map((l) => [l.id, 0])), ...upgrade(shown, m.levels) });
     if (!engine.scene || engine.scene.def.id !== shown.id) start(shown);
     toast(`“${m.name}”`);
   };
