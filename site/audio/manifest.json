@@ -396,6 +396,12 @@
     "dur": 4.75
    }
   ],
+  "glades/afternoon": [
+   {
+    "file": "audio/glades/afternoon-1.95259846.mp3",
+    "dur": 90.0
+   }
+  ],
   "glades/boat-tailed-grackle": [
    {
     "file": "audio/glades/boat-tailed-grackle-1.a70db13c.mp3",
@@ -414,6 +420,22 @@
     "dur": 7.95
    }
   ],
+  "glades/downpour": [
+   {
+    "file": "audio/glades/downpour-1.f8ec98a5.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/glades/downpour-2.fdcb88ae.mp3",
+    "dur": 90.0
+   }
+  ],
+  "glades/drip": [
+   {
+    "file": "audio/glades/drip-1.6ae1c0f5.mp3",
+    "dur": 90.0
+   }
+  ],
   "glades/great-egret": [
    {
     "file": "audio/glades/great-egret-1.c8e71a78.mp3",
@@ -426,6 +448,16 @@
    {
     "file": "audio/glades/great-egret-3.a4b2c8e6.mp3",
     "dur": 1.2
+   }
+  ],
+  "glades/gust": [
+   {
+    "file": "audio/glades/gust-1.3174d1eb.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/glades/gust-2.48f291fb.mp3",
+    "dur": 90.0
    }
   ],
   "glades/limpkin": [
@@ -464,6 +496,12 @@
     "dur": 3.43
    }
   ],
+  "glades/rain": [
+   {
+    "file": "audio/glades/rain-1.cf21d410.mp3",
+    "dur": 90.0
+   }
+  ],
   "glades/red-winged-blackbird": [
    {
     "file": "audio/glades/red-winged-blackbird-1.08cbebae.mp3",
@@ -498,6 +536,53 @@
    {
     "file": "audio/glades/sandhill-crane-4.d2272d2e.mp3",
     "dur": 4.1
+   }
+  ],
+  "glades/thunder": [
+   {
+    "file": "audio/glades/thunder-1.c068fcb1.mp3",
+    "dur": 24.2,
+    "tag": "near"
+   },
+   {
+    "file": "audio/glades/thunder-2.6bd964b1.mp3",
+    "dur": 30.5,
+    "tag": "near"
+   },
+   {
+    "file": "audio/glades/thunder-3.07ed2d50.mp3",
+    "dur": 24.5,
+    "tag": "near"
+   },
+   {
+    "file": "audio/glades/thunder-4.dfa994a5.mp3",
+    "dur": 27.5,
+    "tag": "near"
+   },
+   {
+    "file": "audio/glades/thunder-5.6ae5762b.mp3",
+    "dur": 27.3,
+    "tag": "far"
+   },
+   {
+    "file": "audio/glades/thunder-6.1fe79c70.mp3",
+    "dur": 24.7,
+    "tag": "far"
+   },
+   {
+    "file": "audio/glades/thunder-7.505559d1.mp3",
+    "dur": 20.2,
+    "tag": "far"
+   },
+   {
+    "file": "audio/glades/thunder-8.c5f2de69.mp3",
+    "dur": 25.9,
+    "tag": "far"
+   },
+   {
+    "file": "audio/glades/thunder-9.fe1c2c30.mp3",
+    "dur": 39.5,
+    "tag": "far"
    }
   ],
   "mansion/chime": [
@@ -698,6 +783,16 @@
     "dur": 3.75
    }
   ],
+  "pond/barking-treefrog": [
+   {
+    "file": "audio/pond/barking-treefrog-1.a84907de.mp3",
+    "dur": 6.1
+   },
+   {
+    "file": "audio/pond/barking-treefrog-2.778e45a2.mp3",
+    "dur": 6.45
+   }
+  ],
   "pond/barred-owl": [
    {
     "file": "audio/pond/barred-owl-1.eeedbb3c.mp3",
@@ -715,6 +810,12 @@
     "file": "audio/pond/barred-owl-4.901c9c1e.mp3",
     "dur": 15.0,
     "weight": 0.5
+   }
+  ],
+  "pond/chorus": [
+   {
+    "file": "audio/pond/chorus-1.950970d8.mp3",
+    "dur": 90.0
    }
   ],
   "pond/chuck-wills-widow": [
@@ -735,6 +836,38 @@
     "dur": 9.25
    }
   ],
+  "pond/cricket-frog": [
+   {
+    "file": "audio/pond/cricket-frog-1.5924d0bd.mp3",
+    "dur": 7.7
+   },
+   {
+    "file": "audio/pond/cricket-frog-2.13ecbb2b.mp3",
+    "dur": 8.95
+   },
+   {
+    "file": "audio/pond/cricket-frog-3.96ed1f9e.mp3",
+    "dur": 6.95
+   }
+  ],
+  "pond/green-treefrog": [
+   {
+    "file": "audio/pond/green-treefrog-1.0cecb871.mp3",
+    "dur": 8.5
+   },
+   {
+    "file": "audio/pond/green-treefrog-2.8cd49b88.mp3",
+    "dur": 9.45
+   },
+   {
+    "file": "audio/pond/green-treefrog-3.514d0cf5.mp3",
+    "dur": 9.2
+   },
+   {
+    "file": "audio/pond/green-treefrog-4.25d71f47.mp3",
+    "dur": 9.18
+   }
+  ],
   "pond/insects": [
    {
     "file": "audio/pond/insects-1.2ee293be.mp3",
@@ -743,6 +876,60 @@
    {
     "file": "audio/pond/insects-2.8c501955.mp3",
     "dur": 89.99
+   }
+  ],
+  "pond/leopard-frog": [
+   {
+    "file": "audio/pond/leopard-frog-1.2874ff81.mp3",
+    "dur": 6.87
+   },
+   {
+    "file": "audio/pond/leopard-frog-2.de4e6aee.mp3",
+    "dur": 4.55
+   },
+   {
+    "file": "audio/pond/leopard-frog-3.e3843384.mp3",
+    "dur": 5.5
+   }
+  ],
+  "pond/oak-toad": [
+   {
+    "file": "audio/pond/oak-toad-1.5caa1551.mp3",
+    "dur": 4.45
+   },
+   {
+    "file": "audio/pond/oak-toad-2.cda80c84.mp3",
+    "dur": 3.8
+   },
+   {
+    "file": "audio/pond/oak-toad-3.d15541cc.mp3",
+    "dur": 6.25
+   },
+   {
+    "file": "audio/pond/oak-toad-4.1e0746d8.mp3",
+    "dur": 8.3
+   }
+  ],
+  "pond/pig-frog": [
+   {
+    "file": "audio/pond/pig-frog-1.504c63d2.mp3",
+    "dur": 1.95
+   },
+   {
+    "file": "audio/pond/pig-frog-2.76bdce0e.mp3",
+    "dur": 1.3
+   },
+   {
+    "file": "audio/pond/pig-frog-3.f496fef7.mp3",
+    "dur": 1.4
+   },
+   {
+    "file": "audio/pond/pig-frog-4.ae1adfab.mp3",
+    "dur": 1.5
+   },
+   {
+    "file": "audio/pond/pig-frog-5.23f68499.mp3",
+    "dur": 2.4
    }
   ],
   "pond/screech-owl": [
@@ -761,6 +948,42 @@
    {
     "file": "audio/pond/screech-owl-4.988870a7.mp3",
     "dur": 3.2
+   }
+  ],
+  "pond/southern-toad": [
+   {
+    "file": "audio/pond/southern-toad-1.9245ac12.mp3",
+    "dur": 7.8
+   },
+   {
+    "file": "audio/pond/southern-toad-2.cc355ec6.mp3",
+    "dur": 8.3
+   },
+   {
+    "file": "audio/pond/southern-toad-3.4eefca22.mp3",
+    "dur": 9.5
+   },
+   {
+    "file": "audio/pond/southern-toad-4.e84ccaa7.mp3",
+    "dur": 4.0
+   }
+  ],
+  "pond/squirrel-treefrog": [
+   {
+    "file": "audio/pond/squirrel-treefrog-1.531c25ff.mp3",
+    "dur": 5.35
+   },
+   {
+    "file": "audio/pond/squirrel-treefrog-2.bc53bf64.mp3",
+    "dur": 5.82
+   },
+   {
+    "file": "audio/pond/squirrel-treefrog-3.f1f923f3.mp3",
+    "dur": 6.55
+   },
+   {
+    "file": "audio/pond/squirrel-treefrog-4.623dd1c3.mp3",
+    "dur": 7.53
    }
   ],
   "pond/water": [
@@ -1200,13 +1423,19 @@
   "audio/garden/wren-1.f8ea0bb1.mp3",
   "audio/garden/wren-2.00b84741.mp3",
   "audio/garden/wren-3.41b7c320.mp3",
+  "audio/glades/afternoon-1.95259846.mp3",
   "audio/glades/boat-tailed-grackle-1.a70db13c.mp3",
   "audio/glades/boat-tailed-grackle-2.8d13b158.mp3",
   "audio/glades/boat-tailed-grackle-3.6e32cd69.mp3",
   "audio/glades/boat-tailed-grackle-4.93d5ff8c.mp3",
+  "audio/glades/downpour-1.f8ec98a5.mp3",
+  "audio/glades/downpour-2.fdcb88ae.mp3",
+  "audio/glades/drip-1.6ae1c0f5.mp3",
   "audio/glades/great-egret-1.c8e71a78.mp3",
   "audio/glades/great-egret-2.b5e96377.mp3",
   "audio/glades/great-egret-3.a4b2c8e6.mp3",
+  "audio/glades/gust-1.3174d1eb.mp3",
+  "audio/glades/gust-2.48f291fb.mp3",
   "audio/glades/limpkin-1.83726c51.mp3",
   "audio/glades/limpkin-2.d31a47ae.mp3",
   "audio/glades/limpkin-3.df864db3.mp3",
@@ -1215,6 +1444,7 @@
   "audio/glades/osprey-2.84561daf.mp3",
   "audio/glades/osprey-3.d7edf67d.mp3",
   "audio/glades/osprey-4.27397e16.mp3",
+  "audio/glades/rain-1.cf21d410.mp3",
   "audio/glades/red-winged-blackbird-1.08cbebae.mp3",
   "audio/glades/red-winged-blackbird-2.8f121fe2.mp3",
   "audio/glades/red-winged-blackbird-3.c41de4ac.mp3",
@@ -1223,6 +1453,15 @@
   "audio/glades/sandhill-crane-2.7b4961f5.mp3",
   "audio/glades/sandhill-crane-3.da487882.mp3",
   "audio/glades/sandhill-crane-4.d2272d2e.mp3",
+  "audio/glades/thunder-1.c068fcb1.mp3",
+  "audio/glades/thunder-2.6bd964b1.mp3",
+  "audio/glades/thunder-3.07ed2d50.mp3",
+  "audio/glades/thunder-4.dfa994a5.mp3",
+  "audio/glades/thunder-5.6ae5762b.mp3",
+  "audio/glades/thunder-6.1fe79c70.mp3",
+  "audio/glades/thunder-7.505559d1.mp3",
+  "audio/glades/thunder-8.c5f2de69.mp3",
+  "audio/glades/thunder-9.fe1c2c30.mp3",
   "audio/mansion/chime-1.e493d07a.mp3",
   "audio/mansion/chime-2.467310fa.mp3",
   "audio/mansion/clock-1.f8b2196a.mp3",
@@ -1264,20 +1503,50 @@
   "audio/pond/alligator-2.c52dcf25.mp3",
   "audio/pond/alligator-3.d2859294.mp3",
   "audio/pond/alligator-4.20e68d5e.mp3",
+  "audio/pond/barking-treefrog-1.a84907de.mp3",
+  "audio/pond/barking-treefrog-2.778e45a2.mp3",
   "audio/pond/barred-owl-1.eeedbb3c.mp3",
   "audio/pond/barred-owl-2.5a96d768.mp3",
   "audio/pond/barred-owl-3.6bd8f148.mp3",
   "audio/pond/barred-owl-4.901c9c1e.mp3",
+  "audio/pond/chorus-1.950970d8.mp3",
   "audio/pond/chuck-wills-widow-1.bfb930b9.mp3",
   "audio/pond/chuck-wills-widow-2.c9d4e067.mp3",
   "audio/pond/chuck-wills-widow-3.0b6adabe.mp3",
   "audio/pond/chuck-wills-widow-4.9cbb3ceb.mp3",
+  "audio/pond/cricket-frog-1.5924d0bd.mp3",
+  "audio/pond/cricket-frog-2.13ecbb2b.mp3",
+  "audio/pond/cricket-frog-3.96ed1f9e.mp3",
+  "audio/pond/green-treefrog-1.0cecb871.mp3",
+  "audio/pond/green-treefrog-2.8cd49b88.mp3",
+  "audio/pond/green-treefrog-3.514d0cf5.mp3",
+  "audio/pond/green-treefrog-4.25d71f47.mp3",
   "audio/pond/insects-1.2ee293be.mp3",
   "audio/pond/insects-2.8c501955.mp3",
+  "audio/pond/leopard-frog-1.2874ff81.mp3",
+  "audio/pond/leopard-frog-2.de4e6aee.mp3",
+  "audio/pond/leopard-frog-3.e3843384.mp3",
+  "audio/pond/oak-toad-1.5caa1551.mp3",
+  "audio/pond/oak-toad-2.cda80c84.mp3",
+  "audio/pond/oak-toad-3.d15541cc.mp3",
+  "audio/pond/oak-toad-4.1e0746d8.mp3",
+  "audio/pond/pig-frog-1.504c63d2.mp3",
+  "audio/pond/pig-frog-2.76bdce0e.mp3",
+  "audio/pond/pig-frog-3.f496fef7.mp3",
+  "audio/pond/pig-frog-4.ae1adfab.mp3",
+  "audio/pond/pig-frog-5.23f68499.mp3",
   "audio/pond/screech-owl-1.2e13f983.mp3",
   "audio/pond/screech-owl-2.e8f9424c.mp3",
   "audio/pond/screech-owl-3.62f43d95.mp3",
   "audio/pond/screech-owl-4.988870a7.mp3",
+  "audio/pond/southern-toad-1.9245ac12.mp3",
+  "audio/pond/southern-toad-2.cc355ec6.mp3",
+  "audio/pond/southern-toad-3.4eefca22.mp3",
+  "audio/pond/southern-toad-4.e84ccaa7.mp3",
+  "audio/pond/squirrel-treefrog-1.531c25ff.mp3",
+  "audio/pond/squirrel-treefrog-2.bc53bf64.mp3",
+  "audio/pond/squirrel-treefrog-3.f1f923f3.mp3",
+  "audio/pond/squirrel-treefrog-4.623dd1c3.mp3",
   "audio/pond/water-1.1b9b83be.mp3",
   "audio/silence.mp3",
   "audio/snow/blizzard-1.4dbc3d3f.mp3",
@@ -1785,6 +2054,78 @@
    "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
   },
   {
+   "what": "Downpour",
+   "title": "Ban Na Tin (Krabi Province) - Rain and thunder in Thailand",
+   "author": "Felix BLUME",
+   "page": "https://archive.org/details/aporee_41798_47650",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Downpour",
+   "title": "Casa Proal, Paso de Telaya - Thunder and rain during the night",
+   "author": "Felix BLUME",
+   "page": "https://archive.org/details/aporee_51141_58374",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Rain",
+   "title": "Telaya, Veracruz, Mexico - Light Rain",
+   "author": "Felix BLUME",
+   "page": "https://archive.org/details/aporee_48133_54753",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Dripping",
+   "title": "Frost melting in the sun drips onto dry autumn leaves, Bahntechnikerring 18, 14774 Brandenburg an der Havel, Germany - Frost melting in the sun drips onto dry autumn leaves",
+   "author": "Peter Cusack",
+   "page": "https://archive.org/details/aporee_66066_76380",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Wind in the grass",
+   "title": "Kotayk, Arm\u00e9nie - Wind in the tall grass",
+   "author": "Vincent Duseigne",
+   "page": "https://archive.org/details/aporee_41355_47177",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Wind in the grass",
+   "title": "Leeuw-Saint-Pierre, Belgique - Wind in the reeds",
+   "author": "Vincent Duseigne",
+   "page": "https://archive.org/details/aporee_33020_37939",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Thunder",
+   "title": "Illinois, USA - Thunderstorm and rain in a field in Illinois, USA",
+   "author": "Felix BLUME",
+   "page": "https://archive.org/details/aporee_38612_44125",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Thunder",
+   "title": "emaj\u00f5e-suursoo, tartumaa, estonia - thunder and cranes",
+   "author": "patrick tubin mcginley",
+   "page": "https://archive.org/details/aporee_12475_14579",
+   "license": "CC BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  {
+   "what": "Hot afternoon",
+   "title": "tallgrass prairie preserve, KS 66869, USA - insect chorus 1 tallgrass prairie preserve",
+   "author": "Steven Rowell",
+   "page": "https://archive.org/details/aporee_41321_47142",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
    "what": "Wind moaning at the window",
    "title": "Shap, UK - Moaning wind",
    "author": "Justin Bennett",
@@ -1929,7 +2270,167 @@
    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
   },
   {
-   "what": "Insects",
+   "what": "Green treefrog",
+   "title": "XC983494 North American Green Treefrog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/983494",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Green treefrog",
+   "title": "XC978638 North American Green Treefrog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/978638",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Green treefrog",
+   "title": "XC983489 North American Green Treefrog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/983489",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Green treefrog",
+   "title": "NPS Sound Gallery - American Green Tree Frog (Everglades National Park)",
+   "author": "NPS / Theresa Thom",
+   "page": "https://www.nps.gov/subjects/sound/sounds-green-treefrog.htm",
+   "license": "Public Domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Squirrel treefrog",
+   "title": "XC982931 Squirrel Treefrog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/982931",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Squirrel treefrog",
+   "title": "XC975801 Squirrel Treefrog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/975801",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Barking treefrog",
+   "title": "XC890990 Barking Treefrog",
+   "author": "Chris Harrison",
+   "page": "https://xeno-canto.org/890990",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Pig frog",
+   "title": "NPS Sound Gallery - Pig Frog (Everglades National Park)",
+   "author": "NPS",
+   "page": "https://www.nps.gov/subjects/sound/sounds-pigfrog.htm",
+   "license": "Public Domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "Pig frog",
+   "title": "XC894000 Pig Frog",
+   "author": "Chris Harrison",
+   "page": "https://xeno-canto.org/894000",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Pig frog",
+   "title": "XC982868 Pig Frog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/982868",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Leopard frog",
+   "title": "XC984171 Southern Leopard Frog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/984171",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Southern toad",
+   "title": "iNaturalist observation 343251337 (sound 1808131)",
+   "author": "Isaac Lord (iNaturalist: isaacthelord)",
+   "page": "https://www.inaturalist.org/observations/343251337",
+   "license": "CC BY-NC 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc/4.0/"
+  },
+  {
+   "what": "Southern toad",
+   "title": "iNaturalist observation 286459837 (sound 1502365)",
+   "author": "Nate N. (iNaturalist: spinifer)",
+   "page": "https://www.inaturalist.org/observations/286459837",
+   "license": "CC BY-NC 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc/4.0/"
+  },
+  {
+   "what": "Southern toad",
+   "title": "XC890997 Southern Toad",
+   "author": "Chris Harrison",
+   "page": "https://xeno-canto.org/890997",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Southern toad",
+   "title": "iNaturalist observation 270694485 (sound 1376989)",
+   "author": "Aaron Stoll (iNaturalist: aaron567)",
+   "page": "https://www.inaturalist.org/observations/270694485",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Oak toad",
+   "title": "XC890995 Oak Toad",
+   "author": "Chris Harrison",
+   "page": "https://xeno-canto.org/890995",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Oak toad",
+   "title": "XC984004 Oak Toad",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/984004",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Cricket frog",
+   "title": "XC983538 Southern Cricket Frog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/983538",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Cricket frog",
+   "title": "XC983540 Southern Cricket Frog",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/983540",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Dawn chorus",
+   "title": "iNaturalist observation 364949342 (sound 1980904)",
+   "author": "Philip Vanbergen (iNaturalist: philipvanbergen)",
+   "page": "https://www.inaturalist.org/observations/364949342",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+   "what": "Crickets and katydids",
    "title": "A back yard in Chestnut Mountain, Georgia, USA - Cicadas, round midnight",
    "author": "JK Johnson",
    "page": "https://archive.org/details/aporee_40830_46606",
@@ -1937,7 +2438,7 @@
    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
   },
   {
-   "what": "Insects",
+   "what": "Crickets and katydids",
    "title": "Leesburg, VA, USA - Nighttime sounds",
    "author": "rmacmich (radio aporee)",
    "page": "https://archive.org/details/aporee_29355_33780",
@@ -1945,7 +2446,7 @@
    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
   },
   {
-   "what": "Water",
+   "what": "Lapping water",
    "title": "Simpson Lake Shore, Valley Park, Missouri, USA - Simpson Lake Shore",
    "author": "Pierrot Desperes",
    "page": "https://archive.org/details/aporee_51993_59367",
@@ -2025,7 +2526,7 @@
    "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
   },
   {
-   "what": "Alligator",
+   "what": "American alligator",
    "title": "American alligator (alligator_bellow)",
    "author": "U.S. Fish and Wildlife Service (uploaded to archive.org by Sookietex)",
    "page": "https://archive.org/details/AmericanAlligator",
@@ -2033,7 +2534,7 @@
    "license_url": "http://creativecommons.org/licenses/publicdomain/"
   },
   {
-   "what": "Alligator",
+   "what": "American alligator",
    "title": "Sound Gallery - Alligator (nri-AlligatorEVER1)",
    "author": "U.S. National Park Service (Everglades NP)",
    "page": "https://www.nps.gov/subjects/sound/sounds-alligator.htm",
