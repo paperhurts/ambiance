@@ -357,7 +357,7 @@ class Storm extends Painting {
 
 // ---------------------------------------------------------------------------------------------
 // A waterfall in a green, misty forest.
-// After Sid's own waterfall, in summer: a stepped cascade over layered, mossy slate ledges, a broad
+// After the East Hampton waterfall, in summer: a stepped cascade over layered, mossy slate ledges, a broad
 // white fan over a rock slab, and the creek running out toward you between lichen-spotted boulders,
 // under a canopy lit from behind by the sun. The water moves along each fall, the fan and the
 // creek; there's foam where it lands and mist rising from the plunge.
@@ -1577,7 +1577,7 @@ class Snow extends Painting {
 // The plants. h: stem height, spread: width (garden units); n: flowers per plant; R: flower size;
 // leaf: foliage; tube: hummingbirds feed there; spike: flowers along a wand (its length, in R).
 const FLORA = {
-  tropical: { h: [13, 17], spread: 13, n: [2, 3], R: 3.3, leaf: 'oval', green: '#3f7a35', tube: true, shrub: true, gloss: true }, // tropical hibiscus, from Sid's yard
+  tropical: { h: [13, 17], spread: 13, n: [2, 3], R: 3.3, leaf: 'oval', green: '#3f7a35', tube: true, shrub: true, gloss: true }, // tropical hibiscus
   hibiscus: { h: [12, 16], spread: 9, n: [2, 3], R: 2.6, leaf: 'palmate', green: '#3b6b35', tube: true }, // scarlet rosemallow
   rosemallow: { h: [10, 13], spread: 11, n: [2, 3], R: 2.8, leaf: 'broad', green: '#4a7a3f' }, // swamp rosemallow
   milkweed: { h: [7, 10], spread: 8, n: [3, 5], R: 1.6, leaf: 'narrow', green: '#3f7040' }, // butterfly milkweed
@@ -1596,7 +1596,7 @@ const FLORA = {
 };
 const HUE = { tropical: 'sunset', hibiscus: 'red', sage: 'red', firebush: 'red', gaillardia: 'red', milkweed: 'orange', coreopsis: 'yellow', susan: 'yellow', needles: 'white', rosemallow: 'pink', swampmilkweed: 'pink', mimosa: 'pink', porterweed: 'blue', spiderwort: 'blue', liatris: 'purple', passionflower: 'purple' };
 
-// Sid's tropical hibiscus: salmon; yellow with a deep red eye; coral with a dark eye and gold edges.
+// Tropical hibiscus: salmon; yellow with a deep red eye; coral with a dark eye and gold edges.
 const TROPICAL = [
   { petal: '#f37d4a', eye: '#e0552c', eyeSize: 0.12, edge: '#fb9d66', vein: 'rgba(196,70,30,0.15)', column: ['#e2532c', '#f68a4e'], pollen: '#f6c31a', stigma: '#e3111e' },
   { petal: '#f6cd1a', eye: '#8e0f2b', eyeSize: 0.34, edge: '#fadc40', vein: 'rgba(180,130,0,0.15)', column: ['#b3122f', '#fbeae4'], pollen: '#f8b61e', stigma: '#f28a10' },
@@ -2526,11 +2526,11 @@ class Butterfly extends Painting {
     ];
     this.plants = [];
     this.heads = [];
-    let tropicals = 0; // each hibiscus bush gets the next of Sid's colours
+    let tropicals = 0; // each hibiscus bush gets the next of the three colours
     rows.forEach((row, ri) => {
       const n = Math.ceil(w / (row.gap * u)) + 1;
       const kinds = arrange(row.pool, n, r, row.must);
-      // Sid's hibiscus go where they'll be seen: spread along the bed, in from the edges
+      // the hibiscus go where they'll be seen: spread along the bed, in from the edges
       const hib = kinds.filter((k) => k === 'tropical').length;
       if (hib) {
         const rest = kinds.filter((k) => k !== 'tropical');
