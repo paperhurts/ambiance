@@ -2,7 +2,7 @@
 //
 //   node tools/check.mjs ui [outdir]                 load the app at phone size, open every scene,
 //                                                   screenshot, fail on console errors
-//   node tools/check.mjs render <scene> <seconds> <out.wav> [overrides: id=0.5,...,@driver=0.8]
+//   node tools/check.mjs render <scene> <seconds> <out.wav> [overrides: id=0.5,...,@driver=0.8,only=a+b]
 //                                                   render a scene's mix offline to a WAV file
 //                                                   (layer levels, or a driver held at a value)
 import http from 'node:http';
@@ -140,6 +140,8 @@ try {
           const [k, v] = kv.split('=');
           // "@name=value" holds a driver still (a storm stage, say); anything else is a layer level
           if (k.startsWith('@')) def.drivers[k.slice(1)] = { range: [Number(v), Number(v)], start: Number(v) };
+          // "only=rain+thunder" mutes every other layer
+          else if (k === 'only') for (const id of Object.keys(levels)) levels[id] = v.split('+').includes(id) ? levels[id] : 0;
           else levels[k] = Number(v);
         }
         const rate = 48000;
