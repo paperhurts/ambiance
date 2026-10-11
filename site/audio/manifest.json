@@ -684,6 +684,95 @@
     "dur": 8.1
    }
   ],
+  "pond/alligator": [
+   {
+    "file": "audio/pond/alligator-1.1289a50b.mp3",
+    "dur": 6.19
+   },
+   {
+    "file": "audio/pond/alligator-2.c52dcf25.mp3",
+    "dur": 6.15
+   },
+   {
+    "file": "audio/pond/alligator-3.d2859294.mp3",
+    "dur": 5.85
+   },
+   {
+    "file": "audio/pond/alligator-4.20e68d5e.mp3",
+    "dur": 3.75
+   }
+  ],
+  "pond/barred-owl": [
+   {
+    "file": "audio/pond/barred-owl-1.eeedbb3c.mp3",
+    "dur": 4.0
+   },
+   {
+    "file": "audio/pond/barred-owl-2.5a96d768.mp3",
+    "dur": 4.0
+   },
+   {
+    "file": "audio/pond/barred-owl-3.6bd8f148.mp3",
+    "dur": 4.05
+   },
+   {
+    "file": "audio/pond/barred-owl-4.901c9c1e.mp3",
+    "dur": 15.0,
+    "weight": 0.5
+   }
+  ],
+  "pond/chuck-wills-widow": [
+   {
+    "file": "audio/pond/chuck-wills-widow-1.bfb930b9.mp3",
+    "dur": 6.75
+   },
+   {
+    "file": "audio/pond/chuck-wills-widow-2.c9d4e067.mp3",
+    "dur": 8.8
+   },
+   {
+    "file": "audio/pond/chuck-wills-widow-3.0b6adabe.mp3",
+    "dur": 8.8
+   },
+   {
+    "file": "audio/pond/chuck-wills-widow-4.9cbb3ceb.mp3",
+    "dur": 9.25
+   }
+  ],
+  "pond/insects": [
+   {
+    "file": "audio/pond/insects-1.2ee293be.mp3",
+    "dur": 87.0
+   },
+   {
+    "file": "audio/pond/insects-2.8c501955.mp3",
+    "dur": 89.99
+   }
+  ],
+  "pond/screech-owl": [
+   {
+    "file": "audio/pond/screech-owl-1.2e13f983.mp3",
+    "dur": 2.1
+   },
+   {
+    "file": "audio/pond/screech-owl-2.e8f9424c.mp3",
+    "dur": 2.1
+   },
+   {
+    "file": "audio/pond/screech-owl-3.62f43d95.mp3",
+    "dur": 3.55
+   },
+   {
+    "file": "audio/pond/screech-owl-4.988870a7.mp3",
+    "dur": 3.2
+   }
+  ],
+  "pond/water": [
+   {
+    "file": "audio/pond/water-1.1b9b83be.mp3",
+    "dur": 90.0
+   }
+  ],
   "snow/blizzard": [
    {
     "file": "audio/snow/blizzard-1.4dbc3d3f.mp3",
@@ -1176,6 +1265,25 @@
   "audio/mansion/wolf-1.ddf19200.mp3",
   "audio/mansion/wolf-2.b90547a6.mp3",
   "audio/mansion/wolf-3.6ad83b09.mp3",
+  "audio/pond/alligator-1.1289a50b.mp3",
+  "audio/pond/alligator-2.c52dcf25.mp3",
+  "audio/pond/alligator-3.d2859294.mp3",
+  "audio/pond/alligator-4.20e68d5e.mp3",
+  "audio/pond/barred-owl-1.eeedbb3c.mp3",
+  "audio/pond/barred-owl-2.5a96d768.mp3",
+  "audio/pond/barred-owl-3.6bd8f148.mp3",
+  "audio/pond/barred-owl-4.901c9c1e.mp3",
+  "audio/pond/chuck-wills-widow-1.bfb930b9.mp3",
+  "audio/pond/chuck-wills-widow-2.c9d4e067.mp3",
+  "audio/pond/chuck-wills-widow-3.0b6adabe.mp3",
+  "audio/pond/chuck-wills-widow-4.9cbb3ceb.mp3",
+  "audio/pond/insects-1.2ee293be.mp3",
+  "audio/pond/insects-2.8c501955.mp3",
+  "audio/pond/screech-owl-1.2e13f983.mp3",
+  "audio/pond/screech-owl-2.e8f9424c.mp3",
+  "audio/pond/screech-owl-3.62f43d95.mp3",
+  "audio/pond/screech-owl-4.988870a7.mp3",
+  "audio/pond/water-1.1b9b83be.mp3",
   "audio/silence.mp3",
   "audio/snow/blizzard-1.4dbc3d3f.mp3",
   "audio/snow/blizzard-2.c7fb3e74.mp3",
@@ -1824,6 +1932,118 @@
    "page": "https://archive.org/details/Red_Library_Music",
    "license": "CC0 1.0",
    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Insects",
+   "title": "A back yard in Chestnut Mountain, Georgia, USA - Cicadas, round midnight",
+   "author": "JK Johnson",
+   "page": "https://archive.org/details/aporee_40830_46606",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Insects",
+   "title": "Leesburg, VA, USA - Nighttime sounds",
+   "author": "rmacmich (radio aporee)",
+   "page": "https://archive.org/details/aporee_29355_33780",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Water",
+   "title": "Simpson Lake Shore, Valley Park, Missouri, USA - Simpson Lake Shore",
+   "author": "Pierrot Desperes",
+   "page": "https://archive.org/details/aporee_51993_59367",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Barred owl",
+   "title": "XC498645 Barred Owl",
+   "author": "Jacob Saucier",
+   "page": "https://xeno-canto.org/498645",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Barred owl",
+   "title": "XC498643 Barred Owl",
+   "author": "Jacob Saucier",
+   "page": "https://xeno-canto.org/498643",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Chuck wills widow",
+   "title": "XC450492 Chuck-will's-widow",
+   "author": "Sue Riffe",
+   "page": "https://xeno-canto.org/450492",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Chuck wills widow",
+   "title": "XC171990 Chuck-will's-widow",
+   "author": "Lance A. M. Benner",
+   "page": "https://xeno-canto.org/171990",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Chuck wills widow",
+   "title": "XC169164 Chuck-will's-widow",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/169164",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Screech owl",
+   "title": "XC436434 Eastern Screech Owl",
+   "author": "Vincent Weber",
+   "page": "https://xeno-canto.org/436434",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Screech owl",
+   "title": "XC569808 Eastern Screech Owl",
+   "author": "Russ Wigh",
+   "page": "https://xeno-canto.org/569808",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Screech owl",
+   "title": "XC712961 Eastern Screech Owl",
+   "author": "Bruce Lagerquist",
+   "page": "https://xeno-canto.org/712961",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Screech owl",
+   "title": "XC1071056 Eastern Screech Owl",
+   "author": "Noah Khanti Steinberg",
+   "page": "https://xeno-canto.org/1071056",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Alligator",
+   "title": "American alligator (alligator_bellow)",
+   "author": "U.S. Fish and Wildlife Service (uploaded to archive.org by Sookietex)",
+   "page": "https://archive.org/details/AmericanAlligator",
+   "license": "Public Domain (US Government work, USFWS)",
+   "license_url": "http://creativecommons.org/licenses/publicdomain/"
+  },
+  {
+   "what": "Alligator",
+   "title": "Sound Gallery - Alligator (nri-AlligatorEVER1)",
+   "author": "U.S. National Park Service (Everglades NP)",
+   "page": "https://www.nps.gov/subjects/sound/sounds-alligator.htm",
+   "license": "Public Domain (US Government work, NPS)",
+   "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
   },
   {
    "what": "Wind in the pines",
