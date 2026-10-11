@@ -18,7 +18,7 @@ const SHELL_FILES = [
   'fonts/fraunces.woff2',
   'fonts/fraunces-italic.woff2',
   'fonts/nunito.woff2',
-  'icons/icon.svg',
+  'icons/favicon-32.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
