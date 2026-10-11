@@ -1,5 +1,265 @@
 {
  "pools": {
+  "florida/bees": [
+   {
+    "file": "audio/florida/bees-1.fd932158.mp3",
+    "dur": 90.0
+   }
+  ],
+  "florida/blue-jay": [
+   {
+    "file": "audio/florida/blue-jay-1.f38ab6d9.mp3",
+    "dur": 3.4
+   },
+   {
+    "file": "audio/florida/blue-jay-2.caaa9c2f.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/florida/blue-jay-3.20adcade.mp3",
+    "dur": 2.65
+   },
+   {
+    "file": "audio/florida/blue-jay-4.f43ffa5d.mp3",
+    "dur": 1.2
+   }
+  ],
+  "florida/cardinal": [
+   {
+    "file": "audio/florida/cardinal-1.144b94ba.mp3",
+    "dur": 3.7
+   },
+   {
+    "file": "audio/florida/cardinal-2.479d4a6d.mp3",
+    "dur": 5.0
+   },
+   {
+    "file": "audio/florida/cardinal-3.8ae364f1.mp3",
+    "dur": 5.3
+   },
+   {
+    "file": "audio/florida/cardinal-4.c4ac1e8b.mp3",
+    "dur": 4.0
+   }
+  ],
+  "florida/carolina-wren": [
+   {
+    "file": "audio/florida/carolina-wren-1.6afb327d.mp3",
+    "dur": 2.5
+   },
+   {
+    "file": "audio/florida/carolina-wren-2.4775d312.mp3",
+    "dur": 2.3
+   },
+   {
+    "file": "audio/florida/carolina-wren-3.4e7829ab.mp3",
+    "dur": 2.4
+   },
+   {
+    "file": "audio/florida/carolina-wren-4.eb0e3269.mp3",
+    "dur": 2.55
+   }
+  ],
+  "florida/chimes": [
+   {
+    "file": "audio/florida/chimes-1.f6b9efed.mp3",
+    "dur": 90.0
+   }
+  ],
+  "florida/cicadas": [
+   {
+    "file": "audio/florida/cicadas-1.4a698b17.mp3",
+    "dur": 90.0
+   }
+  ],
+  "florida/ground-dove": [
+   {
+    "file": "audio/florida/ground-dove-1.0c5f8d25.mp3",
+    "dur": 5.45
+   },
+   {
+    "file": "audio/florida/ground-dove-2.48395db2.mp3",
+    "dur": 5.7
+   },
+   {
+    "file": "audio/florida/ground-dove-3.aad7e1c9.mp3",
+    "dur": 5.3
+   },
+   {
+    "file": "audio/florida/ground-dove-4.d25be7c2.mp3",
+    "dur": 5.0
+   }
+  ],
+  "florida/hummingbird": [
+   {
+    "file": "audio/florida/hummingbird-1.0cca51b4.mp3",
+    "dur": 1.3
+   },
+   {
+    "file": "audio/florida/hummingbird-2.b38fb838.mp3",
+    "dur": 1.65
+   },
+   {
+    "file": "audio/florida/hummingbird-3.7a4039ed.mp3",
+    "dur": 1.1
+   },
+   {
+    "file": "audio/florida/hummingbird-4.9e8f2731.mp3",
+    "dur": 3.7
+   }
+  ],
+  "florida/mockingbird": [
+   {
+    "file": "audio/florida/mockingbird-1.aa0a317b.mp3",
+    "dur": 6.95
+   },
+   {
+    "file": "audio/florida/mockingbird-2.79caa1ac.mp3",
+    "dur": 5.0
+   },
+   {
+    "file": "audio/florida/mockingbird-3.172f6b95.mp3",
+    "dur": 7.9
+   },
+   {
+    "file": "audio/florida/mockingbird-4.87d35c8f.mp3",
+    "dur": 5.87
+   }
+  ],
+  "florida/morning": [
+   {
+    "file": "audio/florida/morning-1.d4599374.mp3",
+    "dur": 90.0
+   }
+  ],
+  "florida/mourning-dove": [
+   {
+    "file": "audio/florida/mourning-dove-1.52cb425f.mp3",
+    "dur": 4.4
+   },
+   {
+    "file": "audio/florida/mourning-dove-2.4f62b33c.mp3",
+    "dur": 4.4
+   },
+   {
+    "file": "audio/florida/mourning-dove-3.83694e83.mp3",
+    "dur": 4.5
+   },
+   {
+    "file": "audio/florida/mourning-dove-4.ec4e87bd.mp3",
+    "dur": 5.5
+   }
+  ],
+  "florida/northern-parula": [
+   {
+    "file": "audio/florida/northern-parula-1.0e9cb98e.mp3",
+    "dur": 1.7
+   },
+   {
+    "file": "audio/florida/northern-parula-2.238c8298.mp3",
+    "dur": 1.85
+   },
+   {
+    "file": "audio/florida/northern-parula-3.e651d931.mp3",
+    "dur": 1.9
+   },
+   {
+    "file": "audio/florida/northern-parula-4.32638bc3.mp3",
+    "dur": 2.45
+   }
+  ],
+  "florida/palms": [
+   {
+    "file": "audio/florida/palms-1.b1acb17d.mp3",
+    "dur": 90.0
+   }
+  ],
+  "florida/red-bellied-woodpecker": [
+   {
+    "file": "audio/florida/red-bellied-woodpecker-1.9b60cc67.mp3",
+    "dur": 1.65
+   },
+   {
+    "file": "audio/florida/red-bellied-woodpecker-2.80275cd6.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/florida/red-bellied-woodpecker-3.5afc2141.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/florida/red-bellied-woodpecker-4.4925a9dd.mp3",
+    "dur": 1.65
+   }
+  ],
+  "florida/red-shouldered-hawk": [
+   {
+    "file": "audio/florida/red-shouldered-hawk-1.7d0f71ba.mp3",
+    "dur": 10.0
+   },
+   {
+    "file": "audio/florida/red-shouldered-hawk-2.4515d760.mp3",
+    "dur": 6.95
+   },
+   {
+    "file": "audio/florida/red-shouldered-hawk-3.aa9b34bd.mp3",
+    "dur": 7.05
+   }
+  ],
+  "florida/tufted-titmouse": [
+   {
+    "file": "audio/florida/tufted-titmouse-1.7d503bd6.mp3",
+    "dur": 2.65
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-2.fb4a42d5.mp3",
+    "dur": 2.55
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-3.096103b1.mp3",
+    "dur": 2.0
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-4.75774953.mp3",
+    "dur": 1.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-5.e70e0465.mp3",
+    "dur": 1.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-6.58b2a284.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-7.24a68879.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-8.f9dda0be.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-9.e25c130b.mp3",
+    "dur": 1.8,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-10.2c308214.mp3",
+    "dur": 1.55,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-11.737c42db.mp3",
+    "dur": 1.5,
+    "weight": 0.5
+   },
+   {
+    "file": "audio/florida/tufted-titmouse-12.cf92fe2c.mp3",
+    "dur": 2.3,
+    "weight": 0.5
+   }
+  ],
   "garden/blackbird": [
    {
     "file": "audio/garden/blackbird-1.f98a036d.mp3",
@@ -666,6 +926,62 @@
   ]
  },
  "files": [
+  "audio/florida/bees-1.fd932158.mp3",
+  "audio/florida/blue-jay-1.f38ab6d9.mp3",
+  "audio/florida/blue-jay-2.caaa9c2f.mp3",
+  "audio/florida/blue-jay-3.20adcade.mp3",
+  "audio/florida/blue-jay-4.f43ffa5d.mp3",
+  "audio/florida/cardinal-1.144b94ba.mp3",
+  "audio/florida/cardinal-2.479d4a6d.mp3",
+  "audio/florida/cardinal-3.8ae364f1.mp3",
+  "audio/florida/cardinal-4.c4ac1e8b.mp3",
+  "audio/florida/carolina-wren-1.6afb327d.mp3",
+  "audio/florida/carolina-wren-2.4775d312.mp3",
+  "audio/florida/carolina-wren-3.4e7829ab.mp3",
+  "audio/florida/carolina-wren-4.eb0e3269.mp3",
+  "audio/florida/chimes-1.f6b9efed.mp3",
+  "audio/florida/cicadas-1.4a698b17.mp3",
+  "audio/florida/ground-dove-1.0c5f8d25.mp3",
+  "audio/florida/ground-dove-2.48395db2.mp3",
+  "audio/florida/ground-dove-3.aad7e1c9.mp3",
+  "audio/florida/ground-dove-4.d25be7c2.mp3",
+  "audio/florida/hummingbird-1.0cca51b4.mp3",
+  "audio/florida/hummingbird-2.b38fb838.mp3",
+  "audio/florida/hummingbird-3.7a4039ed.mp3",
+  "audio/florida/hummingbird-4.9e8f2731.mp3",
+  "audio/florida/mockingbird-1.aa0a317b.mp3",
+  "audio/florida/mockingbird-2.79caa1ac.mp3",
+  "audio/florida/mockingbird-3.172f6b95.mp3",
+  "audio/florida/mockingbird-4.87d35c8f.mp3",
+  "audio/florida/morning-1.d4599374.mp3",
+  "audio/florida/mourning-dove-1.52cb425f.mp3",
+  "audio/florida/mourning-dove-2.4f62b33c.mp3",
+  "audio/florida/mourning-dove-3.83694e83.mp3",
+  "audio/florida/mourning-dove-4.ec4e87bd.mp3",
+  "audio/florida/northern-parula-1.0e9cb98e.mp3",
+  "audio/florida/northern-parula-2.238c8298.mp3",
+  "audio/florida/northern-parula-3.e651d931.mp3",
+  "audio/florida/northern-parula-4.32638bc3.mp3",
+  "audio/florida/palms-1.b1acb17d.mp3",
+  "audio/florida/red-bellied-woodpecker-1.9b60cc67.mp3",
+  "audio/florida/red-bellied-woodpecker-2.80275cd6.mp3",
+  "audio/florida/red-bellied-woodpecker-3.5afc2141.mp3",
+  "audio/florida/red-bellied-woodpecker-4.4925a9dd.mp3",
+  "audio/florida/red-shouldered-hawk-1.7d0f71ba.mp3",
+  "audio/florida/red-shouldered-hawk-2.4515d760.mp3",
+  "audio/florida/red-shouldered-hawk-3.aa9b34bd.mp3",
+  "audio/florida/tufted-titmouse-1.7d503bd6.mp3",
+  "audio/florida/tufted-titmouse-10.2c308214.mp3",
+  "audio/florida/tufted-titmouse-11.737c42db.mp3",
+  "audio/florida/tufted-titmouse-12.cf92fe2c.mp3",
+  "audio/florida/tufted-titmouse-2.fb4a42d5.mp3",
+  "audio/florida/tufted-titmouse-3.096103b1.mp3",
+  "audio/florida/tufted-titmouse-4.75774953.mp3",
+  "audio/florida/tufted-titmouse-5.e70e0465.mp3",
+  "audio/florida/tufted-titmouse-6.58b2a284.mp3",
+  "audio/florida/tufted-titmouse-7.24a68879.mp3",
+  "audio/florida/tufted-titmouse-8.f9dda0be.mp3",
+  "audio/florida/tufted-titmouse-9.e25c130b.mp3",
   "audio/garden/blackbird-1.f98a036d.mp3",
   "audio/garden/blackbird-2.3b128310.mp3",
   "audio/garden/blackbird-3.b000142d.mp3",
@@ -806,6 +1122,230 @@
   "audio/waterfall/wren-4.883d3cae.mp3"
  ],
  "credits": [
+  {
+   "what": "Mockingbird",
+   "title": "XC139965 Northern Mockingbird",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/139965",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Mockingbird",
+   "title": "XC192423 Northern Mockingbird",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/192423",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Cardinal",
+   "title": "XC165346 Northern Cardinal",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/165346",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Cardinal",
+   "title": "XC109034 Northern Cardinal",
+   "author": "Andrew Spencer",
+   "page": "https://xeno-canto.org/109034",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Carolina wren",
+   "title": "XC451901 Carolina Wren",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/451901",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Carolina wren",
+   "title": "XC109026 Carolina Wren",
+   "author": "Andrew Spencer",
+   "page": "https://xeno-canto.org/109026",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Carolina wren",
+   "title": "XC143792 Carolina Wren",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/143792",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Mourning dove",
+   "title": "XC451819 Mourning Dove",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/451819",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Mourning dove",
+   "title": "XC153651 Mourning Dove",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/153651",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Tufted titmouse",
+   "title": "XC174397 Tufted Titmouse",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/174397",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tufted titmouse",
+   "title": "XC316285 Tufted Titmouse",
+   "author": "Sue Riffe",
+   "page": "https://xeno-canto.org/316285",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Blue jay",
+   "title": "XC310243 Blue Jay",
+   "author": "Russ Wigh",
+   "page": "https://xeno-canto.org/310243",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Blue jay",
+   "title": "XC933597 Blue Jay",
+   "author": "Thomas Magarian",
+   "page": "https://xeno-canto.org/933597",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Red-bellied woodpecker",
+   "title": "XC413329 Red-bellied Woodpecker",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/413329",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Red-bellied woodpecker",
+   "title": "XC145837 Red-bellied Woodpecker",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/145837",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Northern parula",
+   "title": "XC457222 Northern Parula",
+   "author": "Bruce Lagerquist",
+   "page": "https://xeno-canto.org/457222",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Northern parula",
+   "title": "XC843698 Northern Parula",
+   "author": "Valerie Heemstra",
+   "page": "https://xeno-canto.org/843698",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Red-shouldered hawk",
+   "title": "XC395195 Red-shouldered Hawk",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/395195",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Common ground dove",
+   "title": "XC138627 Common Ground Dove",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/138627",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Common ground dove",
+   "title": "XC109894 Common Ground Dove",
+   "author": "Andrew Spencer",
+   "page": "https://xeno-canto.org/109894",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Ruby-throated hummingbird",
+   "title": "XC195616 Ruby-throated Hummingbird",
+   "author": "Russ Wigh",
+   "page": "https://xeno-canto.org/195616",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Florida air",
+   "title": "XC909892 Soundscape",
+   "author": "Bill Grantham",
+   "page": "https://xeno-canto.org/909892",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Breeze in the palms",
+   "title": "Atlantic Aeneas, Ajia Napa 5330, Cypr - 1132 windy weather",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_64336_74242",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Cicadas",
+   "title": "Suffex Green Ln NW, Atlanta, GA 30339, USA - A Summer Evening w/ Cicadas",
+   "author": "SoundHunter",
+   "page": "https://archive.org/details/aporee_53856_61574",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Bees",
+   "title": "Templo Sur, Monte Alb\u00e1n, Oax., Mexico - Bees in White Flowering Tree",
+   "author": "Sylvia Shale",
+   "page": "https://archive.org/details/aporee_31841_36568",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Wind chimes",
+   "title": "160 Moana Avenue, Moana, Nelson 7011, New Zealand - Wind Chimes",
+   "author": "Dawson",
+   "page": "https://archive.org/details/aporee_49442_56376",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Tufted titmouse",
+   "title": "XC348110 Tufted Titmouse",
+   "author": "Patrick Blake",
+   "page": "https://xeno-canto.org/348110",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tufted titmouse",
+   "title": "XC164758 Tufted Titmouse",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/164758",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
   {
    "what": "Dawn chorus",
    "title": "The Long Man of Wilmington, South Downs, UK - The Long Man of Wilmington Dawn Chorus",
