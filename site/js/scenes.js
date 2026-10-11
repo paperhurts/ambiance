@@ -51,6 +51,7 @@ const HABITS = {
   limpkin: { bout: [1, 3], gap: [2, 6], rest: [60, 200], el: [0, 10], dist: [40, 120] },
   'sandhill-crane': { bout: [1, 2], gap: [5, 10], rest: [90, 300], el: [0, 10], dist: [80, 250] },
   'great-egret': { bout: [1, 2], gap: [3, 8], rest: [60, 200], el: [0, 30], dist: [20, 80] },
+  'great-blue-heron': { bout: [1, 2], gap: [4, 12], rest: [90, 300], el: [5, 40], dist: [18, 55], gain: 1.4 },
   osprey: { bout: [1, 3], gap: [3, 8], rest: [60, 180], el: [30, 70], dist: [40, 120] },
   // frogs, at the water's edge all round the pond, several of each calling
   'green-treefrog': { bout: [1, 3], gap: [1, 4], rest: [15, 50], el: [-5, 10], dist: [4, 25], n: [2, 3], gain: 0.7 },
@@ -76,7 +77,7 @@ const NAMES = {
   'blue-jay': 'Blue jay', 'red-bellied-woodpecker': 'Red-bellied woodpecker', 'northern-parula': 'Northern parula',
   'red-shouldered-hawk': 'Red-shouldered hawk', 'ground-dove': 'Ground dove',
   'red-winged-blackbird': 'Red-winged blackbird', 'boat-tailed-grackle': 'Boat-tailed grackle', limpkin: 'Limpkin',
-  'sandhill-crane': 'Sandhill crane', 'great-egret': 'Great egret', osprey: 'Osprey',
+  'sandhill-crane': 'Sandhill crane', 'great-egret': 'Great egret', 'great-blue-heron': 'Great blue heron', osprey: 'Osprey',
   'green-treefrog': 'Green treefrog', 'squirrel-treefrog': 'Squirrel treefrog', 'barking-treefrog': 'Barking treefrog',
   'pig-frog': 'Pig frog', 'leopard-frog': 'Leopard frog', 'southern-toad': 'Southern toad', 'oak-toad': 'Oak toad',
   'cricket-frog': 'Cricket frog', 'barred-owl': 'Barred owl', 'chuck-wills-widow': "Chuck-will's-widow",
@@ -233,8 +234,9 @@ export function buildScenes(pools) {
       { id: 'downpour', type: 'bed', label: 'Downpour', icon: 'rain', files: files('glades/downpour'), level: 0.8, gain: 1.25, drive: { by: 'storm', gain: [0, 1], range: [0.7, 0.98] } },
       { id: 'drip', type: 'bed', label: 'Dripping', icon: 'water', files: files('glades/drip'), level: 0.5, gain: 2.5, drive: { by: 'after', gain: [0, 1], range: [0.05, 0.6] } },
       { id: 'thunder', type: 'storm', label: 'Thunder', icon: 'bolt', pool: items('glades/thunder').length ? items('glades/thunder') : items('storm/thunder'), lazy: true, keep: 3, every: [30, 120], first: [8, 30], level: 0.75, gain: 0.9, reverb: 0.25, km: [13, 1.1], drive: { by: 'storm', rate: [0.06, 1.5] } },
-      // birds go quiet as the storm comes and come back as it clears
-      ...birds('glades', gladesBeds, { count: 1, quiet: 1.2, level: 0.55, gain: 0.85, drive: { by: 'storm', rate: [1.3, 0.04], range: [0.15, 0.75] } }),
+      // birds call less as the storm comes over, but carry on through the rain (herons and egrets
+      // stand it out in the marsh, blackbirds hang on to the cattails) and pick up as it clears
+      ...birds('glades', gladesBeds, { count: 1, quiet: 1.2, level: 0.55, gain: 0.85, drive: { by: 'storm', rate: [1.3, 0.3], range: [0.15, 0.75] } }),
       // and after the rain, the frogs start up
       ...birds('pond', [], { only: ['squirrel-treefrog', 'pig-frog', 'green-treefrog'], prefix: 'after-', group: 'After the rain', icon: 'frog', level: 0.5, gain: 0.85, drive: { by: 'after', rate: [0.02, 1.5], range: [0.08, 0.6] } }),
     ],

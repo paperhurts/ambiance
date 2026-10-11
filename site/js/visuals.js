@@ -3279,6 +3279,14 @@ class Glades extends Painting {
     this.perched = [];
     this.cranes = null;
     this.limpkin = null;
+    this.gustPh = 0;
+    this.flutterPh = 0;
+    // waders that stand it out in the slough whatever the weather: a great blue heron and a great egret
+    const sl = this.sloughs[0];
+    this.waders = [
+      { sp: 'great-blue-heron', x: sl.x + sl.rx * 0.48, y: sl.y + sl.ry * 0.2, s: 1.6, dir: -1, next: 5, min: sl.x + sl.rx * 0.4, max: sl.x + sl.rx * 0.58 },
+      { sp: 'great-egret', x: sl.x + sl.rx * 0.2, y: sl.y - sl.ry * 0.1, s: 1.4, dir: 1, next: 11, min: sl.x + sl.rx * 0.12, max: sl.x + sl.rx * 0.28 },
+    ];
   }
 
   drop(anywhere) {
@@ -3333,26 +3341,36 @@ class Glades extends Painting {
   showBird(e) {
     const { w, h } = this;
     const sp = e.species;
-    if (sp === 'great-egret' || sp === 'osprey') {
+    if (sp === 'great-egret' || sp === 'osprey' || sp === 'great-blue-heron') {
       // one bird, one crossing: its next calls come from the bird already on its way over
       const key = e.bird ?? sp;
       if (this.flyers.some((f) => f.key === key)) return;
+      // or the heron or egret standing in the slough is the one calling
+      const wd = this.waders.find((x) => x.sp === sp);
+      if (wd && Math.random() < 0.45) {
+        wd.callUntil = this.t + (e.dur || 2);
+        return;
+      }
       const fromLeft = Math.random() < 0.5;
-      this.flyers.push({ key, sp, x: fromLeft ? -0.05 * w : 1.05 * w, y: (sp === 'osprey' ? rand(0.1, 0.25) : rand(0.3, 0.5)) * h, v: (fromLeft ? 1 : -1) * rand(0.04, 0.07) * w, ph: rand(0, TAU) });
+      const y = sp === 'osprey' ? rand(0.1, 0.25) : sp === 'great-blue-heron' ? rand(0.18, 0.4) : rand(0.3, 0.5);
+      this.flyers.push({ key, sp, x: fromLeft ? -0.05 * w : 1.05 * w, y: y * h, v: (fromLeft ? 1 : -1) * rand(0.04, 0.07) * w, ph: rand(0, TAU) });
     } else if (sp === 'sandhill-crane') {
-      this.cranes = { x: rand(0.2, 0.8) * w, until: this.t + 40 };
+      // a pair out on the prairie, staying a good while
+      this.cranes = { x: this.cranes && this.t < this.cranes.until ? this.cranes.x : rand(0.45, 0.85) * w, until: this.t + rand(150, 320) };
     } else if (sp === 'limpkin') {
-      this.limpkin = { x: this.sloughs[0].x + rand(-0.3, 0.3) * this.sloughs[0].rx, until: this.t + 30, sing: this.t, singUntil: this.t + (e.dur || 2) };
+      const L = this.limpkin && this.t < this.limpkin.until ? this.limpkin : null;
+      this.limpkin = { x: L ? L.x : this.sloughs[0].x + rand(0.68, 0.8) * this.sloughs[0].rx, until: this.t + rand(60, 150), sing: this.t, singUntil: this.t + (e.dur || 2) };
     } else if (GLADES_BIRDS[sp]) {
       const existing = this.perched.find((p) => p.key === (e.bird ?? sp));
+      // blackbirds hang on to their cattails a good while after singing, rain or not
       if (existing) {
         existing.until = this.t + (e.dur || 2);
-        existing.gone = Math.max(existing.gone, this.t + (e.dur || 2) + rand(8, 16));
+        existing.gone = Math.max(existing.gone, this.t + (e.dur || 2) + rand(45, 120));
         return;
       }
       const free = this.cattails.filter((c) => !this.perched.some((p) => p.cat === c));
       const cat = free[Math.floor(Math.random() * free.length)];
-      if (cat) this.perched.push({ key: e.bird ?? sp, look: GLADES_BIRDS[sp], cat, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(8, 16), sing: this.t });
+      if (cat) this.perched.push({ key: e.bird ?? sp, look: GLADES_BIRDS[sp], cat, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(45, 120), sing: this.t });
     }
   }
 
@@ -3362,7 +3380,15 @@ class Glades extends Painting {
     const after = this.drivers.after ?? 0;
     const dark = clamp((storm - 0.15) / 0.75, 0, 1);
     const rain = clamp((storm - 0.35) / 0.5, 0, 1);
-    const wind = clamp((storm - 0.3) / 0.45, 0, 1) * (0.75 + 0.25 * Math.sin(t * 0.7));
+    const wind = clamp((storm - 0.3) / 0.45, 0, 1);
+    // gusts: a slow, uneven swell that rolls across the prairie. The phases add up frame by frame, so
+    // nothing speeds up or jitters as the wind rises and falls.
+    this.gustPh += dt * (0.22 + wind * 0.4);
+    this.flutterPh += dt * (1.1 + wind * 1.3);
+    const gustAt = (x) => {
+      const p = this.gustPh - (x / w) * 2.4;
+      return clamp(0.5 + 0.28 * Math.sin(p) + 0.17 * Math.sin(p * 2.13 + 1.3) + 0.08 * Math.sin(p * 4.7 + 0.4), 0, 1);
+    };
     const gold = after * (1 - dark);
 
     // lightning: the brightest flash right now
@@ -3515,9 +3541,10 @@ class Glades extends Painting {
     }
     g.stroke();
 
-    // birds out on the prairie
+    // birds out on the prairie, and the waders in the slough
     if (this.cranes && t < this.cranes.until) this.drawCranes();
     if (this.limpkin && t < this.limpkin.until) this.drawLimpkin();
+    for (const wd of this.waders) this.drawWader(wd, storm, dark);
     this.flyers = this.flyers.filter((f) => f.x > -0.1 * w && f.x < 1.1 * w);
     for (const f of this.flyers) {
       f.x += f.v * dt;
@@ -3551,7 +3578,8 @@ class Glades extends Painting {
       g.globalAlpha = 1;
     }
     for (const m of this.moss) {
-      const ang = Math.sin(t * (0.5 + wind * 1.6) + m.ph) * (0.025 + wind * 0.1) - wind * 0.16;
+      // blown out sideways in the gusts, easing back between them, and just swaying in a breeze
+      const ang = -wind * (0.12 + 0.42 * gustAt(m.x)) + Math.sin(this.flutterPh * 0.55 + m.ph) * (0.03 - wind * 0.012);
       g.setTransform(Math.cos(ang), Math.sin(ang), -Math.sin(ang), Math.cos(ang), m.x, m.y);
       g.drawImage(m.lit.c, -m.lit.ax, -m.lit.ay);
       if (dark > 0) {
@@ -3562,12 +3590,12 @@ class Glades extends Painting {
     }
     g.setTransform(1, 0, 0, 1, 0, 0);
 
-    // the near sawgrass and cattails, pushed by the wind
-    const lean = wind * 0.35;
+    // the near sawgrass and cattails: a breeze sways them; a storm wind lays them over, further in
+    // each gust as it rolls across, with a flutter on top
     const shade = (c) => (dark > 0 ? mix(c, '#1f2426', dark * 0.45) : c);
     g.lineCap = 'round';
     for (const b of this.blades) {
-      const sway = Math.sin(t * (1.2 + wind * 2.5) + b.ph) * (0.03 + wind * 0.08) + lean + b.lean;
+      const sway = wind * (0.1 + 0.42 * gustAt(b.x)) + Math.sin(this.flutterPh + b.ph) * (0.045 - wind * 0.025) + b.lean;
       g.strokeStyle = shade(b.col);
       g.lineWidth = 0.35 * u;
       g.beginPath();
@@ -3576,7 +3604,7 @@ class Glades extends Painting {
       g.stroke();
     }
     for (const c of this.cattails) {
-      const sway = Math.sin(t * (0.9 + wind * 2) + c.ph) * (0.02 + wind * 0.06) + lean * 0.7;
+      const sway = wind * (0.06 + 0.28 * gustAt(c.x)) + Math.sin(this.flutterPh * 0.7 + c.ph) * (0.025 - wind * 0.01);
       const tx = c.x + sway * c.hgt;
       const ty = h - c.hgt;
       c.tx = tx;
@@ -3597,7 +3625,7 @@ class Glades extends Painting {
 
     // rain, slanted by the wind
     if (rain > 0) {
-      const slant = 0.12 + wind * 0.35;
+      const slant = 0.12 + wind * (0.12 + 0.3 * gustAt(w * 0.5));
       const count = Math.round(this.drops.length * rain);
       g.strokeStyle = `rgba(210,222,232,${0.2 + rain * 0.16})`;
       g.lineWidth = 1 * this.dpr;
@@ -3616,8 +3644,164 @@ class Glades extends Painting {
     }
   }
 
+  // A heron or egret standing in the slough: still for long spells, now and then a step, a look the
+  // other way, a stab at a fish or a long stretch of the neck; hunched up with its neck drawn in when it
+  // pours; mirrored in the water.
+  drawWader(wd, storm, dark) {
+    const { g, t, u } = this;
+    if (t > wd.next) {
+      const r = Math.random();
+      wd.act = r < 0.3 ? 'step' : r < 0.5 ? 'look' : r < 0.8 ? 'strike' : 'stretch';
+      wd.t0 = t;
+      wd.dur = { step: 1.8, look: 0.5, strike: 1.1, stretch: 4 }[wd.act];
+      wd.next = t + wd.dur + rand(6, 24);
+      if (wd.act === 'look') wd.dir = -wd.dir;
+      if (wd.act === 'step') {
+        wd.from = wd.x;
+        wd.to = clamp(wd.x + wd.dir * rand(1.5, 3.5) * u, wd.min, wd.max);
+        if (wd.to === wd.from) wd.dir = -wd.dir;
+      }
+    }
+    const k = wd.act ? clamp((t - wd.t0) / wd.dur, 0, 1) : 1;
+    if (wd.act === 'step' && k < 1) {
+      wd.x = lerp(wd.from, wd.to, k * k * (3 - 2 * k));
+      if (Math.random() < 0.08) this.ripples.push({ x: wd.x, y: wd.y, age: 0 });
+    }
+    if (wd.act === 'strike' && k > 0.35 && k < 0.45 && !wd.splashed) {
+      wd.splashed = true;
+      this.ripples.push({ x: wd.x + wd.dir * 3 * wd.s * u, y: wd.y + 0.3 * u, age: 0 });
+    }
+    if (wd.act !== 'strike' || k >= 1) wd.splashed = false;
+    // neck: drawn in when it pours, raised to look about, right out at the water to strike
+    let up = 0.75 - clamp((storm - 0.5) / 0.35, 0, 1) * 0.75;
+    if (wd.act === 'stretch' && k < 1) up = Math.max(up, Math.sin(k * Math.PI));
+    const calling = t < (wd.callUntil ?? 0);
+    if (calling) up = Math.max(up, 0.85);
+    const reach = wd.act === 'strike' && k < 1 ? Math.sin(k * Math.PI) ** 0.7 : 0;
+    const heron = wd.sp === 'great-blue-heron';
+    const tone = (c) => (dark > 0 ? mix(c, '#1f2426', dark * (heron ? 0.4 : 0.3)) : c);
+    const col = heron
+      ? { body: tone('#7a8da3'), wing: tone('#5d6f86'), neck: tone('#a3a9b4'), head: tone('#e9e9e6'), crown: tone('#1d2228'), bill: tone('#d4a33a'), legs: tone('#4b4338') }
+      : { body: tone('#f6f5ef'), wing: tone('#e6e5de'), neck: tone('#f6f5ef'), head: tone('#f6f5ef'), crown: null, bill: tone('#e6c22c'), legs: tone('#1a1a1a') };
+    const s = wd.s * u;
+    const shape = () => {
+      const d = wd.dir;
+      // legs, the front one a little forward
+      g.strokeStyle = col.legs;
+      g.lineWidth = 0.16 * s;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(-0.15 * s, -3.6 * s);
+      g.lineTo(-0.25 * s * d, 0);
+      g.moveTo(0.15 * s, -3.6 * s);
+      g.lineTo(0.3 * s * d, 0);
+      g.stroke();
+      // body, tilted up at the front, the back feathers trailing
+      g.fillStyle = col.body;
+      g.beginPath();
+      g.ellipse(0, -4.3 * s, 1.75 * s, 0.8 * s, -0.22 * d, 0, TAU);
+      g.fill();
+      g.fillStyle = col.wing;
+      g.beginPath();
+      g.moveTo(-1.6 * s * d, -4.1 * s);
+      g.quadraticCurveTo(-0.2 * s * d, -5.1 * s, 0.9 * s * d, -4.7 * s);
+      g.quadraticCurveTo(-0.6 * s * d, -3.9 * s, -2.3 * s * d, -3.5 * s);
+      g.closePath();
+      g.fill();
+      // the neck, an S that straightens as it reaches out
+      const lerp2 = (a, b, k2) => [lerp(a[0], b[0], k2), lerp(a[1], b[1], k2)];
+      const base = [1.2 * d, -4.8];
+      const head = lerp2(lerp2([1.35 * d, -5.75], [1.85 * d, -8.3], up), [3.1 * d, -2.7], reach);
+      const ctrl = lerp2(lerp2([1.7 * d, -5.0], [0.6 * d, -6.8], up), [2.5 * d, -4.7], reach);
+      g.strokeStyle = col.neck;
+      g.lineWidth = (heron ? 0.5 : 0.36) * s;
+      g.beginPath();
+      g.moveTo(base[0] * s, base[1] * s);
+      g.quadraticCurveTo(ctrl[0] * s, ctrl[1] * s, head[0] * s, head[1] * s);
+      g.stroke();
+      // the head and its dagger of a bill, open while it calls
+      const hx = head[0] * s;
+      const hy = head[1] * s;
+      const ang = lerp(0.12, 1.05, reach);
+      const bl = (heron ? 1.7 : 1.5) * s;
+      g.fillStyle = col.head;
+      g.beginPath();
+      g.ellipse(hx, hy, 0.48 * s, 0.32 * s, ang * d, 0, TAU);
+      g.fill();
+      if (col.crown) {
+        // the black stripe over the eye, running back into the plume
+        g.strokeStyle = col.crown;
+        g.lineWidth = 0.14 * s;
+        g.beginPath();
+        g.moveTo(hx + 0.3 * s * d, hy - 0.2 * s);
+        g.lineTo(hx - 0.35 * s * d, hy - 0.25 * s);
+        g.lineTo(hx - 1.1 * s * d, hy - 0.05 * s);
+        g.stroke();
+      }
+      const gape = calling ? 0.12 : 0;
+      g.fillStyle = col.bill;
+      g.beginPath();
+      g.moveTo(hx + 0.3 * s * d * Math.cos(ang), hy - 0.12 * s);
+      g.lineTo(hx + d * Math.cos(ang - gape) * bl, hy + Math.sin(ang - gape) * bl);
+      g.lineTo(hx + 0.3 * s * d * Math.cos(ang), hy + 0.1 * s);
+      g.lineTo(hx + d * Math.cos(ang + gape) * bl, hy + Math.sin(ang + gape) * bl);
+      g.closePath();
+      g.fill();
+    };
+    g.save();
+    g.translate(wd.x, wd.y);
+    shape();
+    g.restore();
+    // its reflection, broken up by the rain
+    g.save();
+    g.clip(this.sloughs[0].path);
+    g.globalAlpha = 0.2 * (1 - clamp((storm - 0.4) / 0.5, 0, 0.8));
+    g.translate(wd.x, wd.y);
+    g.scale(1, -0.8);
+    shape();
+    g.restore();
+  }
+
   drawFlyer(f) {
     const { g, t, u } = this;
+    if (f.sp === 'great-blue-heron') {
+      // big, slow, deep wingbeats; neck folded back, legs trailing
+      const s = 2.4 * u;
+      const flap = Math.sin(t * 2 + f.ph);
+      g.save();
+      g.translate(f.x, f.y);
+      if (f.v < 0) g.scale(-1, 1);
+      g.fillStyle = '#6f8298';
+      g.beginPath();
+      g.moveTo(-s * 0.4, 0);
+      g.quadraticCurveTo(-s * 0.9, -s * 0.5 - flap * s * 0.6, -s * 2, -flap * s * 1.1);
+      g.quadraticCurveTo(-s * 0.9, s * 0.1 - flap * s * 0.3, s * 0.3, s * 0.15);
+      g.moveTo(s * 0.4, 0);
+      g.quadraticCurveTo(s * 0.9, -s * 0.5 - flap * s * 0.6, s * 2, -flap * s * 1.1);
+      g.quadraticCurveTo(s * 0.9, s * 0.1 - flap * s * 0.3, -s * 0.3, s * 0.15);
+      g.fill();
+      g.fillStyle = '#7e90a5';
+      g.beginPath();
+      g.ellipse(0, s * 0.08, s * 0.8, s * 0.24, 0, 0, TAU);
+      g.fill();
+      g.beginPath();
+      g.arc(s * 0.85, -s * 0.02, s * 0.2, 0, TAU);
+      g.fill();
+      g.fillStyle = '#d4a33a';
+      g.beginPath();
+      g.moveTo(s * 1, -s * 0.07);
+      g.lineTo(s * 1.65, s * 0.02);
+      g.lineTo(s * 1, s * 0.06);
+      g.fill();
+      g.strokeStyle = '#4b4338';
+      g.lineWidth = 0.14 * u;
+      g.beginPath();
+      g.moveTo(-s * 0.7, s * 0.15);
+      g.lineTo(-s * 1.75, s * 0.28);
+      g.stroke();
+      g.restore();
+      return;
+    }
     const s = (f.sp === 'osprey' ? 1.6 : 1.9) * u;
     const flap = Math.sin(t * (f.sp === 'osprey' ? 4 : 2.6) + f.ph);
     g.save();
