@@ -436,21 +436,6 @@
   "key": "glades/gust-1",
   "kind": "bed",
   "channels": 2,
-  "start": 100.0,
-  "end": 340.0,
-  "source_url": "https://archive.org/download/aporee_41355_47177/sevkatarcriquet050911h00.mp3",
-  "page": "https://archive.org/details/aporee_41355_47177",
-  "title": "Kotayk, Arménie - Wind in the tall grass",
-  "author": "Vincent Duseigne",
-  "license": "CC BY 3.0",
-  "license_url": "https://creativecommons.org/licenses/by/3.0/",
-  "what": "Wind in the grass",
-  "notes": "Strong wind in tall grass, volcanic upland, Kotayk, Armenia (Vincent Duseigne; 320k MP3, 44.1 kHz). Gust-modulated grass rush from 80 Hz to 2.5 kHz with clear swells and lulls, and no mic-buffeting blobs: under 5% of the energy is below 250 Hz and there is nothing below 60 Hz. Very wide stereo (LR corr 0.01), -27.7 LUFS over this window, LRA 3.6. Caveats: a small grasshopper sings continuously at "
- },
- {
-  "key": "glades/gust-2",
-  "kind": "bed",
-  "channels": 2,
   "start": 206.0,
   "end": 332.0,
   "source_url": "https://archive.org/download/aporee_33020_37939/24roseaux15h00.mp3",
@@ -461,6 +446,7 @@
   "license_url": "https://creativecommons.org/licenses/by/3.0/",
   "what": "Wind in the grass",
   "hp": 200,
+  "max_len": 126,
   "notes": "Gusty wind hissing through a reed bed, Leeuw-Saint-Pierre, Belgium (Vincent Duseigne; 320k MP3, 44.1 kHz). This is the 'rushing, hissing' reed texture: reed hiss swells of 10-13 dB across 1-16 kHz, with the strongest gust at ~259-264 s. Wide stereo (LR corr 0.03), LRA 13.8 (gusty by nature). The window avoids the barge/sluice sections (~66-100 s and ~360-400 s), two low thumps at ~197/203 s and a "
  },
  {

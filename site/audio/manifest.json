@@ -452,12 +452,8 @@
   ],
   "glades/gust": [
    {
-    "file": "audio/glades/gust-1.3174d1eb.mp3",
-    "dur": 90.0
-   },
-   {
-    "file": "audio/glades/gust-2.48f291fb.mp3",
-    "dur": 90.0
+    "file": "audio/glades/gust-1.ec7caaba.mp3",
+    "dur": 123.0
    }
   ],
   "glades/limpkin": [
@@ -1434,8 +1430,7 @@
   "audio/glades/great-egret-1.c8e71a78.mp3",
   "audio/glades/great-egret-2.b5e96377.mp3",
   "audio/glades/great-egret-3.a4b2c8e6.mp3",
-  "audio/glades/gust-1.3174d1eb.mp3",
-  "audio/glades/gust-2.48f291fb.mp3",
+  "audio/glades/gust-1.ec7caaba.mp3",
   "audio/glades/limpkin-1.83726c51.mp3",
   "audio/glades/limpkin-2.d31a47ae.mp3",
   "audio/glades/limpkin-3.df864db3.mp3",
@@ -2084,14 +2079,6 @@
    "page": "https://archive.org/details/aporee_66066_76380",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
-  },
-  {
-   "what": "Wind in the grass",
-   "title": "Kotayk, Arm\u00e9nie - Wind in the tall grass",
-   "author": "Vincent Duseigne",
-   "page": "https://archive.org/details/aporee_41355_47177",
-   "license": "CC BY 3.0",
-   "license_url": "https://creativecommons.org/licenses/by/3.0/"
   },
   {
    "what": "Wind in the grass",
