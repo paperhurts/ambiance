@@ -20,7 +20,8 @@ None of them loops audibly: long recordings crossfade between random points, and
 
 Every scene has a **Mix** sheet (each layer on its own slider, every bird species too, remembered), a **sleep timer** that fades out
 over the last minute and a half, and **Dim** for a black screen. **Headphones mode** places sounds in 3D
-(behind, above, moving past) using the browser's HRTF panner.
+(behind, above, moving past) using the browser's HRTF panner. On a phone's lock screen, ◀◀ and ▶▶ step
+between scenes.
 
 ## Put it on your phone
 
@@ -84,6 +85,6 @@ All recordings are public domain or Creative Commons licensed; the full list (wi
 the app under **Settings → Credits**, and in `tools/sources/*.json`. Fonts: Fraunces and Nunito (SIL Open Font
 Licence). Palette borrowed from *Beyond the Buoys*.
 
-Most of the Florida birds (and the Florida soundscape) come from [xeno-canto](https://xeno-canto.org) under
-CC BY-NC-SA, which allows non-commercial use only. That's fine for a free app; if Ambiance were ever sold
-or carried ads, those recordings would need replacing.
+Most of the Florida birds and frogs come from [xeno-canto](https://xeno-canto.org) under CC BY-NC-SA (and a
+few frogs from [iNaturalist](https://www.inaturalist.org) under CC BY-NC), which allow non-commercial use only.
+That's fine for a free app; if Ambiance were ever sold or carried ads, those recordings would need replacing.
