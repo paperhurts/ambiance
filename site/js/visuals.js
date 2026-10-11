@@ -1739,7 +1739,7 @@ function plant(fg, x, y, kind, s, r) {
   for (const hd of heads) flower(g, kind, hd.dx, hd.dy, hd.R, r);
   // on a spike, butterflies and hummingbirds feed partway up it
   if (spike) for (const hd of heads) hd.dy -= hd.R * F.spike * 0.6;
-  return { c, ax, ay, heads, top: -H };
+  return trim({ c, ax, ay, heads, top: -H });
 }
 
 // A ragged band of mixed low foliage along a bed, so the plants stand in a planted bed rather
@@ -1753,6 +1753,103 @@ function bedBand(g, w, y, s, r) {
       leaf(g, type, x + (r() - 0.5) * s * 1.5, y + s * 0.6 - r() * s * 1.8, s * (0.5 + r()), -Math.PI / 2 + (r() - 0.5) * 2.6, greens[Math.floor(r() * greens.length)]);
     }
   }
+}
+
+// Crop a sprite to what was actually drawn, keeping its anchor: transparent margins still cost
+// time every frame once the sprite is rotated.
+function trim(sp) {
+  const { c } = sp;
+  const { data, width: W, height: H } = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+  let x0 = W;
+  let y0 = H;
+  let x1 = -1;
+  let y1 = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (data[(y * W + x) * 4 + 3] > 4) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return sp;
+  const out = layer(x1 - x0 + 1, y1 - y0 + 1);
+  out.getContext('2d').drawImage(c, -x0, -y0);
+  return { ...sp, c: out, ax: sp.ax - x0, ay: sp.ay - y0 };
+}
+
+// A beard of Spanish moss: a tangled, nest-like clump on the branch, with curly, kinked strands
+// falling from it and thinning to a few long wisps. Painted once into a sprite that sways from
+// the branch.
+const MOSS = [
+  ['rgba(98,108,92,0.75)', 0.2, 16],
+  ['rgba(158,168,148,0.9)', 0.19, 20],
+  ['rgba(201,208,190,0.9)', 0.17, 18],
+  ['rgba(228,232,220,0.9)', 0.13, 6],
+];
+function mossBeard(L, W, u, r) {
+  const pad = 2 * u;
+  const cw = Math.ceil(W * 1.6 + pad * 2);
+  const ch = Math.ceil(L * 1.12 + pad * 2);
+  const c = layer(cw, ch);
+  const g = c.getContext('2d');
+  const ax = cw / 2;
+  const ay = pad + L * 0.06;
+  g.translate(ax, ay);
+  g.lineCap = 'round';
+  g.lineJoin = 'round';
+  const step = 0.55 * u;
+  // widest just under the clump, tapering to a point
+  const half = (y) => (W / 2) * Math.max(0.08, 1 - Math.max(0, y) / L) ** 0.8;
+  const strand = (x, y, len, curl) => {
+    let th = Math.PI / 2 + (r() - 0.5) * 1.2;
+    let loop = 0;
+    let turn = 0;
+    g.beginPath();
+    g.moveTo(x, y);
+    let px = x;
+    let py = y;
+    for (let d = 0; d < len; d += step) {
+      if (loop > 0) {
+        // curling round in a little loop
+        th += turn;
+        loop--;
+      } else {
+        if (r() < curl) {
+          loop = 8 + Math.floor(r() * 8);
+          turn = (r() < 0.5 ? -1 : 1) * (0.35 + r() * 0.3);
+        }
+        th += (r() - 0.5) * 0.9;
+        // gravity pulls it back toward hanging straight down
+        th += Math.atan2(Math.sin(Math.PI / 2 - th), Math.cos(Math.PI / 2 - th)) * 0.08;
+        const lim = half(y);
+        if (x > lim) th += 0.35;
+        else if (x < -lim) th -= 0.35;
+      }
+      x += Math.cos(th) * step;
+      y += Math.sin(th) * step;
+      g.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      px = x;
+      py = y;
+    }
+    g.lineTo(px, py);
+    g.stroke();
+  };
+  // back to front: shadowed strands, then lighter ones, then the silvery highlights
+  for (const [col, lw, n] of MOSS) {
+    g.strokeStyle = col;
+    g.lineWidth = lw * u;
+    for (let i = 0; i < n; i++) strand((r() - 0.5) * W * 0.8, r() * L * 0.1, L * (0.25 + 0.75 * r() ** 0.9), 0.025);
+  }
+  // the tangle on the branch
+  for (let i = 0; i < 22; i++) {
+    g.strokeStyle = MOSS[1 + (i % 3)][0];
+    g.lineWidth = 0.17 * u;
+    strand((r() - 0.5) * W * 0.9, -L * 0.04 + r() * L * 0.08, (3 + r() * 6) * u, 0.15);
+  }
+  return trim({ c, ax, ay });
 }
 
 class Butterfly extends Painting {
@@ -1776,6 +1873,9 @@ class Butterfly extends Painting {
     sg.addColorStop(1, 'rgba(255,244,205,0)');
     g.fillStyle = sg;
     g.fillRect(0, 0, w, this.horizon);
+    // the scenery as last drawn (see frame)
+    this.still = layer(w, h);
+    this.sg = this.still.getContext('2d');
     // everything on the ground, painted once
     this.fg = layer(w, h);
     g = this.fg.getContext('2d');
@@ -1883,11 +1983,49 @@ class Butterfly extends Painting {
     g.moveTo(ox, h);
     g.quadraticCurveTo(ox + w * 0.05, oy, ox + w * 0.06, h * 0.32);
     g.stroke();
+    const trunk = (t) => [(1 - t) ** 2 * ox + 2 * (1 - t) * t * (ox + w * 0.05) + t * t * (ox + w * 0.06), (1 - t) ** 2 * h + 2 * (1 - t) * t * oy + t * t * h * 0.32];
+    // rough, furrowed bark with pale patches of lichen
+    for (let i = 0; i < 90; i++) {
+      const [x, y] = trunk(r());
+      const dx = (r() - 0.5) * 4 * u;
+      if (i % 3) {
+        g.strokeStyle = 'rgba(38,28,20,0.6)';
+        g.lineWidth = 0.35 * u;
+        g.beginPath();
+        g.moveTo(x + dx, y);
+        g.lineTo(x + dx + (r() - 0.5) * 0.6 * u, y + (1 + r() * 2) * u);
+        g.stroke();
+      } else {
+        g.fillStyle = 'rgba(176,190,166,0.45)';
+        g.beginPath();
+        g.ellipse(x + dx, y, (0.4 + r() * 0.6) * u, (0.3 + r() * 0.4) * u, 0, 0, TAU);
+        g.fill();
+      }
+    }
+    // a shelf fungus on the trunk: pale on top, banded brown underneath
+    for (const [t, sz] of [[0.72, 1], [0.67, 0.6]]) {
+      const [x, y] = trunk(t);
+      const fx = x + 2.2 * u + sz * 1.6 * u;
+      g.fillStyle = '#6e4f34';
+      g.beginPath();
+      g.ellipse(fx, y, 3.2 * u * sz, 1.3 * u * sz, 0, 0, Math.PI);
+      g.fill();
+      g.fillStyle = '#d9d0bd';
+      g.beginPath();
+      g.ellipse(fx, y, 3.2 * u * sz, 0.7 * u * sz, 0, Math.PI, TAU);
+      g.fill();
+      g.strokeStyle = '#a58a66';
+      g.lineWidth = 0.25 * u;
+      g.beginPath();
+      g.ellipse(fx, y + 0.15 * u, 3 * u * sz, 0.9 * u * sz, 0, 0.15, Math.PI - 0.15);
+      g.stroke();
+    }
     const limbs = [
       [ox + w * 0.06, h * 0.36, w * 0.36, h * 0.3],
       [ox + w * 0.05, h * 0.45, w * 0.3, h * 0.44],
       [ox + w * 0.06, h * 0.3, w * 0.22, h * 0.17],
     ];
+    g.strokeStyle = '#4b3b2b';
     for (const [x0, y0, x1, y1] of limbs) {
       g.lineWidth = 2.4 * u;
       g.beginPath();
@@ -1917,18 +2055,19 @@ class Butterfly extends Painting {
         g.fill();
       }
     }
-    // Spanish moss: grey-green strands hanging in curtains
-    g.strokeStyle = 'rgba(176,186,160,0.85)';
-    g.lineWidth = 0.35 * u;
-    for (let i = 0; i < 70; i++) {
-      const x = ox + w * (0.08 + r() * 0.32);
-      const y = h * (0.2 + r() * 0.24);
-      const len = (4 + r() * 12) * u;
-      g.beginPath();
-      g.moveTo(x, y);
-      g.quadraticCurveTo(x + (r() - 0.5) * 2 * u, y + len * 0.5, x + (r() - 0.5) * 3 * u, y + len);
-      g.stroke();
+    // Spanish moss: clumps on the limbs with beards hanging from them, and some from twigs out in
+    // the canopy; they're sprites so they can sway (see frame)
+    this.moss = [];
+    const beard = (x, y, L, W) => this.moss.push({ x, y, ph: r() * TAU, flex: L / (20 * u), ...mossBeard(L, W, u, r) });
+    for (const [x0, y0, x1, y1] of limbs) {
+      const cx = (x0 + x1) / 2;
+      const cy = Math.min(y0, y1) - h * 0.03;
+      for (let k = 0; k < 5; k++) {
+        const t = 0.2 + k * 0.18 + (r() - 0.5) * 0.08;
+        beard((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1, (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1, (14 + r() * 26) * u, (2.5 + r() * 2.5) * u);
+      }
     }
+    for (let i = 0; i < 6; i++) beard(ox + w * (0.1 + r() * 0.3), h * (0.2 + r() * 0.18), (8 + r() * 16) * u, (1.8 + r() * 2) * u);
   }
 
   newButterfly(kind, anywhere) {
@@ -2019,7 +2158,35 @@ class Butterfly extends Painting {
   }
 
   frame(dt) {
-    const { g, w, h, t, u } = this;
+    const { g, t, u } = this;
+    // The slow-moving scenery (clouds, the hawk, the oak and its moss, the palms, the swaying beds)
+    // is redrawn about 15 times a second; everything that flits is drawn every frame.
+    this.age = (this.age ?? 1) + dt;
+    if (this.age >= 0.06 || !dt) {
+      const main = this.g;
+      this.g = this.sg;
+      this.scenery(this.age);
+      this.g = main;
+      this.age = 0;
+    }
+    g.drawImage(this.still, 0, 0);
+    // birds you can hear
+    this.birds = this.birds.filter((b) => t < b.gone);
+    for (const b of this.birds) if (!b.spot.ground) this.drawBird(b);
+    this.updateButterflies(dt);
+    this.updateDragonflies(dt);
+    this.updateHummers(dt);
+    // warm motes in the light
+    for (const m of this.motes) {
+      m.x += Math.sin(t * 0.3 + m.ph) * u * dt * 1.5;
+      m.y += Math.cos(t * 0.25 + m.ph) * u * dt;
+      g.fillStyle = `rgba(255,240,200,${0.4 + 0.3 * Math.sin(t + m.ph)})`;
+      g.fillRect(m.x, m.y, m.s, m.s);
+    }
+  }
+
+  scenery(dt) {
+    const { g, w, t, u } = this;
     const breeze = this.drivers.breeze ?? 0.4;
     g.drawImage(this.sky, 0, 0);
     // slow fair-weather clouds, behind the oak
@@ -2056,6 +2223,15 @@ class Butterfly extends Painting {
       }
     }
     g.drawImage(this.fg, 0, 0);
+    // the moss swings a little from its branches, and leans with the breeze
+    for (const m of this.moss) {
+      const a = (Math.sin(t * 0.8 + m.ph) * (0.015 + breeze * 0.035) - breeze * 0.03) * m.flex;
+      const c = Math.cos(a);
+      const s = Math.sin(a);
+      g.setTransform(c, s, -s, c, m.x, m.y);
+      g.drawImage(m.c, -m.ax, -m.ay);
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
     for (const p of this.palms) this.drawPalm(p, breeze);
     // the beds, swaying from their roots; birds on the grass go between the back bed and the next
     const sp = 0.7 + breeze * 0.8;
@@ -2075,19 +2251,6 @@ class Butterfly extends Painting {
     g.setTransform(1, 0, 0, 1, 0, 0);
     for (const o of this.heads) this.follow(o);
     for (const o of this.perches) if (o.p) this.follow(o);
-    // birds you can hear
-    this.birds = this.birds.filter((b) => t < b.gone);
-    for (const b of this.birds) if (!b.spot.ground) this.drawBird(b);
-    this.updateButterflies(dt);
-    this.updateDragonflies(dt);
-    this.updateHummers(dt);
-    // warm motes in the light
-    for (const m of this.motes) {
-      m.x += Math.sin(t * 0.3 + m.ph) * u * dt * 1.5;
-      m.y += Math.cos(t * 0.25 + m.ph) * u * dt;
-      g.fillStyle = `rgba(255,240,200,${0.4 + 0.3 * Math.sin(t + m.ph)})`;
-      g.fillRect(m.x, m.y, m.s, m.s);
-    }
   }
 
   // move a point on a plant (a flower, a perch) with the plant's sway
