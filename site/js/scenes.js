@@ -145,11 +145,13 @@ export function buildScenes(pools) {
     gain: 2.25,
     reverb: { type: 'forest', level: 0.45 },
     layers: [
-      { id: 'falls', type: 'bed', label: 'Waterfall', icon: 'falls', files: files('waterfall/falls'), level: 0.78 },
+      // the East Hampton waterfall, recorded for this; the French falls are there too, off to begin with
+      { id: 'east-hampton', type: 'bed', label: 'East Hampton Waterfall', icon: 'falls', files: files('waterfall/east-hampton'), level: 0.78 },
+      { id: 'french-falls', type: 'bed', label: 'Waterfall in France', icon: 'falls', files: files('waterfall/falls'), level: 0 },
       { id: 'creek', type: 'bed', label: 'Creek', icon: 'water', files: files('waterfall/creek'), level: 0.55, gain: 0.9 },
       { id: 'forest', type: 'bed', label: 'Forest air', icon: 'leaf', files: files('waterfall/forest'), level: 0.5, gain: 0.8 },
       { id: 'leaves', type: 'bed', label: 'Leaves', icon: 'wind', files: files('waterfall/leaves'), level: 0.35, gain: 0.8, wander: [0.3, 1], wanderEvery: [4, 12], wanderTau: [2, 5] },
-      ...birds('waterfall', ['falls', 'creek', 'forest', 'leaves', 'woodpecker'], { count: 1, quiet: 2.2, level: 0.62, reverb: 0.35 }),
+      ...birds('waterfall', ['falls', 'east-hampton', 'creek', 'forest', 'leaves', 'woodpecker'], { count: 1, quiet: 2.2, level: 0.62, reverb: 0.35 }),
       { id: 'woodpecker', type: 'shots', label: 'Woodpecker', icon: 'bird', group: 'Birds', pool: items('waterfall/woodpecker'), every: [50, 180], level: 0.4, gain: 0.8, reverb: 0.4, space: { dist: [30, 80], el: [5, 25] } },
     ],
   };
@@ -337,7 +339,8 @@ export function buildScenes(pools) {
     layers: [
       { ...pick(storm, 'rain'), id: 'rain', group: 'Water' },
       { ...pick(storm, 'surf'), id: 'surf', label: 'Ocean waves' },
-      { ...pick(waterfall, 'falls'), id: 'falls' },
+      { ...pick(waterfall, 'east-hampton'), id: 'east-hampton' },
+      { ...pick(waterfall, 'french-falls'), id: 'falls', label: 'Waterfall in France' },
       { ...pick(waterfall, 'creek'), id: 'creek' },
       { ...pick(garden, 'fountain'), id: 'fountain', pan: 0 },
       { ...pick(mansion, 'rain'), id: 'rain-glass', label: 'Rain on glass' },

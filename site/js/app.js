@@ -549,7 +549,8 @@ function showCredits() {
     ? credits
         .map(
           (c) =>
-            `<li><b>${esc(c.what)}</b> — <a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.title)}</a> by ${esc(c.author || 'unknown')} · <a href="${esc(c.license_url || '#')}" target="_blank" rel="noopener">${esc(c.license)}</a>${c.note ? ` · ${esc(c.note)}` : ''}</li>`,
+            // a recording with no page or licence link (one made for the app) is credited in plain text
+            `<li><b>${esc(c.what)}</b> — ${c.page ? `<a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)} by ${esc(c.author || 'unknown')} · ${c.license_url ? `<a href="${esc(c.license_url)}" target="_blank" rel="noopener">${esc(c.license)}</a>` : esc(c.license)}${c.note ? ` · ${esc(c.note)}` : ''}</li>`,
         )
         .join('')
     : '<li>Credits will appear here once sounds are installed.</li>';
