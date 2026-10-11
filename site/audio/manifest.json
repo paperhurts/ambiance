@@ -436,6 +436,32 @@
     "dur": 90.0
    }
   ],
+  "glades/great-blue-heron": [
+   {
+    "file": "audio/glades/great-blue-heron-1.9a0782dc.mp3",
+    "dur": 1.5
+   },
+   {
+    "file": "audio/glades/great-blue-heron-2.04c56f00.mp3",
+    "dur": 2.25
+   },
+   {
+    "file": "audio/glades/great-blue-heron-3.db97a66d.mp3",
+    "dur": 1.3
+   },
+   {
+    "file": "audio/glades/great-blue-heron-4.ef8dc6e4.mp3",
+    "dur": 1.7
+   },
+   {
+    "file": "audio/glades/great-blue-heron-5.1f7344e0.mp3",
+    "dur": 2.95
+   },
+   {
+    "file": "audio/glades/great-blue-heron-6.de45eaee.mp3",
+    "dur": 0.7
+   }
+  ],
   "glades/great-egret": [
    {
     "file": "audio/glades/great-egret-1.c8e71a78.mp3",
@@ -1427,6 +1453,12 @@
   "audio/glades/downpour-1.f8ec98a5.mp3",
   "audio/glades/downpour-2.fdcb88ae.mp3",
   "audio/glades/drip-1.6ae1c0f5.mp3",
+  "audio/glades/great-blue-heron-1.9a0782dc.mp3",
+  "audio/glades/great-blue-heron-2.04c56f00.mp3",
+  "audio/glades/great-blue-heron-3.db97a66d.mp3",
+  "audio/glades/great-blue-heron-4.ef8dc6e4.mp3",
+  "audio/glades/great-blue-heron-5.1f7344e0.mp3",
+  "audio/glades/great-blue-heron-6.de45eaee.mp3",
   "audio/glades/great-egret-1.c8e71a78.mp3",
   "audio/glades/great-egret-2.b5e96377.mp3",
   "audio/glades/great-egret-3.a4b2c8e6.mp3",
@@ -2045,6 +2077,38 @@
    "title": "XC758691 Western Osprey",
    "author": "Bruce Lagerquist",
    "page": "https://xeno-canto.org/758691",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Great blue heron",
+   "title": "XC196154 Great Blue Heron",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/196154",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Great blue heron",
+   "title": "XC395485 Great Blue Heron",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/395485",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Great blue heron",
+   "title": "XC143576 Great Blue Heron",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/143576",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Great blue heron",
+   "title": "XC408111 Great Blue Heron",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/408111",
    "license": "CC BY-NC-SA 4.0",
    "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
   },
