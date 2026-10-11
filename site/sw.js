@@ -64,16 +64,26 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // recordings: cache first, keep whatever we fetch
+  // recordings: cache first, keep whatever we fetch. A 'reload' is the app trying again at a
+  // sound that failed: fetch it afresh and replace the stored copy (unless we're offline).
   if (/\/audio\/.+\.(m4a|mp3|ogg|opus|webm)$/.test(url.pathname)) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(AUDIO);
-        const hit = (await cache.match(req, { ignoreSearch: true })) || (await caches.match(req, { ignoreSearch: true }));
-        if (hit) return hit;
-        const res = await fetch(req);
-        if (res.ok && res.status === 200) cache.put(req, res.clone());
-        return res;
+        const stored = async () => (await cache.match(req, { ignoreSearch: true })) || (await caches.match(req, { ignoreSearch: true }));
+        if (req.cache !== 'reload') {
+          const hit = await stored();
+          if (hit) return hit;
+        }
+        try {
+          const res = await fetch(req);
+          if (res.ok && res.status === 200) cache.put(req, res.clone());
+          return res;
+        } catch (e) {
+          const hit = await stored();
+          if (hit) return hit;
+          throw e;
+        }
       })(),
     );
     return;
