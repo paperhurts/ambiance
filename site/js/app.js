@@ -416,7 +416,7 @@ function renderMix(def) {
   $('#mix-title').textContent = isMixer ? 'Pick your sounds' : 'Mix';
   $('#mix-hint').textContent = isMixer
     ? 'Tap a sound to bring it in, slide to set how near it is. Save mixes you like.'
-    : 'Everything here is a real recording. Slide to taste; it’s remembered.';
+    : def.note || 'Everything here is a real recording. Slide to taste; it’s remembered.';
   $('#mix-save').hidden = !isMixer;
   let group = null;
   let html = '';
