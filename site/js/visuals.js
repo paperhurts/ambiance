@@ -3334,8 +3334,11 @@ class Glades extends Painting {
     const { w, h } = this;
     const sp = e.species;
     if (sp === 'great-egret' || sp === 'osprey') {
+      // one bird, one crossing: its next calls come from the bird already on its way over
+      const key = e.bird ?? sp;
+      if (this.flyers.some((f) => f.key === key)) return;
       const fromLeft = Math.random() < 0.5;
-      this.flyers.push({ sp, x: fromLeft ? -0.05 * w : 1.05 * w, y: (sp === 'osprey' ? rand(0.1, 0.25) : rand(0.3, 0.5)) * h, v: (fromLeft ? 1 : -1) * rand(0.04, 0.07) * w, ph: rand(0, TAU) });
+      this.flyers.push({ key, sp, x: fromLeft ? -0.05 * w : 1.05 * w, y: (sp === 'osprey' ? rand(0.1, 0.25) : rand(0.3, 0.5)) * h, v: (fromLeft ? 1 : -1) * rand(0.04, 0.07) * w, ph: rand(0, TAU) });
     } else if (sp === 'sandhill-crane') {
       this.cranes = { x: rand(0.2, 0.8) * w, until: this.t + 40 };
     } else if (sp === 'limpkin') {
