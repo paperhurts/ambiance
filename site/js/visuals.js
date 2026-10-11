@@ -3561,49 +3561,61 @@ class Pond extends Painting {
       g.closePath();
       g.fill();
       // moonlight down one side of the trunk
-      g.strokeStyle = 'rgba(120,135,150,0.25)';
-      g.lineWidth = 0.4 * u;
+      g.strokeStyle = 'rgba(130,145,160,0.35)';
+      g.lineWidth = 0.55 * u;
       g.beginPath();
       g.moveTo(x + 1.9 * u + lean * h * 0.3, base - h * 0.3);
       g.lineTo(x + 1.4 * u + lean * h * 0.9, top);
       g.stroke();
-      // limbs, perches for the owls, and moss hanging from them
-      for (const k of [0.22, 0.42, 0.62]) {
+      // limbs reaching in over the water (not the same on both trees), perches for the owls,
+      // and moss hanging along them
+      const dir = x < w / 2 ? 1 : -1;
+      for (const k of dir > 0 ? [0.14, 0.37, 0.6] : [0.27, 0.52]) {
         const ly = lerp(base - h * 0.3, top, k + 0.12);
         const lx = x + lean * h * (0.3 + (k + 0.12) * 0.6);
-        const dir = x < w / 2 ? 1 : -1;
-        const len = (16 + r() * 10) * u;
+        const len = (15 + r() * 15) * u;
         const ex = lx + dir * len;
-        const ey = ly - (1 + r() * 4) * u;
-        g.strokeStyle = '#0c1216';
-        g.lineCap = 'round';
-        g.lineWidth = 1.4 * u;
+        const ey = ly - (1 + r() * 5) * u;
+        const cx = lx + dir * len * 0.45;
+        const cy = ly - (3 + r() * 2) * u;
+        // a tapering limb: thick at the trunk, a twig at the end
+        const along = (f) => {
+          const a = (1 - f) * (1 - f), b = 2 * f * (1 - f), c = f * f;
+          return [a * lx + b * cx + c * ex, a * ly + b * cy + c * ey];
+        };
+        const pts = Array.from({ length: 13 }, (_, i) => along(i / 12));
+        const half = (i) => lerp(1.3, 0.2, i / 12) * u;
+        g.fillStyle = '#0d1418';
         g.beginPath();
-        g.moveTo(lx, ly);
-        g.quadraticCurveTo(lx + dir * len * 0.45, ly - 4 * u, ex, ey);
-        g.stroke();
-        // twigs, with a little moonlight along their tops
+        pts.forEach(([px, py], i) => (i ? g.lineTo(px, py - half(i)) : g.moveTo(px, py - half(i))));
+        for (let i = 12; i >= 0; i--) g.lineTo(pts[i][0], pts[i][1] + half(i));
+        g.closePath();
+        g.fill();
+        // twigs
+        g.strokeStyle = '#0d1418';
+        g.lineCap = 'round';
         g.lineWidth = 0.4 * u;
         for (let tw = 0; tw < 4; tw++) {
-          const tx = lx + dir * len * (0.35 + tw * 0.18);
-          const ty = ly - 3 * u * (0.5 + tw * 0.2);
+          const [tx, ty] = along(0.35 + tw * 0.17);
           g.beginPath();
           g.moveTo(tx, ty);
           g.lineTo(tx + dir * (2 + r() * 3) * u, ty - (2 + r() * 3) * u);
           g.stroke();
         }
-        g.strokeStyle = 'rgba(120,135,150,0.2)';
-        g.lineWidth = 0.3 * u;
+        // moonlight along the top of the limb, so it reads against the sky
+        g.strokeStyle = 'rgba(150,165,180,0.38)';
+        g.lineWidth = 0.45 * u;
         g.beginPath();
-        g.moveTo(lx, ly - 0.6 * u);
-        g.quadraticCurveTo(lx + dir * len * 0.45, ly - 4.6 * u, ex, ey - 0.5 * u);
+        pts.forEach(([px, py], i) => (i ? g.lineTo(px, py - half(i)) : g.moveTo(px, py - half(i))));
         g.stroke();
-        this.perches.push({ x: lx + dir * len * 0.62, y: ly - 3.4 * u, dir });
-        for (let m = 0; m < 5; m++) {
-          const f = 0.15 + m * 0.19;
-          const mx = lx + dir * len * f;
-          const my = lerp(ly, ey, f) - Math.sin(f * Math.PI) * 3 * u;
-          this.moss.push({ x: mx, y: my, ph: r() * TAU, flex: 0.8, ...mossBeard((10 + r() * 18) * u, (2 + r() * 2.5) * u, u, r, MOSS_NIGHT) });
+        const [px, py] = along(0.62);
+        this.perches.push({ x: px, y: py - 1.6 * u, dir });
+        // moss: thickest out along the limb, a few beards of different lengths
+        const n = 3 + Math.floor(r() * 3);
+        for (let m = 0; m < n; m++) {
+          const f = 0.22 + (m + r() * 0.6) * (0.75 / n);
+          const [mx, my] = along(Math.min(f, 0.97));
+          this.moss.push({ x: mx, y: my, ph: r() * TAU, flex: 0.8, ...mossBeard((8 + r() * 22) * u, (2 + r() * 2.5) * u, u, r, MOSS_NIGHT) });
         }
       }
       // knees
