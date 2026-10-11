@@ -8,7 +8,9 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 
+// a colour as [r, g, b], from '#rrggbb' or 'rgb(r,g,b)' (so mixes can be mixed again)
 function hex(c) {
+  if (c[0] !== '#') return c.match(/[\d.]+/g).slice(0, 3).map(Number);
   const n = parseInt(c.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
@@ -1900,7 +1902,7 @@ const MOSS = [
   ['rgba(201,208,190,0.9)', 0.17, 18],
   ['rgba(228,232,220,0.9)', 0.13, 6],
 ];
-function mossBeard(L, W, u, r) {
+function mossBeard(L, W, u, r, pal = MOSS) {
   const pad = 2 * u;
   const cw = Math.ceil(W * 1.6 + pad * 2);
   const ch = Math.ceil(L * 1.12 + pad * 2);
@@ -1949,14 +1951,14 @@ function mossBeard(L, W, u, r) {
     g.stroke();
   };
   // back to front: shadowed strands, then lighter ones, then the silvery highlights
-  for (const [col, lw, n] of MOSS) {
+  for (const [col, lw, n] of pal) {
     g.strokeStyle = col;
     g.lineWidth = lw * u;
     for (let i = 0; i < n; i++) strand((r() - 0.5) * W * 0.8, r() * L * 0.1, L * (0.25 + 0.75 * r() ** 0.9), 0.025);
   }
   // the tangle on the branch
   for (let i = 0; i < 22; i++) {
-    g.strokeStyle = MOSS[1 + (i % 3)][0];
+    g.strokeStyle = pal[1 + (i % 3)][0];
     g.lineWidth = 0.17 * u;
     strand((r() - 0.5) * W * 0.9, -L * 0.04 + r() * L * 0.08, (3 + r() * 6) * u, 0.15);
   }
@@ -2732,6 +2734,1276 @@ class Butterfly extends Painting {
 }
 
 // ---------------------------------------------------------------------------------------------
+// A summer thunderstorm over the Everglades. Sawgrass to the horizon, cypress domes and tree
+// islands. A thunderhead builds ahead, comes overhead with the downpour and moves off again; then
+// the low sun behind us lights the wet prairie gold, with a rainbow over the departing storm.
+
+// a cumulonimbus: one billowing, flat-based body under a smooth anvil that spreads downwind.
+// One shape, painted twice (sunlit and in shadow) so the storm can darken by crossfading.
+function cumulonimbus(W, H, r) {
+  const baseY = H * 0.86;
+  const tower = [];
+  for (let i = 0; i < 110; i++) {
+    const t = r() ** 0.8;
+    const rad = W * (0.045 + r() * 0.05) * (1 - t * 0.3);
+    tower.push({ x: W / 2 + (r() * 2 - 1) * W * (0.26 - t * 0.1), y: lerp(baseY - H * 0.04, H * 0.2, t), r: rad });
+  }
+  // a row of billows along the bottom, cut flat below: the broad, level base of a thunderhead
+  for (let x = W * 0.22; x <= W * 0.78; x += W * 0.05) tower.push({ x: x + (r() - 0.5) * W * 0.02, y: baseY - H * 0.005, r: W * (0.05 + r() * 0.025) });
+  const anvil = new Path2D();
+  anvil.moveTo(W * 0.36, H * 0.3);
+  anvil.bezierCurveTo(W * 0.29, H * 0.21, W * 0.31, H * 0.12, W * 0.46, H * 0.1);
+  anvil.lineTo(W * 0.97, H * 0.12);
+  anvil.bezierCurveTo(W * 1.0, H * 0.13, W * 0.99, H * 0.16, W * 0.92, H * 0.165);
+  anvil.bezierCurveTo(W * 0.78, H * 0.175, W * 0.64, H * 0.2, W * 0.58, H * 0.3);
+  anvil.closePath();
+  const body = new Path2D();
+  body.addPath(anvil);
+  for (const p of tower) {
+    body.moveTo(p.x + p.r, p.y);
+    body.arc(p.x, p.y, p.r, 0, TAU);
+  }
+  const paint = (pal) => {
+    const c = layer(W, H);
+    const g = c.getContext('2d');
+    g.save();
+    g.beginPath();
+    g.rect(0, 0, W, baseY);
+    g.clip();
+    g.fillStyle = vgrad(g, 0, baseY, [
+      [0, pal.top],
+      [0.45, pal.mid],
+      [1, pal.low],
+    ]);
+    g.fill(body);
+    g.clip(body);
+    // each billow is sunlit on its upper left and shadowed on its lower right
+    for (const p of tower) {
+      const sh = g.createRadialGradient(p.x + p.r * 0.5, p.y + p.r * 0.6, 0, p.x + p.r * 0.5, p.y + p.r * 0.6, p.r * 0.9);
+      sh.addColorStop(0, pal.shade);
+      sh.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = sh;
+      g.fillRect(p.x - p.r, p.y - p.r, p.r * 2.6, p.r * 2.6);
+      const hi = g.createRadialGradient(p.x - p.r * 0.3, p.y - p.r * 0.4, 0, p.x - p.r * 0.3, p.y - p.r * 0.4, p.r * 0.95);
+      hi.addColorStop(0, pal.light);
+      hi.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = hi;
+      g.fillRect(p.x - p.r * 1.2, p.y - p.r * 1.3, p.r * 1.8, p.r * 1.8);
+    }
+    // the underside of the anvil in its own shadow
+    const ag = g.createLinearGradient(0, H * 0.12, 0, H * 0.3);
+    ag.addColorStop(0, 'rgba(0,0,0,0)');
+    ag.addColorStop(0.5, pal.shade);
+    ag.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = ag;
+    g.fill(anvil);
+    // the dark, flat base the rain falls from
+    const bg = g.createLinearGradient(0, baseY - H * 0.06, 0, baseY);
+    bg.addColorStop(0, 'rgba(0,0,0,0)');
+    bg.addColorStop(1, pal.base);
+    g.fillStyle = bg;
+    g.fillRect(0, baseY - H * 0.06, W, H * 0.06);
+    g.restore();
+    // ice streaming off the far end of the anvil
+    g.strokeStyle = pal.wisp;
+    g.lineWidth = H * 0.004;
+    for (let i = 0; i < 14; i++) {
+      const y = H * (0.11 + r() * 0.07);
+      g.beginPath();
+      g.moveTo(W * (0.85 + r() * 0.08), y);
+      g.quadraticCurveTo(W * 0.97, y + H * 0.005, W * (1 + r() * 0.0), y + H * (0.01 + r() * 0.02));
+      g.stroke();
+    }
+    return c;
+  };
+  return {
+    lit: paint({ top: '#fdfcf8', mid: '#eeebe4', low: '#b4bcc6', shade: 'rgba(110,125,145,0.16)', light: 'rgba(255,255,255,0.7)', base: 'rgba(92,102,116,0.95)', wisp: 'rgba(240,240,236,0.5)' }),
+    dark: paint({ top: '#8c96a2', mid: '#5e6773', low: '#323a44', shade: 'rgba(18,24,32,0.22)', light: 'rgba(150,160,176,0.25)', base: 'rgba(24,29,37,0.97)', wisp: 'rgba(120,130,140,0.4)' }),
+  };
+}
+
+// the storm overhead: a low, rolling, mottled cloud base filling the sky
+function overcast(w, h, r) {
+  const c = layer(w, h);
+  const g = c.getContext('2d');
+  g.fillStyle = vgrad(g, 0, h, [
+    [0, '#2b3239'],
+    [1, '#4d5862'],
+  ]);
+  g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 90; i++) {
+    const y = h * (0.05 + r() * 0.9);
+    const rx = w * (0.08 + r() * 0.16);
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, rx);
+    const dark = r() < 0.5;
+    gr.addColorStop(0, dark ? 'rgba(28,33,39,0.55)' : 'rgba(110,120,130,0.35)');
+    gr.addColorStop(1, 'rgba(40,46,54,0)');
+    g.save();
+    g.translate(r() * w, y);
+    g.scale(1, 0.32 + r() * 0.2);
+    g.fillStyle = gr;
+    g.fillRect(-rx, -rx, rx * 2, rx * 2);
+    g.restore();
+  }
+  return c;
+}
+
+const GLADES_BIRDS = {
+  'red-winged-blackbird': { body: '#141414', head: '#141414', wing: '#141414', patch: '#d8231f', beak: '#222', size: 0.9 },
+  'boat-tailed-grackle': { body: '#1b1830', head: '#1b1830', wing: '#221d3a', beak: '#222', tail: 1.9, size: 1.05 },
+};
+
+class Glades extends Painting {
+  build() {
+    const { w, h, u } = this;
+    this.horizon = h * 0.6;
+    let seed = 23;
+    const r = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    this.cloud = cumulonimbus(Math.round(w * 1.1), Math.round(h * 0.72), r);
+    this.over = overcast(w, Math.round(this.horizon + h * 0.02), r);
+    // the far side: cypress domes and tree islands with cabbage palms, on a hazy horizon
+    this.far = layer(w, h);
+    let g = this.far.getContext('2d');
+    for (let i = 0; i < 9; i++) {
+      const x = r() * w;
+      const wd = (6 + r() * 16) * u;
+      const ht = (1.6 + r() * 3.2) * u;
+      const dome = r() < 0.55;
+      g.fillStyle = dome ? '#4c5d47' : '#3f5240';
+      g.beginPath();
+      g.moveTo(x - wd / 2, this.horizon + 1);
+      g.quadraticCurveTo(x - wd * 0.35, this.horizon - ht * (dome ? 1.6 : 1), x, this.horizon - ht * (dome ? 1.7 : 1.1));
+      g.quadraticCurveTo(x + wd * 0.35, this.horizon - ht * (dome ? 1.6 : 1), x + wd / 2, this.horizon + 1);
+      g.fill();
+      if (!dome) {
+        // a few cabbage palms poking above the hammock
+        for (let k = 0; k < 3; k++) {
+          const px = x + (r() - 0.5) * wd * 0.6;
+          const top = this.horizon - ht * (1.5 + r());
+          g.strokeStyle = '#3f5240';
+          g.lineWidth = 0.25 * u;
+          g.beginPath();
+          g.moveTo(px, this.horizon - ht * 0.6);
+          g.lineTo(px, top);
+          g.stroke();
+          for (let f = 0; f < 7; f++) {
+            const a = -Math.PI + (f / 6) * Math.PI;
+            g.beginPath();
+            g.moveTo(px, top);
+            g.lineTo(px + Math.cos(a) * u * 1.2, top + Math.sin(a) * u * 0.7 + u * 0.25);
+            g.stroke();
+          }
+        }
+      }
+    }
+    // the prairie: sawgrass, golden green, with sloughs of open water cut out of it
+    this.prairie = layer(w, h);
+    g = this.prairie.getContext('2d');
+    g.fillStyle = vgrad(g, this.horizon, h, [
+      [0, '#8f9257'],
+      [0.25, '#9c9450'],
+      [0.6, '#7f7c3e'],
+      [1, '#55552a'],
+    ]);
+    g.fillRect(0, this.horizon, w, h - this.horizon);
+    g.lineWidth = 0.18 * u;
+    for (let i = 0; i < 2400; i++) {
+      const y = this.horizon + (r() ** 1.6) * (h - this.horizon);
+      const p = (y - this.horizon) / (h - this.horizon);
+      const x = r() * w;
+      const len = (0.4 + p * 3.5) * u * (0.6 + r() * 0.8);
+      g.strokeStyle = ['rgba(70,72,30,0.5)', 'rgba(170,160,90,0.45)', 'rgba(110,112,50,0.5)'][i % 3];
+      g.beginPath();
+      g.moveTo(x, y);
+      g.lineTo(x + (r() - 0.5) * len * 0.5, y - len);
+      g.stroke();
+    }
+    // sloughs: the river of grass, open water in long shallow channels
+    g.globalCompositeOperation = 'destination-out';
+    const blob = (cx, cy, rx, ry) => {
+      const path = new Path2D();
+      for (let i = 0; i <= 48; i++) {
+        const a = (i / 48) * TAU;
+        const k = 1 + 0.2 * Math.sin(a * 3 + cx) + 0.12 * Math.sin(a * 5 + cy) + (r() - 0.5) * 0.08;
+        const x = cx + Math.cos(a) * rx * k;
+        const y = cy + Math.sin(a) * ry * k;
+        if (i) path.lineTo(x, y);
+        else path.moveTo(x, y);
+      }
+      path.closePath();
+      return { x: cx, y: cy, rx, ry, path };
+    };
+    this.sloughs = [blob(w * 0.38, this.horizon + h * 0.13, w * 0.42, h * 0.024), blob(w * 0.83, this.horizon + h * 0.05, w * 0.2, h * 0.01), blob(w * 0.1, this.horizon + h * 0.028, w * 0.16, h * 0.007)];
+    for (const sl of this.sloughs) g.fill(sl.path);
+    g.globalCompositeOperation = 'source-over';
+    // the land as painted, and again in the storm's shadow (crossfaded as it comes over)
+    this.land = layer(w, h);
+    const lg = this.land.getContext('2d');
+    lg.drawImage(this.far, 0, 0);
+    lg.drawImage(this.prairie, 0, 0);
+    this.landDark = layer(w, h);
+    const dg = this.landDark.getContext('2d');
+    dg.drawImage(this.land, 0, 0);
+    dg.globalCompositeOperation = 'source-atop';
+    dg.fillStyle = 'rgba(18,24,30,0.72)';
+    dg.fillRect(0, 0, w, h);
+    this.far = this.prairie = null;
+    // the near grass: blades drawn live so the wind can push them about
+    this.blades = Array.from({ length: Math.round(w / (0.9 * u)) }, () => ({
+      x: r() * w,
+      hgt: (0.1 + r() * 0.2) * h,
+      lean: (r() - 0.5) * 0.3,
+      ph: r() * TAU,
+      col: ['#6f6c33', '#8a8440', '#56562a', '#9c9350'][Math.floor(r() * 4)],
+    }));
+    // cattails, where the blackbirds sing from
+    this.cattails = [
+      { x: w * 0.16, hgt: h * 0.3, ph: 0.5 },
+      { x: w * 0.78, hgt: h * 0.34, ph: 2.1 },
+      { x: w * 0.9, hgt: h * 0.26, ph: 4 },
+    ];
+    this.drops = Array.from({ length: Math.min(900, Math.round((w * h) / (9000 * this.dpr))) }, () => this.drop(true));
+    // summer cumulus drifting about the rest of the sky
+    this.puffs = Array.from({ length: 6 }, (_, i) => ({ x: r() * w, y: this.horizon - h * (0.06 + r() * 0.3), s: (2 + r() * 4) * u * (1 - i * 0.08), v: (0.2 + r() * 0.3) * u }));
+    this.ripples = [];
+    this.flyers = [];
+    this.perched = [];
+    this.cranes = null;
+    this.limpkin = null;
+  }
+
+  drop(anywhere) {
+    return { x: rand(-0.3, 1.1) * this.w, y: anywhere ? rand(0, this.h) : rand(-0.2, 0) * this.h, v: rand(0.9, 1.4), l: rand(0.6, 1.4) };
+  }
+
+  event(e) {
+    if (e.type === 'lightning') {
+      this.at(e.at, () => {
+        const near = e.km < 3;
+        const strokes = e.strength > 0.5 ? Math.round(rand(2, 4)) : 1;
+        let dt = 0;
+        const bolt = this.bolt(near, e.km);
+        for (let i = 0; i < strokes; i++) {
+          this.flashes.push({ t0: this.t + dt, life: rand(0.08, 0.2), k: e.strength * rand(0.6, 1), bolt: i === 0 || near ? bolt : null, near });
+          dt += rand(0.06, 0.18);
+        }
+      });
+    }
+    if (e.type === 'bird') this.at(e.at, () => this.showBird(e));
+  }
+
+  // where the storm cloud sits now: it grows from a tower on the horizon to the sky overhead
+  cloudBox() {
+    const { w, h } = this;
+    const a = this.drivers.storm ?? 0.3;
+    const k = lerp(0.42, 1.7, a ** 1.5);
+    const cw = this.cloud.lit.width * k;
+    const ch = this.cloud.lit.height * k;
+    const cx = lerp(0.6, 0.5, a) * w;
+    const base = this.horizon - lerp(0.015, 0.14, a) * h;
+    return { x: cx - cw / 2, y: base - ch * 0.86, w: cw, h: ch, base, cx };
+  }
+
+  bolt(near, km) {
+    const { w, h } = this;
+    const box = this.cloudBox();
+    const pts = [];
+    let x = near ? rand(0.15, 0.85) * w : box.cx + rand(-0.18, 0.18) * box.w;
+    let y = near ? 0 : box.base;
+    const bottom = this.horizon + (near ? rand(0.01, 0.06) * h : 0);
+    const step = near ? 0.05 : 0.025;
+    while (y < bottom) {
+      pts.push([x, y]);
+      x += rand(-0.6, 0.6) * step * w;
+      y += rand(0.4, 1) * step * h;
+    }
+    pts.push([x, bottom]);
+    return { pts, width: near ? 2.4 : clamp(1.6 - km / 10, 0.6, 1.4) };
+  }
+
+  showBird(e) {
+    const { w, h } = this;
+    const sp = e.species;
+    if (sp === 'great-egret' || sp === 'osprey') {
+      const fromLeft = Math.random() < 0.5;
+      this.flyers.push({ sp, x: fromLeft ? -0.05 * w : 1.05 * w, y: (sp === 'osprey' ? rand(0.1, 0.25) : rand(0.3, 0.5)) * h, v: (fromLeft ? 1 : -1) * rand(0.04, 0.07) * w, ph: rand(0, TAU) });
+    } else if (sp === 'sandhill-crane') {
+      this.cranes = { x: rand(0.2, 0.8) * w, until: this.t + 40 };
+    } else if (sp === 'limpkin') {
+      this.limpkin = { x: this.sloughs[0].x + rand(-0.3, 0.3) * this.sloughs[0].rx, until: this.t + 30, sing: this.t, singUntil: this.t + (e.dur || 2) };
+    } else if (GLADES_BIRDS[sp]) {
+      const existing = this.perched.find((p) => p.key === (e.bird ?? sp));
+      if (existing) {
+        existing.until = this.t + (e.dur || 2);
+        existing.gone = Math.max(existing.gone, this.t + (e.dur || 2) + rand(8, 16));
+        return;
+      }
+      const free = this.cattails.filter((c) => !this.perched.some((p) => p.cat === c));
+      const cat = free[Math.floor(Math.random() * free.length)];
+      if (cat) this.perched.push({ key: e.bird ?? sp, look: GLADES_BIRDS[sp], cat, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(8, 16), sing: this.t });
+    }
+  }
+
+  frame(dt) {
+    const { g, w, h, t, u } = this;
+    const storm = this.drivers.storm ?? 0.3;
+    const after = this.drivers.after ?? 0;
+    const dark = clamp((storm - 0.15) / 0.75, 0, 1);
+    const rain = clamp((storm - 0.35) / 0.5, 0, 1);
+    const wind = clamp((storm - 0.3) / 0.45, 0, 1) * (0.75 + 0.25 * Math.sin(t * 0.7));
+    const gold = after * (1 - dark);
+
+    // lightning: the brightest flash right now
+    let flash = 0;
+    let near = false;
+    this.flashes = this.flashes.filter((f) => t - f.t0 < f.life + 0.3);
+    for (const f of this.flashes) {
+      const age = t - f.t0;
+      if (age < 0) continue;
+      const k = age < f.life ? f.k : f.k * Math.max(0, 1 - (age - f.life) / 0.3);
+      if (k > flash) {
+        flash = k;
+        near = f.near;
+      }
+    }
+
+    // sky: hot hazy blue, going slate under the storm, warm when it clears
+    const top = mix(mix('#4b9ad3', '#2f3740', dark), '#6a93bf', gold * 0.6);
+    const mid = mix(mix('#98c8e6', '#48525c', dark), '#e6c49a', gold * 0.7);
+    const low = mix(mix('#e9eef0', '#5c676e', dark), '#f6d7a6', gold * 0.8);
+    g.fillStyle = vgrad(g, 0, this.horizon, [
+      [0, top],
+      [0.6, mid],
+      [1, low],
+    ]);
+    g.fillRect(0, 0, w, this.horizon + 2);
+
+    // fair-weather cumulus, swallowed by the storm
+    const fair = 1 - clamp((storm - 0.12) / 0.22, 0, 1);
+    if (fair > 0) {
+      for (const p of this.puffs) {
+        p.x += p.v * dt;
+        if (p.x > w + p.s * 4) p.x = -p.s * 4;
+        for (let k = 0; k < 5; k++) {
+          const x = p.x + (k - 2) * p.s * 0.7;
+          const y = p.y - Math.sin(k * 1.1 + 0.4) * p.s * 0.45;
+          const rr = p.s * (1 - Math.abs(k - 2) * 0.15);
+          const gr = g.createRadialGradient(x - rr * 0.2, y - rr * 0.3, 0, x, y, rr);
+          gr.addColorStop(0, `rgba(255,255,253,${0.9 * fair})`);
+          gr.addColorStop(0.7, `rgba(240,242,245,${0.6 * fair})`);
+          gr.addColorStop(1, 'rgba(235,238,242,0)');
+          g.fillStyle = gr;
+          g.fillRect(x - rr, y - rr, rr * 2, rr * 2);
+        }
+      }
+    }
+    // the thunderhead, and its rain shaft
+    const box = this.cloudBox();
+    const fade = clamp(1 - (storm - 0.8) / 0.18, 0, 1);
+    if (fade > 0) {
+      g.globalAlpha = fade;
+      g.drawImage(this.cloud.lit, box.x, box.y, box.w, box.h);
+      g.globalAlpha = fade * Math.min(1, dark * 1.3);
+      g.drawImage(this.cloud.dark, box.x, box.y, box.w, box.h);
+      g.globalAlpha = 1;
+      const shaft = clamp((storm - 0.2) / 0.3, 0, 1) * fade;
+      if (shaft > 0) {
+        // the rain shaft: a soft grey curtain hanging from the base, leaning with the wind
+        const sx = box.cx - box.w * 0.2;
+        const sw = box.w * 0.4;
+        const gr = g.createLinearGradient(sx, 0, sx + sw, 0);
+        gr.addColorStop(0, 'rgba(80,90,102,0)');
+        gr.addColorStop(0.3, `rgba(80,90,102,${0.5 * shaft})`);
+        gr.addColorStop(0.75, `rgba(80,90,102,${0.45 * shaft})`);
+        gr.addColorStop(1, 'rgba(80,90,102,0)');
+        g.fillStyle = gr;
+        g.beginPath();
+        g.moveTo(sx, box.base - 2);
+        g.lineTo(sx + sw, box.base - 2);
+        g.lineTo(sx + sw * 1.1, this.horizon);
+        g.lineTo(sx + sw * 0.08, this.horizon);
+        g.closePath();
+        g.fill();
+      }
+    }
+    // overhead: the low cloud base fills the sky
+    const overA = clamp((storm - 0.6) / 0.3, 0, 1);
+    if (overA > 0) {
+      g.globalAlpha = overA;
+      g.drawImage(this.over, 0, 0);
+      g.globalAlpha = 1;
+    }
+    // a rainbow over the departing storm, the sun low behind us
+    const bow = clamp(after * 1.6 - 0.25, 0, 1) * clamp(1 - storm / 0.4, 0, 1);
+    if (bow > 0) {
+      const cx = w * 0.62;
+      const cy = this.horizon + h * 0.08;
+      const R = Math.min(w, h) * 0.55;
+      const cols = ['255,80,60', '255,160,50', '255,230,80', '120,210,100', '80,150,230', '110,90,200', '150,90,190'];
+      g.lineWidth = R * 0.018;
+      cols.forEach((c, i) => {
+        g.strokeStyle = `rgba(${c},${0.22 * bow})`;
+        g.beginPath();
+        g.arc(cx, cy, R - i * g.lineWidth, Math.PI * 1.08, Math.PI * 1.92);
+        g.stroke();
+      });
+    }
+    // lightning lights the cloud from inside and the whole sky
+    if (flash > 0) {
+      const fx = near ? w * 0.5 : box.cx;
+      const fy = near ? h * 0.1 : box.base - box.h * 0.3;
+      const gr = g.createRadialGradient(fx, fy, 0, fx, fy, w * (near ? 1.1 : 0.6));
+      gr.addColorStop(0, `rgba(220,232,255,${0.6 * flash})`);
+      gr.addColorStop(1, `rgba(160,180,220,${(near ? 0.18 : 0.04) * flash})`);
+      g.fillStyle = gr;
+      g.fillRect(0, 0, w, this.horizon);
+    }
+    for (const f of this.flashes) {
+      if (!f.bolt || t - f.t0 > f.life || t < f.t0) continue;
+      g.strokeStyle = `rgba(240,246,255,${0.95 * f.k})`;
+      g.lineWidth = f.bolt.width * this.dpr;
+      g.shadowColor = 'rgba(190,215,255,0.9)';
+      g.shadowBlur = 16 * this.dpr;
+      g.beginPath();
+      f.bolt.pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+      g.stroke();
+      g.shadowBlur = 0;
+    }
+
+    // the sloughs mirror the sky (rain stipples them), then the land, darkened under the storm
+    for (const sl of this.sloughs) {
+      g.fillStyle = vgrad(g, sl.y - sl.ry * 1.3, sl.y + sl.ry * 1.3, [
+        [0, mix(low, '#2a3438', 0.2)],
+        [1, mix(mid, '#1d2629', 0.35)],
+      ]);
+      g.fill(sl.path);
+    }
+    g.drawImage(this.land, 0, 0);
+    if (dark > 0) {
+      g.globalAlpha = dark * 0.85;
+      g.drawImage(this.landDark, 0, 0);
+      g.globalAlpha = 1;
+    }
+    if (rain > 0.05) {
+      for (let i = 0; i < rain * 4; i++) {
+        const s = this.sloughs[Math.random() < 0.7 ? 0 : 1];
+        const a = Math.random() * TAU;
+        const rr = Math.sqrt(Math.random());
+        this.ripples.push({ x: s.x + Math.cos(a) * s.rx * rr, y: s.y + Math.sin(a) * s.ry * rr, age: 0 });
+      }
+    }
+    this.ripples = this.ripples.filter((p) => (p.age += dt) < 0.7);
+    g.strokeStyle = 'rgba(220,230,235,0.35)';
+    g.lineWidth = 0.15 * u;
+    g.beginPath();
+    for (const p of this.ripples) {
+      const rad = p.age * 2.2 * u;
+      g.moveTo(p.x + rad, p.y);
+      g.ellipse(p.x, p.y, rad, rad * 0.3, 0, 0, TAU);
+    }
+    g.stroke();
+
+    // birds out on the prairie
+    if (this.cranes && t < this.cranes.until) this.drawCranes();
+    if (this.limpkin && t < this.limpkin.until) this.drawLimpkin();
+    this.flyers = this.flyers.filter((f) => f.x > -0.1 * w && f.x < 1.1 * w);
+    for (const f of this.flyers) {
+      f.x += f.v * dt;
+      this.drawFlyer(f);
+    }
+
+    // warm when the sun comes back
+    if (gold > 0) {
+      g.fillStyle = `rgba(255,186,96,${gold * 0.18})`;
+      g.fillRect(0, this.horizon, w, h);
+    }
+    if (flash > 0) {
+      g.fillStyle = `rgba(200,215,240,${flash * (near ? 0.3 : 0.08)})`;
+      g.fillRect(0, this.horizon, w, h);
+    }
+
+    // the near sawgrass and cattails, pushed by the wind
+    const lean = wind * 0.35;
+    const shade = (c) => (dark > 0 ? mix(c, '#1f2426', dark * 0.45) : c);
+    g.lineCap = 'round';
+    for (const b of this.blades) {
+      const sway = Math.sin(t * (1.2 + wind * 2.5) + b.ph) * (0.03 + wind * 0.08) + lean + b.lean;
+      g.strokeStyle = shade(b.col);
+      g.lineWidth = 0.35 * u;
+      g.beginPath();
+      g.moveTo(b.x, h + u);
+      g.quadraticCurveTo(b.x + sway * b.hgt * 0.3, h - b.hgt * 0.6, b.x + sway * b.hgt, h - b.hgt);
+      g.stroke();
+    }
+    for (const c of this.cattails) {
+      const sway = Math.sin(t * (0.9 + wind * 2) + c.ph) * (0.02 + wind * 0.06) + lean * 0.7;
+      const tx = c.x + sway * c.hgt;
+      const ty = h - c.hgt;
+      c.tx = tx;
+      c.ty = ty;
+      g.strokeStyle = shade('#5d6b34');
+      g.lineWidth = 0.5 * u;
+      g.beginPath();
+      g.moveTo(c.x, h + u);
+      g.quadraticCurveTo(c.x + sway * c.hgt * 0.3, h - c.hgt * 0.6, tx, ty);
+      g.stroke();
+      g.fillStyle = shade('#5a3a22');
+      g.beginPath();
+      g.ellipse(tx, ty + 2.6 * u, 0.9 * u, 2.6 * u, sway * 0.6, 0, TAU);
+      g.fill();
+    }
+    this.perched = this.perched.filter((p) => t < p.gone);
+    for (const p of this.perched) this.drawPerched(p, dark);
+
+    // rain, slanted by the wind
+    if (rain > 0) {
+      const slant = 0.12 + wind * 0.35;
+      const count = Math.round(this.drops.length * rain);
+      g.strokeStyle = `rgba(210,222,232,${0.18 + rain * 0.14})`;
+      g.lineWidth = 1 * this.dpr;
+      g.beginPath();
+      for (let i = 0; i < count; i++) {
+        const d = this.drops[i];
+        const vy = d.v * h * 1.3 * dt;
+        d.y += vy;
+        d.x += vy * slant;
+        if (d.y > h || d.x > w * 1.2) Object.assign(d, this.drop(false));
+        const L = d.l * 2.6 * u;
+        g.moveTo(d.x, d.y);
+        g.lineTo(d.x - L * slant, d.y - L);
+      }
+      g.stroke();
+      // a grey veil of rain over everything far away
+      g.fillStyle = vgrad(g, 0, this.horizon + h * 0.16, [
+        [0, `rgba(120,130,140,${rain * 0.25})`],
+        [0.78, `rgba(120,130,140,${rain * 0.3})`],
+        [1, 'rgba(120,130,140,0)'],
+      ]);
+      g.fillRect(0, 0, w, this.horizon + h * 0.16);
+    }
+  }
+
+  drawFlyer(f) {
+    const { g, t, u } = this;
+    const s = (f.sp === 'osprey' ? 1.6 : 1.9) * u;
+    const flap = Math.sin(t * (f.sp === 'osprey' ? 4 : 2.6) + f.ph);
+    g.save();
+    g.translate(f.x, f.y);
+    if (f.v < 0) g.scale(-1, 1);
+    g.strokeStyle = f.sp === 'osprey' ? '#3a3027' : '#f4f2ea';
+    g.fillStyle = f.sp === 'osprey' ? '#f0ece4' : '#f7f5ee';
+    g.lineWidth = 0.45 * u;
+    g.lineCap = 'round';
+    g.beginPath();
+    g.moveTo(-s * 1.8, -flap * s * 0.9);
+    g.quadraticCurveTo(-s * 0.7, -s * 0.4 - flap * s * 0.3, 0, 0);
+    g.quadraticCurveTo(s * 0.7, -s * 0.4 - flap * s * 0.3, s * 1.8, -flap * s * 0.9);
+    g.stroke();
+    g.beginPath();
+    g.ellipse(0, s * 0.1, s * 0.75, s * 0.22, 0, 0, TAU);
+    g.fill();
+    if (f.sp === 'great-egret') {
+      // neck tucked, legs trailing
+      g.strokeStyle = '#2a2a2a';
+      g.lineWidth = 0.15 * u;
+      g.beginPath();
+      g.moveTo(-s * 0.7, s * 0.15);
+      g.lineTo(-s * 1.7, s * 0.25);
+      g.stroke();
+      g.fillStyle = '#e8b020';
+      g.beginPath();
+      g.moveTo(s * 0.75, s * 0.05);
+      g.lineTo(s * 1.35, s * 0.12);
+      g.lineTo(s * 0.75, s * 0.2);
+      g.fill();
+    }
+    g.restore();
+  }
+
+  drawCranes() {
+    const { g, t, u } = this;
+    const y = this.horizon + this.h * 0.035;
+    for (const [dx, ph] of [
+      [0, 0],
+      [3.2 * u, 1.3],
+    ]) {
+      const x = this.cranes.x + dx + Math.sin(t * 0.2 + ph) * u;
+      const s = 0.9 * u;
+      g.fillStyle = '#8d8f93';
+      g.beginPath();
+      g.ellipse(x, y - s * 3.2, s * 1.6, s * 0.9, -0.1, 0, TAU);
+      g.fill();
+      g.strokeStyle = '#8d8f93';
+      g.lineWidth = s * 0.35;
+      g.beginPath();
+      g.moveTo(x + s * 1.2, y - s * 3.6);
+      g.quadraticCurveTo(x + s * 1.6, y - s * 5.2, x + s * 1.9 + Math.sin(t + ph) * s * 0.3, y - s * 6);
+      g.stroke();
+      g.fillStyle = '#c0392b';
+      g.beginPath();
+      g.arc(x + s * 1.95, y - s * 6.1, s * 0.3, 0, TAU);
+      g.fill();
+      g.strokeStyle = '#4a4a4a';
+      g.lineWidth = s * 0.18;
+      g.beginPath();
+      g.moveTo(x - s * 0.2, y - s * 2.5);
+      g.lineTo(x - s * 0.3, y);
+      g.moveTo(x + s * 0.3, y - s * 2.5);
+      g.lineTo(x + s * 0.4, y);
+      g.stroke();
+    }
+  }
+
+  drawLimpkin() {
+    const { g, t, u } = this;
+    const L = this.limpkin;
+    const s = 1.1 * u;
+    const x = L.x;
+    const y = this.sloughs[0].y - this.sloughs[0].ry * 0.6;
+    const singing = t < L.singUntil;
+    g.fillStyle = '#6a4a2e';
+    g.beginPath();
+    g.ellipse(x, y - s * 2.6, s * 1.5, s * 0.85, -0.15, 0, TAU);
+    g.fill();
+    g.fillStyle = 'rgba(240,235,220,0.7)';
+    for (let k = 0; k < 6; k++) g.fillRect(x - s + k * s * 0.35, y - s * 2.9 + (k % 2) * s * 0.4, s * 0.15, s * 0.15);
+    g.strokeStyle = '#6a4a2e';
+    g.lineWidth = s * 0.4;
+    g.beginPath();
+    g.moveTo(x + s, y - s * 3);
+    g.quadraticCurveTo(x + s * 1.5, y - s * (singing ? 5 : 4.4), x + s * 1.7, y - s * (singing ? 5.6 : 4.8));
+    g.stroke();
+    g.strokeStyle = '#b8902a';
+    g.lineWidth = s * 0.18;
+    g.beginPath();
+    g.moveTo(x + s * 1.75, y - s * (singing ? 5.6 : 4.8));
+    g.lineTo(x + s * 3, y - s * (singing ? 6.4 : 4.9));
+    g.stroke();
+    g.strokeStyle = '#3a3a3a';
+    g.lineWidth = s * 0.16;
+    g.beginPath();
+    g.moveTo(x - s * 0.2, y - s * 1.9);
+    g.lineTo(x - s * 0.2, y);
+    g.moveTo(x + s * 0.3, y - s * 1.9);
+    g.lineTo(x + s * 0.4, y);
+    g.stroke();
+  }
+
+  drawPerched(p, dark) {
+    const { g, t, u } = this;
+    const L = p.look;
+    const singing = t < p.until;
+    const s = 2.4 * u * (L.size || 1);
+    const fade = Math.min(1, (p.gone - t) / 1.5, (t - p.sing + 0.8) / 0.8);
+    g.save();
+    g.globalAlpha = Math.max(0, fade);
+    g.translate(p.cat.tx, p.cat.ty - 0.2 * u);
+    if (p.cat.x > this.w / 2) g.scale(-1, 1);
+    g.fillStyle = L.wing;
+    g.beginPath();
+    g.moveTo(-s * 0.8, -s * 0.6);
+    g.lineTo(-s * (1.9 + (L.tail || 1) * 0.6), -s * 0.1);
+    g.lineTo(-s * (1.7 + (L.tail || 1) * 0.6), -s * 0.5);
+    g.closePath();
+    g.fill();
+    g.fillStyle = L.body;
+    g.beginPath();
+    g.ellipse(0, -s * 0.8, s * 1.05, s * 0.72, -0.15, 0, TAU);
+    g.fill();
+    if (L.patch) {
+      // red shoulders, flared while he sings
+      g.fillStyle = L.patch;
+      g.beginPath();
+      g.ellipse(-s * 0.1, -s * (singing ? 1.1 : 0.95), s * (singing ? 0.45 : 0.3), s * 0.18, -0.3, 0, TAU);
+      g.fill();
+      g.fillStyle = '#f2d36b';
+      g.fillRect(-s * 0.35, -s * 0.98, s * 0.45, s * 0.07);
+    }
+    g.fillStyle = L.head;
+    g.beginPath();
+    g.arc(s * 0.85, -s * 1.4, s * 0.48, 0, TAU);
+    g.fill();
+    g.fillStyle = L.beak;
+    g.beginPath();
+    g.moveTo(s * 1.25, -s * 1.48);
+    g.lineTo(s * 1.75, singing ? -s * 1.62 : -s * 1.42);
+    g.lineTo(s * 1.25, -s * 1.32);
+    g.closePath();
+    g.fill();
+    g.fillStyle = '#ddd';
+    g.beginPath();
+    g.arc(s * 1.02, -s * 1.5, s * 0.07, 0, TAU);
+    g.fill();
+    g.restore();
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// A cypress pond in Florida, the night after the storm: moonlight on still black water, bald
+// cypress hung with moss, lily pads and pickerelweed. The frogs you hear show up, throats puffed
+// out; fireflies drift over the water; an owl calls from the cypress; now and then a pair of eyes
+// glows red at the surface.
+
+const MOSS_NIGHT = [
+  ['rgba(30,38,46,0.85)', 0.2, 16],
+  ['rgba(52,62,72,0.85)', 0.19, 20],
+  ['rgba(78,90,100,0.8)', 0.17, 16],
+  ['rgba(120,132,142,0.7)', 0.13, 5],
+];
+
+// what each frog looks like, and where it sits: on a stem, on a pad, in the water, or on the bank
+const FROG_LOOKS = {
+  'green-treefrog': { body: '#5f9e48', stripe: '#e8e6c8', sac: '#f2efc4', size: 0.8, where: 'stem' },
+  'squirrel-treefrog': { body: '#7c8a4c', sac: '#efe7c0', size: 0.65, where: 'stem' },
+  'barking-treefrog': { body: '#6f9a4c', spots: '#3d5a2a', sac: '#efe9c2', size: 0.95, where: 'water' },
+  'pig-frog': { body: '#3d5a35', sac: '#d9d3a8', size: 1.25, where: 'water', low: true },
+  'leopard-frog': { body: '#6b8f4e', spots: '#24361e', sac: '#e7e3c3', size: 0.9, where: 'pad', pair: true },
+  'southern-toad': { body: '#7a5c40', spots: '#4a3624', sac: '#e9dcc0', size: 1, where: 'bank', big: true },
+  'oak-toad': { body: '#5a5048', stripe: '#d9c9a0', sac: '#e6dcc0', size: 0.6, where: 'bank', big: true },
+  'cricket-frog': { body: '#6d6a48', sac: '#e2dcb8', size: 0.5, where: 'pad' },
+};
+
+class Pond extends Painting {
+  build() {
+    const { w, h, u } = this;
+    this.shore = h * 0.5;
+    let seed = 41;
+    const r = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    this.moon = { x: w * 0.68, y: h * 0.13, r: 3.6 * u };
+    // the night sky: stars, the moon, and the last of the storm clouds drifting off
+    this.sky = layer(w, h);
+    let g = this.sky.getContext('2d');
+    g.fillStyle = vgrad(g, 0, this.shore, [
+      [0, '#050a14'],
+      [0.6, '#0e1a2c'],
+      [1, '#1c2a3d'],
+    ]);
+    g.fillRect(0, 0, w, this.shore + 2);
+    for (let i = 0; i < 220; i++) {
+      const y = r() ** 1.4 * this.shore * 0.9;
+      g.fillStyle = `rgba(230,236,255,${0.25 + r() * 0.6})`;
+      const s = (0.12 + r() * 0.22) * u;
+      g.fillRect(r() * w, y, s, s);
+    }
+    const mg = g.createRadialGradient(this.moon.x, this.moon.y, 0, this.moon.x, this.moon.y, this.moon.r * 9);
+    mg.addColorStop(0, 'rgba(225,230,210,0.35)');
+    mg.addColorStop(0.3, 'rgba(160,175,190,0.12)');
+    mg.addColorStop(1, 'rgba(120,140,170,0)');
+    g.fillStyle = mg;
+    g.fillRect(0, 0, w, this.shore);
+    g.fillStyle = '#efeadb';
+    g.beginPath();
+    g.arc(this.moon.x, this.moon.y, this.moon.r, 0, TAU);
+    g.fill();
+    g.fillStyle = 'rgba(180,176,160,0.35)';
+    for (const [dx, dy, rr] of [[-0.3, -0.2, 0.28], [0.25, 0.15, 0.2], [-0.1, 0.35, 0.16]]) {
+      g.beginPath();
+      g.arc(this.moon.x + dx * this.moon.r, this.moon.y + dy * this.moon.r, rr * this.moon.r, 0, TAU);
+      g.fill();
+    }
+    // a gibbous moon: shade one edge
+    g.fillStyle = 'rgba(10,16,28,0.55)';
+    g.beginPath();
+    g.arc(this.moon.x + this.moon.r * 0.55, this.moon.y, this.moon.r * 0.95, -Math.PI / 2, Math.PI / 2);
+    g.arc(this.moon.x + this.moon.r * 0.15, this.moon.y, this.moon.r * 0.95, Math.PI / 2, -Math.PI / 2, true);
+    g.fill();
+    // storm clouds moving off, silver-edged by the moon
+    this.clouds = Array.from({ length: 5 }, () => ({ x: r() * w, y: (0.04 + r() * 0.22) * h, rx: (0.18 + r() * 0.2) * w, v: (0.05 + r() * 0.08) * u }));
+
+    // the far shore: a wall of cypress, and its reflection
+    this.land = layer(w, h);
+    g = this.land.getContext('2d');
+    g.fillStyle = vgrad(g, this.shore, h, [
+      [0, '#121c28'],
+      [0.4, '#0a121b'],
+      [1, '#04070b'],
+    ]);
+    g.fillRect(0, this.shore, w, h - this.shore);
+    const treeline = (gg, flip) => {
+      gg.fillStyle = flip ? 'rgba(6,10,14,0.55)' : '#070c10';
+      for (let i = 0; i < 26; i++) {
+        const x = (i / 25) * w + (r() - 0.5) * 4 * u;
+        const th = (8 + r() * 14) * u;
+        const tw = (3 + r() * 4) * u;
+        gg.beginPath();
+        // bald cypress: a narrow, flat-topped crown on a straight trunk
+        gg.moveTo(x - tw, this.shore);
+        gg.lineTo(x - tw * 0.8, this.shore - th * (flip ? -1 : 1) * 0.55);
+        gg.quadraticCurveTo(x - tw * 1.1, this.shore - th * (flip ? -1 : 1) * 0.95, x, this.shore - th * (flip ? -1 : 1));
+        gg.quadraticCurveTo(x + tw * 1.1, this.shore - th * (flip ? -1 : 1) * 0.95, x + tw * 0.8, this.shore - th * (flip ? -1 : 1) * 0.55);
+        gg.lineTo(x + tw, this.shore);
+        gg.closePath();
+        gg.fill();
+      }
+      gg.fillRect(0, this.shore - (flip ? -1.2 : 3) * u, w, 4.2 * u);
+    };
+    let s0 = seed;
+    treeline(g, false);
+    seed = s0; // the reflection is the same trees, upside down
+    treeline(g, true);
+    // two big cypress up close, framing the pond, with flared trunks and knees in the water
+    this.perches = [];
+    this.moss = [];
+    for (const [x, lean] of [
+      [w * 0.07, 0.05],
+      [w * 0.95, -0.04],
+    ]) {
+      const base = h * 0.8;
+      const top = -h * 0.05;
+      g.fillStyle = '#0b1014';
+      g.beginPath();
+      g.moveTo(x - 9 * u, base);
+      g.quadraticCurveTo(x - 4 * u, base - h * 0.06, x - 3 * u + lean * h * 0.3, base - h * 0.3);
+      g.lineTo(x - 2.2 * u + lean * h * 0.9, top);
+      g.lineTo(x + 2.2 * u + lean * h * 0.9, top);
+      g.lineTo(x + 3 * u + lean * h * 0.3, base - h * 0.3);
+      g.quadraticCurveTo(x + 4 * u, base - h * 0.06, x + 9 * u, base);
+      g.closePath();
+      g.fill();
+      // moonlight down one side of the trunk
+      g.strokeStyle = 'rgba(120,135,150,0.25)';
+      g.lineWidth = 0.4 * u;
+      g.beginPath();
+      g.moveTo(x + 1.9 * u + lean * h * 0.3, base - h * 0.3);
+      g.lineTo(x + 1.4 * u + lean * h * 0.9, top);
+      g.stroke();
+      // limbs, perches for the owls, and moss hanging from them
+      for (const k of [0.22, 0.42, 0.62]) {
+        const ly = lerp(base - h * 0.3, top, k + 0.12);
+        const lx = x + lean * h * (0.3 + (k + 0.12) * 0.6);
+        const dir = x < w / 2 ? 1 : -1;
+        const len = (16 + r() * 10) * u;
+        const ex = lx + dir * len;
+        const ey = ly - (1 + r() * 4) * u;
+        g.strokeStyle = '#0c1216';
+        g.lineCap = 'round';
+        g.lineWidth = 1.4 * u;
+        g.beginPath();
+        g.moveTo(lx, ly);
+        g.quadraticCurveTo(lx + dir * len * 0.45, ly - 4 * u, ex, ey);
+        g.stroke();
+        // twigs, with a little moonlight along their tops
+        g.lineWidth = 0.4 * u;
+        for (let tw = 0; tw < 4; tw++) {
+          const tx = lx + dir * len * (0.35 + tw * 0.18);
+          const ty = ly - 3 * u * (0.5 + tw * 0.2);
+          g.beginPath();
+          g.moveTo(tx, ty);
+          g.lineTo(tx + dir * (2 + r() * 3) * u, ty - (2 + r() * 3) * u);
+          g.stroke();
+        }
+        g.strokeStyle = 'rgba(120,135,150,0.2)';
+        g.lineWidth = 0.3 * u;
+        g.beginPath();
+        g.moveTo(lx, ly - 0.6 * u);
+        g.quadraticCurveTo(lx + dir * len * 0.45, ly - 4.6 * u, ex, ey - 0.5 * u);
+        g.stroke();
+        this.perches.push({ x: lx + dir * len * 0.62, y: ly - 3.4 * u, dir });
+        for (let m = 0; m < 5; m++) {
+          const f = 0.15 + m * 0.19;
+          const mx = lx + dir * len * f;
+          const my = lerp(ly, ey, f) - Math.sin(f * Math.PI) * 3 * u;
+          this.moss.push({ x: mx, y: my, ph: r() * TAU, flex: 0.8, ...mossBeard((10 + r() * 18) * u, (2 + r() * 2.5) * u, u, r, MOSS_NIGHT) });
+        }
+      }
+      // knees
+      for (let k = 0; k < 5; k++) {
+        const kx = x + (r() - 0.5) * 22 * u;
+        const ky = base + (r() - 0.2) * h * 0.04;
+        const kh = (1.2 + r() * 2) * u;
+        g.fillStyle = '#0d1317';
+        g.beginPath();
+        g.moveTo(kx - 0.9 * u, ky);
+        g.quadraticCurveTo(kx - 0.3 * u, ky - kh * 1.2, kx, ky - kh);
+        g.quadraticCurveTo(kx + 0.3 * u, ky - kh * 1.2, kx + 0.9 * u, ky);
+        g.fill();
+      }
+    }
+    // lily pads, a few white water lilies
+    this.pads = [];
+    for (let i = 0; i < 26; i++) {
+      const y = lerp(this.shore + h * 0.06, h * 0.9, r() ** 0.8);
+      const p = (y - this.shore) / (h - this.shore);
+      const rx = (1 + p * 4.5) * u * (0.7 + r() * 0.5);
+      const x = w * (0.15 + r() * 0.75);
+      this.pads.push({ x, y, rx });
+      g.fillStyle = ['#16301f', '#1b3824', '#122a1a'][i % 3];
+      g.beginPath();
+      g.ellipse(x, y, rx, rx * 0.32, 0, 0.25, TAU - 0.05);
+      g.lineTo(x, y);
+      g.fill();
+      g.strokeStyle = 'rgba(140,170,150,0.15)';
+      g.lineWidth = 0.12 * u;
+      g.stroke();
+      if (r() < 0.25) {
+        // a water lily, glowing faintly in the moonlight
+        const fx = x + rx * 0.3;
+        const fy = y - rx * 0.1;
+        const fs = rx * 0.45;
+        for (let k = 0; k < 8; k++) {
+          const a = -Math.PI + (k / 7) * Math.PI;
+          g.fillStyle = k % 2 ? '#dcdccf' : '#c8cac0';
+          g.beginPath();
+          g.ellipse(fx + Math.cos(a) * fs * 0.5, fy + Math.sin(a) * fs * 0.35, fs * 0.45, fs * 0.16, a, 0, TAU);
+          g.fill();
+        }
+        g.fillStyle = '#e3c86a';
+        g.beginPath();
+        g.arc(fx, fy - fs * 0.05, fs * 0.15, 0, TAU);
+        g.fill();
+      }
+    }
+    // pickerelweed and sawgrass along the near edge
+    this.stems = [];
+    for (let i = 0; i < 46; i++) {
+      const x = r() * w;
+      const hgt = (0.06 + r() * 0.14) * h;
+      const lean = (r() - 0.5) * 0.25;
+      const tx = x + lean * hgt;
+      const ty = h - hgt;
+      g.strokeStyle = ['#0e1a12', '#13221a', '#0a140e'][i % 3];
+      g.lineWidth = (0.35 + r() * 0.3) * u;
+      g.beginPath();
+      g.moveTo(x, h + u);
+      g.quadraticCurveTo(x + lean * hgt * 0.3, h - hgt * 0.6, tx, ty);
+      g.stroke();
+      if (i % 4 === 0) {
+        // pickerelweed: heart-shaped leaves and a spike of violet flowers
+        g.fillStyle = '#122318';
+        g.beginPath();
+        g.ellipse(x + 1.6 * u, h - hgt * 0.45, 1.8 * u, 1 * u, -0.6, 0, TAU);
+        g.fill();
+        g.fillStyle = 'rgba(120,100,170,0.6)';
+        for (let k = 0; k < 6; k++) {
+          g.beginPath();
+          g.arc(tx + (r() - 0.5) * 0.5 * u, ty + k * 0.55 * u, 0.32 * u, 0, TAU);
+          g.fill();
+        }
+      } else if (i % 3 === 0) this.stems.push({ x: tx, y: ty + 1.2 * u });
+    }
+    // the far bank, where toads sing
+    this.bank = Array.from({ length: 6 }, () => ({ x: w * (0.15 + r() * 0.7), y: this.shore + h * (0.012 + r() * 0.02) }));
+    this.fireflies = Array.from({ length: 42 }, () => ({
+      x: r() * w,
+      y: lerp(this.shore - h * 0.12, h * 0.95, r()),
+      vx: (r() - 0.5) * 1.2 * u,
+      vy: (r() - 0.5) * 0.6 * u,
+      ph: r() * 6,
+      period: 2 + r() * 4,
+    }));
+    this.mist = Array.from({ length: 4 }, (_, i) => ({ x: r() * w, y: this.shore + h * (0.02 + i * 0.03), rx: (0.3 + r() * 0.3) * w, v: (0.08 + r() * 0.1) * u }));
+    this.frogs = [];
+    this.owls = [];
+    this.gators = [];
+    this.ripples = [];
+    this.glow = 0;
+  }
+
+  event(e) {
+    if (e.type === 'bird') this.at(e.at, () => this.show(e));
+    if (e.type === 'shot' && e.layer === 'alligator') {
+      this.at(e.at, () => {
+        const x = rand(0.25, 0.75) * this.w;
+        const y = lerp(this.shore + this.h * 0.05, this.h * 0.75, Math.random());
+        this.gators.push({ x, y, t0: this.t, until: this.t + Math.max(18, (e.dur || 6) + 12), bellow: this.t + (e.dur || 6) });
+        this.ripple(x, y, 3);
+      });
+    }
+    if (e.type === 'lightning') this.at(e.at, () => (this.glow = Math.max(this.glow, 0.35 * (e.strength ?? 0.3) + 0.15)));
+  }
+
+  ripple(x, y, n = 1) {
+    for (let i = 0; i < n; i++) this.ripples.push({ x, y, age: -i * 0.35 });
+  }
+
+  show(e) {
+    const sp = e.species;
+    const key = e.bird ?? sp;
+    const L = FROG_LOOKS[sp];
+    if (!L) {
+      // owls and the chuck-will's-widow: on a cypress limb
+      const existing = this.owls.find((o) => o.key === key);
+      if (existing) {
+        existing.until = this.t + (e.dur || 2);
+        existing.gone = Math.max(existing.gone, this.t + (e.dur || 2) + rand(10, 20));
+        return;
+      }
+      const free = this.perches.filter((p) => !this.owls.some((o) => o.spot === p));
+      const spot = free[Math.floor(Math.random() * free.length)];
+      if (spot) this.owls.push({ key, sp, spot, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(10, 20), sing: this.t });
+      return;
+    }
+    const existing = this.frogs.find((f) => f.key === key);
+    if (existing) {
+      existing.until = this.t + (e.dur || 2);
+      existing.gone = Math.max(existing.gone, this.t + (e.dur || 2) + rand(10, 25));
+      return;
+    }
+    let spot;
+    const taken = (p) => this.frogs.some((f) => f.spot === p);
+    if (L.where === 'stem') spot = this.stems.filter((p) => !taken(p))[Math.floor(Math.random() * this.stems.length)];
+    else if (L.where === 'pad') spot = this.pads.filter((p) => !taken(p) && p.y > this.shore + this.h * 0.1)[Math.floor(Math.random() * 8)];
+    else if (L.where === 'bank') spot = this.bank.filter((p) => !taken(p))[Math.floor(Math.random() * this.bank.length)];
+    if (!spot) spot = { x: rand(0.2, 0.8) * this.w, y: lerp(this.shore + this.h * 0.05, this.h * 0.8, Math.random()), water: true };
+    this.frogs.push({ key, sp, look: L, spot, until: this.t + (e.dur || 2), gone: this.t + (e.dur || 2) + rand(10, 25), sing: this.t, flip: Math.random() < 0.5 });
+  }
+
+  frame(dt) {
+    const { g, w, h, t, u } = this;
+    g.drawImage(this.sky, 0, 0);
+    // a far flash over the departing storm
+    if (this.glow > 0.01) {
+      const gr = g.createRadialGradient(w * 0.2, this.shore - h * 0.08, 0, w * 0.2, this.shore - h * 0.08, w * 0.8);
+      gr.addColorStop(0, `rgba(190,200,230,${this.glow})`);
+      gr.addColorStop(1, 'rgba(120,130,170,0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, w, this.shore);
+      this.glow *= Math.exp(-dt * 9);
+    }
+    // the storm's last clouds, edged with moonlight
+    for (const c of this.clouds) {
+      c.x += c.v * dt;
+      if (c.x - c.rx > w) c.x = -c.rx;
+      const gr = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.rx);
+      gr.addColorStop(0, 'rgba(22,30,44,0.75)');
+      gr.addColorStop(0.7, 'rgba(40,52,70,0.4)');
+      gr.addColorStop(1, 'rgba(40,52,70,0)');
+      g.save();
+      g.translate(c.x, c.y);
+      g.scale(1, 0.25);
+      g.translate(-c.x, -c.y);
+      g.fillStyle = gr;
+      g.fillRect(c.x - c.rx, c.y - c.rx, c.rx * 2, c.rx * 2);
+      g.restore();
+    }
+    g.drawImage(this.land, 0, 0);
+    // the moon's path across the water
+    const mx = this.moon.x;
+    for (let i = 0; i < 26; i++) {
+      const y = this.shore + 0.5 * u + i * i * 0.07 * u;
+      if (y > h * 0.86) break;
+      const wd = (1 + i * 0.35) * u * (0.6 + 0.4 * Math.sin(t * 1.3 + i * 1.7));
+      g.fillStyle = `rgba(230,228,205,${0.35 * (1 - i / 26) * (0.6 + 0.4 * Math.sin(t * 2.1 + i))})`;
+      g.fillRect(mx - wd + Math.sin(t * 0.8 + i) * u, y, wd * 2, 0.22 * u);
+    }
+    // mist lying on the water
+    for (const m of this.mist) {
+      m.x += m.v * dt;
+      if (m.x - m.rx > w) m.x = -m.rx;
+      const gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.rx);
+      gr.addColorStop(0, 'rgba(170,185,200,0.1)');
+      gr.addColorStop(1, 'rgba(170,185,200,0)');
+      g.save();
+      g.translate(m.x, m.y);
+      g.scale(1, 0.12);
+      g.translate(-m.x, -m.y);
+      g.fillStyle = gr;
+      g.fillRect(m.x - m.rx, m.y - m.rx, m.rx * 2, m.rx * 2);
+      g.restore();
+    }
+    // ripples
+    this.ripples = this.ripples.filter((p) => (p.age += dt) < 3);
+    g.lineWidth = 0.15 * u;
+    for (const p of this.ripples) {
+      if (p.age < 0) continue;
+      const k = 1 - p.age / 3;
+      const s = 1 + ((p.y - this.shore) / (h - this.shore)) * 3;
+      g.strokeStyle = `rgba(190,200,210,${0.3 * k})`;
+      g.beginPath();
+      g.ellipse(p.x, p.y, p.age * 2 * u * s, p.age * 0.6 * u * s, 0, 0, TAU);
+      g.stroke();
+    }
+    // alligators: eyes catching the light, the water dancing on its back as it bellows
+    this.gators = this.gators.filter((a) => t < a.until);
+    for (const a of this.gators) this.drawGator(a);
+    // moss swaying a little
+    for (const m of this.moss) {
+      const ang = Math.sin(t * 0.5 + m.ph) * 0.02;
+      g.setTransform(Math.cos(ang), Math.sin(ang), -Math.sin(ang), Math.cos(ang), m.x, m.y);
+      g.drawImage(m.c, -m.ax, -m.ay);
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    // owls and nightjars on the cypress limbs
+    this.owls = this.owls.filter((o) => t < o.gone);
+    for (const o of this.owls) this.drawOwl(o);
+    // frogs
+    this.frogs = this.frogs.filter((f) => t < f.gone);
+    for (const f of this.frogs) this.drawFrog(f);
+    // fireflies
+    for (const f of this.fireflies) {
+      f.x += (f.vx + Math.sin(t * 0.7 + f.ph) * 0.6 * u) * dt;
+      f.y += (f.vy + Math.cos(t * 0.5 + f.ph) * 0.4 * u) * dt;
+      if (f.x < -10) f.x = w + 10;
+      if (f.x > w + 10) f.x = -10;
+      if (f.y < this.shore - h * 0.15 || f.y > h) f.vy = -f.vy;
+      const p = (t + f.ph) % f.period;
+      const on = p < 0.35 ? Math.sin((p / 0.35) * Math.PI) : 0;
+      if (on <= 0.02) continue;
+      const rr = 1.6 * u;
+      const gr = g.createRadialGradient(f.x, f.y, 0, f.x, f.y, rr);
+      gr.addColorStop(0, `rgba(235,255,150,${0.95 * on})`);
+      gr.addColorStop(0.25, `rgba(190,240,90,${0.45 * on})`);
+      gr.addColorStop(1, 'rgba(160,220,60,0)');
+      g.fillStyle = gr;
+      g.fillRect(f.x - rr, f.y - rr, rr * 2, rr * 2);
+    }
+  }
+
+  drawGator(a) {
+    const { g, t, u } = this;
+    const p = (a.y - this.shore) / (this.h - this.shore);
+    const s = (0.6 + p * 1.6) * u;
+    const fade = Math.min(1, (t - a.t0) / 1.5, (a.until - t) / 2);
+    g.save();
+    g.globalAlpha = Math.max(0, fade);
+    // the head, barely above the water
+    g.fillStyle = '#0b1210';
+    g.beginPath();
+    g.ellipse(a.x, a.y, s * 6, s * 0.7, 0, Math.PI, TAU);
+    g.fill();
+    // eyeshine
+    for (const dx of [-1.1, 1.1]) {
+      const ex = a.x - s * 2.5 + dx * s;
+      const gr = g.createRadialGradient(ex, a.y - s * 0.5, 0, ex, a.y - s * 0.5, s * 1.4);
+      gr.addColorStop(0, 'rgba(255,140,70,0.95)');
+      gr.addColorStop(0.4, 'rgba(230,80,40,0.45)');
+      gr.addColorStop(1, 'rgba(200,60,30,0)');
+      g.fillStyle = gr;
+      g.fillRect(ex - s * 1.4, a.y - s * 1.9, s * 2.8, s * 2.8);
+    }
+    // as it bellows, the water dances in droplets over its back
+    if (t < a.bellow) {
+      g.fillStyle = 'rgba(200,210,220,0.6)';
+      for (let k = 0; k < 14; k++) {
+        const dx = (k / 13 - 0.5) * s * 8 + s * 3;
+        const hop = Math.abs(Math.sin(t * 22 + k * 1.3)) * s * 1.6;
+        g.fillRect(a.x + dx, a.y - s * 0.5 - hop, s * 0.25, s * 0.25);
+      }
+      if (Math.random() < 0.05) this.ripple(a.x + s * 3, a.y);
+    }
+    g.restore();
+  }
+
+  drawOwl(o) {
+    const { g, t, u } = this;
+    const singing = t < o.until;
+    const fade = Math.min(1, (o.gone - t) / 1.5, (t - o.sing + 0.8) / 0.8);
+    const s = (o.sp === 'barred-owl' ? 2.1 : o.sp === 'screech-owl' ? 1.3 : 1.5) * u;
+    g.save();
+    g.globalAlpha = Math.max(0, fade);
+    g.translate(o.spot.x, o.spot.y);
+    g.fillStyle = '#121a1f';
+    if (o.sp === 'chuck-wills-widow') {
+      // a nightjar lies along the limb
+      g.beginPath();
+      g.ellipse(0, -s * 0.5, s * 1.6, s * 0.55, 0, 0, TAU);
+      g.fill();
+      g.beginPath();
+      g.arc(o.spot.dir * s * 1.2, -s * 0.8 - (singing ? Math.abs(Math.sin(t * 6)) * s * 0.15 : 0), s * 0.5, 0, TAU);
+      g.fill();
+    } else {
+      g.beginPath();
+      g.ellipse(0, -s * 1.2, s * 0.95, s * 1.3, 0, 0, TAU);
+      g.fill();
+      const bob = singing ? Math.sin(t * 5) * s * 0.12 : 0;
+      g.beginPath();
+      g.arc(0, -s * 2.6 + bob, s * 0.75, 0, TAU);
+      g.fill();
+      if (o.sp === 'screech-owl') {
+        g.beginPath();
+        g.moveTo(-s * 0.6, -s * 3.1 + bob);
+        g.lineTo(-s * 0.45, -s * 3.7 + bob);
+        g.lineTo(-s * 0.15, -s * 3.2 + bob);
+        g.moveTo(s * 0.6, -s * 3.1 + bob);
+        g.lineTo(s * 0.45, -s * 3.7 + bob);
+        g.lineTo(s * 0.15, -s * 3.2 + bob);
+        g.fill();
+      }
+      // eyes catching the moon
+      g.fillStyle = o.sp === 'screech-owl' ? 'rgba(240,200,80,0.8)' : 'rgba(90,70,50,0.9)';
+      for (const dx of [-0.3, 0.3]) {
+        g.beginPath();
+        g.arc(dx * s, -s * 2.65 + bob, s * 0.16, 0, TAU);
+        g.fill();
+      }
+    }
+    g.restore();
+  }
+
+  drawFrog(f) {
+    const { g, t, u } = this;
+    const L = f.look;
+    const sp = f.spot;
+    const p = clamp((sp.y - this.shore) / (this.h - this.shore), 0, 1);
+    const s = (1 + p * 2) * u * L.size;
+    const singing = t < f.until;
+    const fade = Math.min(1, (f.gone - t) / 2, (t - f.sing + 0.8) / 0.8);
+    // the throat swells with each call
+    const puff = singing ? 0.5 + 0.5 * Math.abs(Math.sin(t * (L.big ? 3 : 6) + f.sing)) : 0;
+    g.save();
+    g.globalAlpha = Math.max(0, fade);
+    g.translate(sp.x, sp.y);
+    if (f.flip) g.scale(-1, 1);
+    if (sp.water || L.low) {
+      // just the head and eyes above the surface
+      g.fillStyle = L.body;
+      g.beginPath();
+      g.ellipse(0, 0, s * 1.3, s * 0.45, 0, Math.PI, TAU);
+      g.fill();
+      for (const dx of [-0.55, 0.55]) {
+        g.beginPath();
+        g.arc(dx * s, -s * 0.35, s * 0.28, 0, TAU);
+        g.fill();
+      }
+      if (puff > 0) {
+        g.fillStyle = L.sac;
+        g.globalAlpha *= 0.85;
+        g.beginPath();
+        g.ellipse(s * 0.9, -s * 0.05, s * 0.6 * puff, s * 0.45 * puff, 0, 0, TAU);
+        g.fill();
+        if (Math.random() < 0.03) this.ripple(sp.x, sp.y);
+      }
+    } else {
+      // sitting up: body, head, a bright vocal sac under the chin
+      g.fillStyle = L.body;
+      g.beginPath();
+      g.ellipse(0, -s * 0.6, s * 1.1, s * 0.75, -0.2, 0, TAU);
+      g.fill();
+      g.beginPath();
+      g.ellipse(s * 0.8, -s * 1.1, s * 0.6, s * 0.45, -0.3, 0, TAU);
+      g.fill();
+      if (L.stripe) {
+        g.strokeStyle = L.stripe;
+        g.lineWidth = s * 0.14;
+        g.beginPath();
+        g.moveTo(-s * 0.9, -s * 0.55);
+        g.quadraticCurveTo(0, -s * 0.85, s * 1.1, -s * 1.15);
+        g.stroke();
+      }
+      if (L.spots) {
+        g.fillStyle = L.spots;
+        for (const [dx, dy] of [[-0.4, -0.8], [0.1, -0.95], [-0.1, -0.5], [0.4, -0.7]]) {
+          g.beginPath();
+          g.arc(dx * s, dy * s, s * 0.14, 0, TAU);
+          g.fill();
+        }
+      }
+      g.fillStyle = '#0c1210';
+      g.beginPath();
+      g.arc(s * 0.95, -s * 1.38, s * 0.16, 0, TAU);
+      g.fill();
+      if (puff > 0) {
+        g.fillStyle = L.sac;
+        g.beginPath();
+        g.arc(s * 1.15, -s * (L.big ? 0.7 : 0.8), s * (L.big ? 0.75 : 0.45) * puff, 0, TAU);
+        g.fill();
+      }
+    }
+    g.restore();
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // The blank canvas: black, with a slow breathing ring so you know it's alive.
 class Blank extends Painting {
   frame() {
@@ -2750,7 +4022,7 @@ class Blank extends Painting {
   }
 }
 
-const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, mansion: Mansion, snow: Snow, mixer: Blank };
+const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, mixer: Blank };
 
 export function createPainting(id, canvas, engine) {
   const P = PAINTINGS[id] || Blank;
