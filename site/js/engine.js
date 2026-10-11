@@ -15,6 +15,7 @@ import { store } from './store.js';
 
 const LOOKAHEAD = 4; // seconds of events scheduled ahead of the audio clock
 const TICK_MS = 200;
+const RETRY_AFTER = [5000, 20000]; // ms before each new try at a sound that failed to load
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const val = (r, d = 0) => (Array.isArray(r) ? rand(r[0], r[1]) : r ?? d);
@@ -851,7 +852,10 @@ export class Scene {
   }
 
   // Only layers that are turned up get fetched; the rest load the moment you raise them.
-  loadLayer(l) {
+  // A sound that fails (a dropped connection, the app sent to the background mid-download, a
+  // phone short of memory while the last scene's sounds are still being let go) is tried again
+  // a little later, and once more after that; after that, raising its slider tries again.
+  loadLayer(l, attempt = 0) {
     if (!l.loading) {
       l.state = 'loading';
       l.loading = l.load().then(
@@ -862,14 +866,28 @@ export class Scene {
           this.engine.dispatchEvent(new CustomEvent('layer-state', { detail: { scene: this.def.id, layer: l.id, state: 'ready' } }));
         },
         (err) => {
+          l.loading = null;
+          if (this.stopped) return;
+          if (attempt < RETRY_AFTER.length) {
+            console.warn('layer failed, trying again', l.id, err);
+            setTimeout(() => !this.stopped && !l.loading && l.state !== 'ready' && this.loadLayer(l, attempt + 1), RETRY_AFTER[attempt]);
+            return;
+          }
           l.state = 'error';
           console.warn('layer failed', l.id, err);
           this.engine.dispatchEvent(new CustomEvent('layer-state', { detail: { scene: this.def.id, layer: l.id, state: 'error' } }));
         },
       );
-      this.engine.dispatchEvent(new CustomEvent('layer-state', { detail: { scene: this.def.id, layer: l.id, state: 'loading' } }));
+      if (!attempt) this.engine.dispatchEvent(new CustomEvent('layer-state', { detail: { scene: this.def.id, layer: l.id, state: 'loading' } }));
     }
     return l.loading;
+  }
+
+  // back from the background: have another go at anything that didn't load
+  retryFailed() {
+    for (const l of this.layers.values()) {
+      if (l.state === 'error' && l.level > 0) this.loadLayer(l);
+    }
   }
 
   async start(fade = 2.5) {
@@ -964,6 +982,7 @@ export class Engine extends EventTarget {
     this.ctx = null;
     this.cache = new Map();
     this.byteCache = new Map();
+    this.stale = new Set();
     this.scene = null;
     this.volume = store.get('volume', 0.85);
     this.hrtf = store.get('headphones', false);
@@ -1050,29 +1069,38 @@ export class Engine extends EventTarget {
 
   load(url, { trim = false } = {}) {
     if (!this.cache.has(url)) {
-      const p = fetch(url)
-        .then((r) => {
-          if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
-          return r.arrayBuffer();
-        })
+      const p = this._fetch(url)
         .then((data) => decode(this.ctx, data))
         .then((buf) => (trim ? trimPadding(this.ctx, buf) : buf));
       this.cache.set(url, p);
-      p.catch(() => this.cache.delete(url));
+      p.catch(() => {
+        this.cache.delete(url);
+        this.stale.add(url);
+      });
     }
     return this.cache.get(url);
   }
 
   bytes(url) {
     if (!this.byteCache.has(url)) {
-      const p = fetch(url).then((r) => {
-        if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
-        return r.arrayBuffer();
-      });
+      const p = this._fetch(url);
       this.byteCache.set(url, p);
-      p.catch(() => this.byteCache.delete(url));
+      p.catch(() => {
+        this.byteCache.delete(url);
+        this.stale.add(url);
+      });
     }
     return this.byteCache.get(url);
+  }
+
+  // A sound that failed once is fetched afresh ('reload' also tells the service worker to skip
+  // its stored copy, in case that copy is what's broken).
+  _fetch(url) {
+    const fresh = this.stale.delete(url);
+    return fetch(url, fresh ? { cache: 'reload' } : undefined).then((r) => {
+      if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+      return r.arrayBuffer();
+    });
   }
 
   noise(color = 'pink') {
