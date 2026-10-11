@@ -38,10 +38,47 @@ export const icons = {
   bee: svg('<ellipse cx="12" cy="14" rx="4" ry="5.5"/><path d="M8.5 12h7M8.5 15.5h7M12 8.5c-1.5-3-5-4-6.5-2.5S7 10 12 8.5zM12 8.5c1.5-3 5-4 6.5-2.5S17 10 12 8.5z" />'),
   rooster: svg('<path d="M7 20h10M10 20l1-4M14 20l-1-4M6 9c0-3 2-5 5-5 1 0 2 .5 2 .5S14 3 15 3s.5 2 0 2.5c2 1 3 3.5 3 6 0 3.5-3 5.5-6 5.5s-6-2-6-5.5L4 11z" />'),
   ghost: svg('<path d="M6 20V10a6 6 0 1 1 12 0v10l-2-2-2 2-2-2-2 2-2-2-2 2z"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/>'),
+  palm: svg('<path d="M12 22c0-5 .5-9 1.5-12M13.5 10C11 6 7 5 3 6.5M13.5 10c1-4 4-6.5 8-6M13.5 10c3-1.5 6.5-1 8.5 1.5M13.5 10C10 9 6.5 10.5 4.5 13" />'),
+  cicada: svg('<ellipse cx="12" cy="13" rx="3" ry="6"/><path d="M9.5 9C6 7 3 8.5 2.5 12c3 .5 5.5-.5 7-2.5M14.5 9C18 7 21 8.5 21.5 12c-3 .5-5.5-.5-7-2.5M10 7l-1.5-2M14 7l1.5-2" />'),
+  hummingbird: svg('<path d="M3 11l7.5 1M10.5 12c1.5-3 4-4 6-3.5 1.5.4 2.5 1.6 2.5 3 0 2.5-2.5 4.5-6 4.5L9 20l2.5-5.5M16 7.5c0-2 1.5-4 4-4.5-1 2-1.5 3.5-2 5M13 12c-1-2.5-.5-5.5 1.5-8" />'),
+  butterfly: svg('<path d="M12 7v12M12 9C9 3 3 3.5 3 8s4 5 9 4c5 1 9 .5 9-4s-6-5-9 1zM12 13c-3 0-6 1.5-6 4s3 3 6-1c3 4 6 3 6 1s-3-4-6-4zM12 7l-2-3M12 7l2-3" />'),
   headphones: svg('<path d="M4 15v-3a8 8 0 1 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/>'),
 };
 
 // ---- scene cards (160 × 120) ----
+// The butterfly garden card is mostly flowers, so its petals are built in code.
+const ring = (n, f) => Array.from({ length: n }, (_, i) => f((i * 360) / n)).join('');
+const at = (x, y, body, extra = '') => `<g transform="translate(${x} ${y})"${extra}>${body}</g>`;
+const hibiscus = (x, y, r, rot = 0) =>
+  at(x, y, ring(5, (a) => `<ellipse cy="${-r * 0.55}" rx="${r * 0.22}" ry="${r * 0.55}" transform="rotate(${a + rot})"/>`) +
+    `<path d="M0 0Q${r * 0.25} ${-r * 0.45} ${r * 0.42} ${-r * 0.85}" stroke="#a80b25" stroke-width="${r * 0.08}" fill="none"/><circle cx="${r * 0.43}" cy="${-r * 0.88}" r="${r * 0.09}" fill="#f5c542"/>`, ' fill="#d3142f"');
+const mallow = (x, y, r, petal) =>
+  at(x, y, ring(5, (a) => `<ellipse cy="${-r * 0.5}" rx="${r * 0.46}" ry="${r * 0.55}" transform="rotate(${a + 18})"/>`) +
+    `<circle r="${r * 0.3}" fill="#9d1238"/><circle cx="${r * 0.12}" cy="${-r * 0.2}" r="${r * 0.08}" fill="#f4d35e"/>`, ` fill="${petal}"`);
+const daisy = (x, y, r, n, petal, centre, tip) =>
+  at(x, y, ring(n, (a) => `<ellipse cy="${-r * 0.6}" rx="${r * 0.21}" ry="${r * 0.45}" fill="${petal}" transform="rotate(${a})"/>` + (tip ? `<circle cy="${-r * 0.92}" r="${r * 0.17}" fill="${tip}" transform="rotate(${a})"/>` : '')) +
+    `<circle r="${r * 0.3}" fill="${centre}"/>`);
+const UMBEL = [[-0.8, 0.1], [-0.5, -0.25], [-0.15, -0.42], [0.2, -0.4], [0.55, -0.24], [0.82, 0.08], [-0.38, 0.1], [0.04, -0.06], [0.42, 0.08]];
+const umbel = (x, y, r, dark, light) =>
+  at(x, y, UMBEL.map(([u, v]) => `<circle cx="${u * r}" cy="${v * r}" r="${r * 0.22}" fill="${dark}"/><circle cx="${u * r - r * 0.04}" cy="${v * r - r * 0.07}" r="${r * 0.1}" fill="${light}"/>`).join(''));
+const spike = (x, y, h, cols) =>
+  Array.from({ length: 9 }, (_, i) => `<circle cx="${x + Math.sin(i * 2.1) * 0.7}" cy="${y - (i * h) / 9}" r="${1.5 - i * 0.08}" fill="${cols[i % cols.length]}"/>`).join('');
+const passion = (x, y, r) =>
+  at(x, y, ring(10, (a) => `<ellipse cy="${-r * 0.55}" rx="${r * 0.16}" ry="${r * 0.45}" fill="#f3edf9" transform="rotate(${a})"/>`) +
+    `<circle r="${r * 0.62}" fill="none" stroke="#8c5cc8" stroke-width="${r * 0.3}" stroke-dasharray="${r * 0.08} ${r * 0.08}"/><circle r="${r * 0.3}" fill="#4b1f73"/><circle r="${r * 0.14}" fill="#a8c66c"/>`);
+const FRONDS = [-200, -172, -146, -121, -96, -71, -46, -21, 4, 26];
+// a clump of upright leaves fanning out from a base
+const bush = (x, y, w, h, col, light) =>
+  at(x, y, `<ellipse cy="${-h * 0.15}" rx="${w * 0.5}" ry="${h * 0.32}" fill="${col}"/>` + Array.from({ length: 11 }, (_, i) => {
+    const t = i / 10 - 0.5;
+    const cx = t * w * 0.85;
+    const cy = -h * 0.42 * (1 - Math.abs(t) * 1.1);
+    return `<ellipse cx="${cx}" cy="${cy}" rx="${w * 0.075}" ry="${h * 0.5}" fill="${i % 3 ? col : light}" transform="rotate(${t * 120} ${cx} ${cy})"/>`;
+  }).join(''));
+const TUBES = [-60, -30, 0, 30, 60];
+const firebush = (x, y) =>
+  bush(x, y, 22, 14, '#2a5530', '#3a6b3c') + [[-5, -11], [1, -14], [6, -10]].map(([u, v]) => at(x + u, y + v, TUBES.map((a) => `<ellipse cy="-2.2" rx=".6" ry="2.2" transform="rotate(${a})"/>`).join(''), ' fill="#e4572e"')).join('');
+
 export const thumbs = {
   storm: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs><linearGradient id="ts-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#071219"/><stop offset="1" stop-color="#244651"/></linearGradient></defs>
@@ -100,6 +137,35 @@ export const thumbs = {
     <g transform="translate(118 90)"><rect x="-12" y="-11" width="24" height="11" fill="#3a2a22"/><path d="M-15 -10 L0 -21 L15 -10Z" fill="#e8f0f6"/><rect x="-7" y="-8" width="5" height="4.5" fill="#FFC870"/><rect x="5" y="-20" width="3" height="6" fill="#2c201a"/></g>
     <path d="M14 120 L26 84 L38 120Z M30 120 L42 92 L54 120Z" fill="#0f2233"/>
     <g fill="#fff"><circle cx="20" cy="20" r="1.2"/><circle cx="46" cy="36" r="1"/><circle cx="70" cy="14" r="1.4"/><circle cx="96" cy="30" r="1"/><circle cx="130" cy="18" r="1.3"/><circle cx="150" cy="40" r="1"/><circle cx="60" cy="56" r="1.2"/><circle cx="108" cy="58" r="1"/><circle cx="84" cy="74" r="1.3"/><circle cx="140" cy="70" r="1"/><circle cx="30" cy="66" r="1"/></g>
+  </svg>`,
+  butterfly: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="tb-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78c3dc"/><stop offset=".62" stop-color="#cdeeee"/><stop offset="1" stop-color="#fbefcf"/></linearGradient>
+    <linearGradient id="tb-grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7aa352"/><stop offset="1" stop-color="#2f5a2e"/></linearGradient>
+    <radialGradient id="tb-sun"><stop offset="0" stop-color="#fffbe6"/><stop offset="1" stop-color="#fffbe6" stop-opacity="0"/></radialGradient>
+    <radialGradient id="tb-muhly"><stop offset="0" stop-color="#e98cbf" stop-opacity=".85"/><stop offset="1" stop-color="#e98cbf" stop-opacity="0"/></radialGradient></defs>
+    <rect width="160" height="120" fill="url(#tb-sky)"/>
+    <circle cx="138" cy="15" r="24" fill="url(#tb-sun)"/><circle cx="138" cy="15" r="7" fill="#fff8de"/>
+    <path d="M0 70Q10 62 20 68Q30 60 42 67Q54 61 66 68Q80 62 92 68Q104 61 116 67Q128 62 140 68Q150 63 160 66V78H0Z" fill="#8db59a"/>
+    <path d="M131 76Q127 54 133 31" stroke="#7a6a52" stroke-width="2.2" fill="none"/>
+    ${at(133, 31, FRONDS.map((a) => `<path transform="rotate(${a})" d="M0 0L15 -3.5L14 -1.6L17 -.6L14 .4L17 1.4L14 2.4L15 3.5Z"/>`).join(''), ' fill="#3f6e46"')}
+    <g fill="url(#tb-muhly)"><ellipse cx="14" cy="74" rx="16" ry="7"/><ellipse cx="52" cy="73" rx="18" ry="7"/><ellipse cx="98" cy="74" rx="17" ry="7"/><ellipse cx="146" cy="73" rx="18" ry="7"/></g>
+    <rect y="75" width="160" height="45" fill="url(#tb-grass)"/>
+    ${[12, 44, 78, 148].map((x) => bush(x, 86, 28, 9, '#3d6b3a', '#4f7f45')).join('')}
+    <g stroke="#2f5a2e" stroke-width=".9"><path d="M34 85V71M39 85V74M70 85V73M146 85V77"/></g>
+    ${spike(34, 84, 14, ['#9a46c8', '#b56ad8'])}${spike(39, 85, 11, ['#7f34aa', '#9a46c8'])}${spike(70, 84, 11, ['#5b4fd0', '#2e5a2a', '#2e5a2a'])}
+    ${firebush(102, 86)}
+    ${hibiscus(146, 79, 6, 10)}${daisy(118, 80, 4, 8, '#ffd21f', '#7b4a12')}
+    ${[20, 62, 102, 142].map((x) => bush(x, 101, 36, 12, '#2f5d33', '#437a42')).join('')}
+    <g stroke="#2f5a2e" stroke-width="1"><path d="M60 99V92M88 99V91M112 99V95M136 99V93"/></g>
+    ${mallow(60, 91, 8, '#f6bcd0')}${umbel(88, 91, 6, '#c64480', '#f4a3c8')}${passion(112, 95, 7)}${daisy(136, 93, 5, 8, '#ffd21f', '#7b4a12')}
+    ${[22, 64, 106, 148].map((x) => bush(x, 122, 44, 16, '#24492a', '#35663a')).join('')}
+    <g stroke="#2a5230" stroke-width="1.3"><path d="M22 118V101M52 118V109M80 118V111M106 118V107M124 118V113M146 118V109"/></g>
+    ${hibiscus(22, 100, 15, 4)}${umbel(52, 108, 10, '#e35d16', '#ffa94d')}${daisy(80, 110, 8.5, 12, '#c0391b', '#6e1b14', '#f7c02a')}
+    ${daisy(106, 106, 8, 12, '#f6ab0c', '#2b170a')}${daisy(124, 113, 6.5, 12, '#f9b918', '#2b170a')}${daisy(146, 108, 5.5, 6, '#fcfcf7', '#efbe2a')}${daisy(155, 116, 4.5, 6, '#fcfcf7', '#efbe2a')}
+    <g transform="translate(80 46) rotate(-12)"><path d="M0 0C-8-15-26-14-24-6C-22 0-8 2 0 0C8-15 26-14 24-6C22 0 8 2 0 0" fill="#161616"/><path d="M0 0C-5 6-15 9-16 5C-17 2-8 0 0 0C5 6 15 9 16 5C17 2 8 0 0 0" fill="#161616"/><path d="M-3-3L-21-8M-3 1L-13 5M3-3L21-8M3 1L13 5" stroke="#ffe066" stroke-width="1.5"/><ellipse rx="1" ry="5" fill="#111"/></g>
+    <g transform="translate(116 66) rotate(8)"><path d="M0 0C-4-8-12-8-11-2C-10 2-4 2 0 0C4-8 12-8 11-2C10 2 4 2 0 0" fill="#e8741a"/><path d="M0 0C-3 4-8 5-8 2.5C-8 1-4 0 0 0C3 4 8 5 8 2.5C8 1 4 0 0 0" fill="#e8741a"/><path d="M-1-1L-9-4M1-1L9-4" stroke="#1a1a1a" stroke-width=".8"/><ellipse rx=".7" ry="3.2" fill="#1a1a1a"/></g>
+    <g transform="translate(47 85) scale(1.35)"><ellipse rx="4.4" ry="2.2" fill="#2e8b57" transform="rotate(-20)"/><circle cx="-3.4" cy="-1.6" r="1.8" fill="#2e8b57"/><circle cx="-3" cy="-.2" r="1.3" fill="#c1121f"/><path d="M-5 -1.6L-11 1" stroke="#222" stroke-width=".8"/><path d="M4 .6L8 2.6L7.5 .2Z" fill="#245c3c"/><ellipse cx="1" cy="-4.5" rx="2" ry="5" fill="#dcebf0" opacity=".75" transform="rotate(30 1 -4.5)"/></g>
+    <g transform="translate(104 56)"><path d="M-9 0H3" stroke="#3b6fb6" stroke-width="1.3"/><circle cx="4" r="1.5" fill="#3b6fb6"/><g fill="#e6f3fa" opacity=".8"><ellipse cx="1" cy="-3.6" rx="1.2" ry="3.6"/><ellipse cx="-1.5" cy="-3.2" rx="1.1" ry="3.2"/><ellipse cx="1" cy="3.6" rx="1.2" ry="3.6"/><ellipse cx="-1.5" cy="3.2" rx="1.1" ry="3.2"/></g></g>
   </svg>`,
   mixer: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <rect width="160" height="120" fill="#000"/>
