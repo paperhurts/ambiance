@@ -52,7 +52,7 @@ tools/
   sources/*.json      every recording used: where it came from, its licence, which part of it we use
   build_audio.py      downloads the originals, cuts, cleans, loudness-matches and encodes them
   check.mjs           headless-browser smoke test, and offline renders of a scene to WAV
-  render_icons.mjs    PNG icons from the SVGs
+  make_icons.py       app icons from the painting in originals/app-icon-source.png
 ```
 
 ### Realism tricks
