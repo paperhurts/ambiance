@@ -111,16 +111,28 @@ export const thumbs = {
     <g transform="translate(122 80) rotate(-8)"><path d="M-5 0h10l-2.5-12h-5z" fill="#A3332A"/><rect x="-3.4" y="-8" width="6.8" height="2.4" fill="#E4572E"/><circle cy="-14.5" r="2.2" fill="#FF7A5C"/></g>
   </svg>`,
   waterfall: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <defs><linearGradient id="tw-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7ecf0"/><stop offset=".55" stop-color="#5f9f8a"/><stop offset="1" stop-color="#16352b"/></linearGradient>
-    <linearGradient id="tw-fall" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8f6f6" stop-opacity=".4"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#e8f6f6" stop-opacity=".4"/></linearGradient></defs>
-    <rect width="160" height="120" fill="url(#tw-sky)"/>
-    <path d="M0 44 L12 30 L22 44 L32 28 L44 44 L56 32 L66 44 L80 30 L92 44 L104 28 L116 44 L130 30 L142 44 L156 30 L160 36 V60 H0Z" fill="#4f8a7a" opacity=".7"/>
-    <path d="M0 40 L60 34 L66 92 L0 104Z" fill="#24453d"/><path d="M160 36 L94 33 L90 92 L160 108Z" fill="#24453d"/>
-    <rect x="64" y="34" width="30" height="60" fill="url(#tw-fall)"/>
-    <g stroke="#fff" stroke-opacity=".8" stroke-width="1"><path d="M70 40v14M76 50v16M82 38v12M88 56v14M73 70v12M85 74v10"/></g>
-    <ellipse cx="80" cy="96" rx="70" ry="14" fill="#2f6f73"/>
-    <ellipse cx="79" cy="92" rx="26" ry="6" fill="#fff" opacity=".55"/><ellipse cx="72" cy="84" rx="18" ry="8" fill="#fff" opacity=".2"/><ellipse cx="92" cy="80" rx="14" ry="7" fill="#fff" opacity=".18"/>
-    <path d="M6 120 Q10 98 22 92 M14 120 Q20 102 34 98 M150 120 Q146 100 136 94 M142 120 Q138 106 124 100" stroke="#0f2a22" stroke-width="3" fill="none"/>
+    <defs><radialGradient id="tw-sun" cx=".62" cy=".08" r=".9"><stop offset="0" stop-color="#fbfbe0"/><stop offset=".18" stop-color="#e2ef98"/><stop offset=".45" stop-color="#93c34e"/><stop offset="1" stop-color="#2c5a28"/></radialGradient>
+    <linearGradient id="tw-pool" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f9a86"/><stop offset="1" stop-color="#1d3833"/></linearGradient>
+    <linearGradient id="tw-rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5f6d68"/><stop offset="1" stop-color="#252d2c"/></linearGradient></defs>
+    <rect width="160" height="120" fill="url(#tw-sun)"/>
+    <g fill="#c9d4b0" opacity=".5"><rect x="14" y="0" width="2" height="44"/><rect x="40" y="0" width="1.4" height="40"/><rect x="128" y="0" width="1.6" height="42"/><rect x="146" y="0" width="2" height="46"/></g>
+    <g fill="#3f7a30"><ellipse cx="18" cy="8" rx="26" ry="12"/><ellipse cx="140" cy="10" rx="28" ry="12"/><ellipse cx="50" cy="22" rx="16" ry="8"/><ellipse cx="118" cy="26" rx="14" ry="7"/></g>
+    <g fill="#5f9a38"><ellipse cx="22" cy="5" rx="16" ry="7"/><ellipse cx="134" cy="7" rx="18" ry="7"/><ellipse cx="46" cy="19" rx="10" ry="5"/></g>
+    <path d="M0 40 L30 36 L60 39 V80 H0Z" fill="url(#tw-rock)"/><path d="M160 34 L118 30 L96 36 V82 H160Z" fill="url(#tw-rock)"/>
+    <path d="M0 40 L30 36 L60 39 L58 44 L0 47Z" fill="#9aa69d"/><path d="M160 34 L118 30 L96 36 L98 41 L160 40Z" fill="#9aa69d"/>
+    <g stroke="#161c1c" stroke-opacity=".55" stroke-width="1.2" fill="none"><path d="M0 56 L58 53 M0 66 L56 64 M98 52 L160 50 M98 63 L160 62"/></g>
+    <g fill="#6f9a36"><ellipse cx="18" cy="39" rx="9" ry="2"/><ellipse cx="44" cy="38" rx="7" ry="1.6"/><ellipse cx="130" cy="32" rx="10" ry="2"/></g>
+    <g fill="#59665f"><rect x="70" y="38" width="20" height="9"/><rect x="66" y="47" width="22" height="10"/><rect x="70" y="57" width="24" height="12"/></g>
+    <g fill="#f4f9f7"><path d="M77 36 h7 v9 h-7z"/><path d="M73 46 h8 v10 h-8z"/><path d="M78 56 h10 v12 h-10z"/></g>
+    <g fill="#fff" opacity=".9"><ellipse cx="80.5" cy="45.5" rx="6" ry="1.6"/><ellipse cx="77" cy="56" rx="7" ry="1.8"/><ellipse cx="83" cy="68" rx="9" ry="2"/></g>
+    <path d="M30 86 Q36 70 80 68 Q124 70 130 86Z" fill="#69766f"/>
+    <path d="M66 69 Q80 67 96 69 L118 88 L42 88Z" fill="#eef6f3" opacity=".92"/>
+    <g stroke="#fff" stroke-width=".8" opacity=".9"><path d="M60 76 L50 88 M70 72 L64 88 M80 70 L80 88 M90 72 L96 88 M100 76 L110 88"/></g>
+    <rect y="88" width="160" height="32" fill="url(#tw-pool)"/>
+    <ellipse cx="80" cy="90" rx="44" ry="4" fill="#fff" opacity=".85"/><ellipse cx="74" cy="100" rx="16" ry="1.4" fill="#fff" opacity=".35"/><ellipse cx="98" cy="108" rx="12" ry="1.2" fill="#fff" opacity=".25"/>
+    <path d="M-4 120 L-4 98 Q14 92 34 100 L36 120Z" fill="#5a6863"/><path d="M164 120 L164 96 Q146 90 126 98 L124 120Z" fill="#5a6863"/>
+    <g fill="#6f9a36"><ellipse cx="12" cy="96" rx="10" ry="2"/><ellipse cx="146" cy="94" rx="10" ry="2"/></g>
+    <path d="M6 120 Q10 104 22 100 M150 120 Q146 104 134 100" stroke="#2f6a2c" stroke-width="3" fill="none"/>
   </svg>`,
   garden: `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs><linearGradient id="tg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3f6b"/><stop offset=".55" stop-color="#f0b8a2"/><stop offset="1" stop-color="#ffd9a0"/></linearGradient>
