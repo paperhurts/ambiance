@@ -323,17 +323,24 @@ class Layer {
     this.out.gain.setTargetAtTime(faderGain(v), when, 0.25);
   }
 
+  // where the driver sits for this layer, 0..1; `range` picks the part of its travel that matters
+  // (rain only after the storm passes 0.35, insects fading out by 0.5…)
+  driven() {
+    const d = this.def.drive;
+    const v = this.scene.drivers[d.by] ?? 1;
+    return d.range ? clamp((v - d.range[0]) / (d.range[1] - d.range[0]), 0, 1) : v;
+  }
+
   drive() {
     const d = this.def.drive;
-    if (!d) return 1;
-    const v = this.scene.drivers[d.by] ?? 1;
-    return d.gain ? lerp(d.gain[0], d.gain[1], v) : 1;
+    if (!d || !d.gain) return 1;
+    return lerp(d.gain[0], d.gain[1], this.driven());
   }
 
   speed() {
     const d = this.def.drive;
     if (!d || !d.rate) return 1;
-    return lerp(d.rate[0], d.rate[1], this.scene.drivers[d.by] ?? 1);
+    return lerp(d.rate[0], d.rate[1], this.driven());
   }
 
   tick() {}
@@ -538,7 +545,8 @@ class StormLayer extends ShotLayer {
   fire(at) {
     const strength = this.scene.drivers[this.def.drive?.by] ?? 0.7;
     // a strong storm is overhead; a weak one grumbles in the distance
-    const km = clamp(rand(0.4, 9) * lerp(1.4, 0.35, strength) + rand(0, 1.5), 0.3, 12);
+    const d = this.def;
+    const km = d.km ? clamp(lerp(d.km[0], d.km[1], strength) * rand(0.55, 1.45), 0.3, 18) : clamp(rand(0.4, 9) * lerp(1.4, 0.35, strength) + rand(0, 1.5), 0.3, 12);
     const near = km < 2.2;
     const ready = this.available();
     const pool = ready.filter((i) => (near ? i.tag !== 'far' : i.tag !== 'near'));
@@ -616,6 +624,10 @@ class FlockLayer extends Layer {
       return;
     }
     const activity = this.speed();
+    if (activity < 0.06) {
+      for (const b of this.birds) b.next = Math.max(b.next, now + rand(2, 12));
+      return;
+    }
     for (let i = 0; i < this.birds.length; i++) {
       const b = this.birds[i];
       // coming back from silence or a frozen page: birds start afresh, not all at once
@@ -818,8 +830,10 @@ export class Scene {
     this.driverState = {};
     this.started = this.ctx.currentTime;
     for (const [name, spec] of Object.entries(def.drivers || {})) {
-      this.drivers[name] = spec.start ?? (spec.ramp ? 0 : rand(spec.range?.[0] ?? 0.4, spec.range?.[1] ?? 1));
+      this.drivers[name] = spec.start ?? (spec.ramp || spec.wake ? 0 : rand(spec.range?.[0] ?? 0.4, spec.range?.[1] ?? 1));
       this.driverState[name] = { target: this.drivers[name], next: 0 };
+      if (spec.cycle) this.enterPhase(name, spec.begin ?? 0, this.drivers[name], this.started);
+      if (spec.wake) this.driverState[name].env = 0;
     }
     this.layers = new Map();
     for (const l of def.layers) {
@@ -872,12 +886,34 @@ export class Scene {
     await (firstBed >= 0 ? loads[firstBed] : Promise.allSettled(loads));
   }
 
+  // a scripted driver moves through its phases, gliding to each phase's value over its duration
+  enterPhase(name, i, from, now) {
+    const spec = this.def.drivers[name];
+    const phase = spec.cycle[i];
+    Object.assign(this.driverState[name], { phase: i, from, to: phase.to, t0: now, dur: val(phase.dur) });
+  }
+
   tick(now) {
     for (const [name, spec] of Object.entries(this.def.drivers || {})) {
       const st = this.driverState[name];
       if (spec.ramp) {
         // a slow, one-way journey (dawn): 0 → 1 over `ramp` seconds, then holds
         this.drivers[name] = clamp((now - this.started) / spec.ramp + (spec.start ?? 0), 0, 1);
+      } else if (spec.cycle) {
+        // a life story that repeats: calm → building → gust front → downpour → moving off → clearing
+        // (a page frozen for a long time skips ahead rather than replaying every phase)
+        let guard = 0;
+        while (now - st.t0 >= st.dur && guard++ < spec.cycle.length) this.enterPhase(name, (st.phase + 1) % spec.cycle.length, st.to, Math.max(st.t0 + st.dur, now - 1));
+        const p = clamp((now - st.t0) / st.dur, 0, 1);
+        const eased = p * p * (3 - 2 * p);
+        const wobble = (spec.wobble ?? 0) * Math.sin(now / 23 + Math.sin(now / 9)) * Math.min(st.from, st.to);
+        this.drivers[name] = clamp(st.from + (st.to - st.from) * eased + wobble, 0, 1);
+      } else if (spec.wake) {
+        // what another driver leaves behind as it falls: rises when it eases off, then fades
+        const src = this.drivers[spec.wake] ?? 0;
+        const k = 1 - Math.exp(-(TICK_MS / 1000) / (src > st.env ? spec.rise ?? 15 : spec.fall ?? 240));
+        st.env += (src - st.env) * k;
+        this.drivers[name] = clamp((st.env - src) * (spec.gain ?? 2), 0, 1);
       } else {
         if (now >= st.next) {
           st.target = rand(spec.range?.[0] ?? 0.3, spec.range?.[1] ?? 1);

@@ -400,6 +400,110 @@
     "dur": 4.75
    }
   ],
+  "glades/boat-tailed-grackle": [
+   {
+    "file": "audio/glades/boat-tailed-grackle-1.a70db13c.mp3",
+    "dur": 2.7
+   },
+   {
+    "file": "audio/glades/boat-tailed-grackle-2.8d13b158.mp3",
+    "dur": 4.55
+   },
+   {
+    "file": "audio/glades/boat-tailed-grackle-3.6e32cd69.mp3",
+    "dur": 2.55
+   },
+   {
+    "file": "audio/glades/boat-tailed-grackle-4.93d5ff8c.mp3",
+    "dur": 7.95
+   }
+  ],
+  "glades/great-egret": [
+   {
+    "file": "audio/glades/great-egret-1.c8e71a78.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/glades/great-egret-2.b5e96377.mp3",
+    "dur": 1.37
+   },
+   {
+    "file": "audio/glades/great-egret-3.a4b2c8e6.mp3",
+    "dur": 1.2
+   }
+  ],
+  "glades/limpkin": [
+   {
+    "file": "audio/glades/limpkin-1.83726c51.mp3",
+    "dur": 2.17
+   },
+   {
+    "file": "audio/glades/limpkin-2.d31a47ae.mp3",
+    "dur": 4.62
+   },
+   {
+    "file": "audio/glades/limpkin-3.df864db3.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/glades/limpkin-4.3bfa1ca5.mp3",
+    "dur": 3.5
+   }
+  ],
+  "glades/osprey": [
+   {
+    "file": "audio/glades/osprey-1.f4ff4476.mp3",
+    "dur": 3.45
+   },
+   {
+    "file": "audio/glades/osprey-2.84561daf.mp3",
+    "dur": 5.05
+   },
+   {
+    "file": "audio/glades/osprey-3.d7edf67d.mp3",
+    "dur": 3.2
+   },
+   {
+    "file": "audio/glades/osprey-4.27397e16.mp3",
+    "dur": 3.43
+   }
+  ],
+  "glades/red-winged-blackbird": [
+   {
+    "file": "audio/glades/red-winged-blackbird-1.08cbebae.mp3",
+    "dur": 2.5
+   },
+   {
+    "file": "audio/glades/red-winged-blackbird-2.8f121fe2.mp3",
+    "dur": 2.85
+   },
+   {
+    "file": "audio/glades/red-winged-blackbird-3.c41de4ac.mp3",
+    "dur": 2.7
+   },
+   {
+    "file": "audio/glades/red-winged-blackbird-4.eda71f6f.mp3",
+    "dur": 3.3
+   }
+  ],
+  "glades/sandhill-crane": [
+   {
+    "file": "audio/glades/sandhill-crane-1.c5e584bb.mp3",
+    "dur": 3.97
+   },
+   {
+    "file": "audio/glades/sandhill-crane-2.7b4961f5.mp3",
+    "dur": 5.7
+   },
+   {
+    "file": "audio/glades/sandhill-crane-3.da487882.mp3",
+    "dur": 4.5
+   },
+   {
+    "file": "audio/glades/sandhill-crane-4.d2272d2e.mp3",
+    "dur": 4.1
+   }
+  ],
   "mansion/chime": [
    {
     "file": "audio/mansion/chime-1.e493d07a.mp3",
@@ -1012,6 +1116,29 @@
   "audio/garden/wren-1.f8ea0bb1.mp3",
   "audio/garden/wren-2.00b84741.mp3",
   "audio/garden/wren-3.41b7c320.mp3",
+  "audio/glades/boat-tailed-grackle-1.a70db13c.mp3",
+  "audio/glades/boat-tailed-grackle-2.8d13b158.mp3",
+  "audio/glades/boat-tailed-grackle-3.6e32cd69.mp3",
+  "audio/glades/boat-tailed-grackle-4.93d5ff8c.mp3",
+  "audio/glades/great-egret-1.c8e71a78.mp3",
+  "audio/glades/great-egret-2.b5e96377.mp3",
+  "audio/glades/great-egret-3.a4b2c8e6.mp3",
+  "audio/glades/limpkin-1.83726c51.mp3",
+  "audio/glades/limpkin-2.d31a47ae.mp3",
+  "audio/glades/limpkin-3.df864db3.mp3",
+  "audio/glades/limpkin-4.3bfa1ca5.mp3",
+  "audio/glades/osprey-1.f4ff4476.mp3",
+  "audio/glades/osprey-2.84561daf.mp3",
+  "audio/glades/osprey-3.d7edf67d.mp3",
+  "audio/glades/osprey-4.27397e16.mp3",
+  "audio/glades/red-winged-blackbird-1.08cbebae.mp3",
+  "audio/glades/red-winged-blackbird-2.8f121fe2.mp3",
+  "audio/glades/red-winged-blackbird-3.c41de4ac.mp3",
+  "audio/glades/red-winged-blackbird-4.eda71f6f.mp3",
+  "audio/glades/sandhill-crane-1.c5e584bb.mp3",
+  "audio/glades/sandhill-crane-2.7b4961f5.mp3",
+  "audio/glades/sandhill-crane-3.da487882.mp3",
+  "audio/glades/sandhill-crane-4.d2272d2e.mp3",
   "audio/mansion/chime-1.e493d07a.mp3",
   "audio/mansion/chime-2.467310fa.mp3",
   "audio/mansion/clock-1.f8b2196a.mp3",
@@ -1433,6 +1560,126 @@
    "page": "https://archive.org/details/aporee_66561_76966",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Red winged blackbird",
+   "title": "Durante Park, Longboat Key, Florida, USA - Durante Park Red-winged Blackbird",
+   "author": "Pierrot Desperes",
+   "page": "https://archive.org/details/aporee_52907_60456",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Red winged blackbird",
+   "title": "XC1133697 Red-winged Blackbird",
+   "author": "Rory Nefdt",
+   "page": "https://xeno-canto.org/1133697",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Red winged blackbird",
+   "title": "XC196268 Red-winged Blackbird",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/196268",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Boat tailed grackle",
+   "title": "XC705391 Boat-tailed Grackle",
+   "author": "Paul Driver",
+   "page": "https://xeno-canto.org/705391",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Boat tailed grackle",
+   "title": "XC109025 Boat-tailed Grackle",
+   "author": "Andrew Spencer",
+   "page": "https://xeno-canto.org/109025",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Limpkin",
+   "title": "XC712983 Limpkin",
+   "author": "Bruce Lagerquist",
+   "page": "https://xeno-canto.org/712983",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Limpkin",
+   "title": "XC331321 Limpkin",
+   "author": "Sue Riffe",
+   "page": "https://xeno-canto.org/331321",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Limpkin",
+   "title": "XC426300 Limpkin",
+   "author": "Phil Brown",
+   "page": "https://xeno-canto.org/426300",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Sandhill crane",
+   "title": "XC316293 Sandhill Crane",
+   "author": "Sue Riffe",
+   "page": "https://xeno-canto.org/316293",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Sandhill crane",
+   "title": "XC268517 Sandhill Crane",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/268517",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Sandhill crane",
+   "title": "XC109041 Sandhill Crane",
+   "author": "Andrew Spencer",
+   "page": "https://xeno-canto.org/109041",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Great egret",
+   "title": "XC167213 Great Egret",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/167213",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Great egret",
+   "title": "XC161276 Great Egret",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/161276",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Osprey",
+   "title": "XC225658 Western Osprey",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/225658",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Osprey",
+   "title": "XC758691 Western Osprey",
+   "author": "Bruce Lagerquist",
+   "page": "https://xeno-canto.org/758691",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
   },
   {
    "what": "Wind moaning at the window",

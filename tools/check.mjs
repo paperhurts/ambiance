@@ -2,8 +2,9 @@
 //
 //   node tools/check.mjs ui [outdir]                 load the app at phone size, open every scene,
 //                                                   screenshot, fail on console errors
-//   node tools/check.mjs render <scene> <seconds> <out.wav> [level overrides as id=0.5,...]
+//   node tools/check.mjs render <scene> <seconds> <out.wav> [overrides: id=0.5,...,@driver=0.8]
 //                                                   render a scene's mix offline to a WAV file
+//                                                   (layer levels, or a driver held at a value)
 import http from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
@@ -137,7 +138,9 @@ try {
         const levels = Object.fromEntries(def.layers.map((l) => [l.id, l.level ?? 0]));
         for (const kv of overrides.split(',').filter(Boolean)) {
           const [k, v] = kv.split('=');
-          levels[k] = Number(v);
+          // "@name=value" holds a driver still (a storm stage, say); anything else is a layer level
+          if (k.startsWith('@')) def.drivers[k.slice(1)] = { range: [Number(v), Number(v)], start: Number(v) };
+          else levels[k] = Number(v);
         }
         const rate = 48000;
         const ctx = new OfflineAudioContext(2, Math.round(rate * seconds), rate);
