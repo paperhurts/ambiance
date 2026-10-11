@@ -149,7 +149,7 @@ export function buildScenes(pools) {
   const butterfly = {
     id: 'butterfly',
     name: 'Butterfly Garden',
-    kicker: 'Native Florida, mid-morning',
+    kicker: 'A Florida yard, mid-morning',
     what: 'Hibiscus, milkweed and wildflowers, butterflies and hummingbirds, a yard full of Florida birds.',
     gain: 3.6,
     reverb: { type: 'open', level: 0.25 },

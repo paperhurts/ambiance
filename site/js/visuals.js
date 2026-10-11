@@ -1106,6 +1106,7 @@ class Snow extends Painting {
 // The plants. h: stem height, spread: width (garden units); n: flowers per plant; R: flower size;
 // leaf: foliage; tube: hummingbirds feed there; spike: flowers along a wand (its length, in R).
 const FLORA = {
+  tropical: { h: [13, 17], spread: 13, n: [2, 3], R: 3.3, leaf: 'oval', green: '#3f7a35', tube: true, shrub: true, gloss: true }, // tropical hibiscus
   hibiscus: { h: [12, 16], spread: 9, n: [2, 3], R: 2.6, leaf: 'palmate', green: '#3b6b35', tube: true }, // scarlet rosemallow
   rosemallow: { h: [10, 13], spread: 11, n: [2, 3], R: 2.8, leaf: 'broad', green: '#4a7a3f' }, // swamp rosemallow
   milkweed: { h: [7, 10], spread: 8, n: [3, 5], R: 1.6, leaf: 'narrow', green: '#3f7040' }, // butterfly milkweed
@@ -1118,18 +1119,25 @@ const FLORA = {
   liatris: { h: [8, 11], spread: 6, n: [3, 6], R: 1.1, leaf: 'grass', green: '#4a7844', spike: 4.5 }, // blazing star
   sage: { h: [6, 9], spread: 7, n: [4, 6], R: 1.1, leaf: 'oval', green: '#3f7239', tube: true, spike: 3.5 }, // scarlet sage
   passionflower: { h: [5, 8], spread: 12, n: [3, 4], R: 1.7, leaf: 'lobed', green: '#3c6e3b', vine: true }, // maypop
-  firebush: { h: [15, 19], spread: 13, n: [6, 9], R: 1.4, leaf: 'oval', green: '#2f5a33', tube: true, shrub: true },
+  firebush: { h: [15, 19], spread: 13, n: [6, 9], R: 1.4, leaf: 'oval', green: '#2f5a33', tube: true, shrub: true, bronze: true },
   spiderwort: { h: [6, 8], spread: 8, n: [4, 7], R: 1.1, leaf: 'grass', green: '#4a7f5a' },
   mimosa: { h: [1.5, 2.5], spread: 13, n: [6, 10], R: 0.9, leaf: 'fern', green: '#5b8a45', mat: true }, // sunshine mimosa
 };
-const HUE = { hibiscus: 'red', sage: 'red', firebush: 'red', gaillardia: 'red', milkweed: 'orange', coreopsis: 'yellow', susan: 'yellow', needles: 'white', rosemallow: 'pink', swampmilkweed: 'pink', mimosa: 'pink', porterweed: 'blue', spiderwort: 'blue', liatris: 'purple', passionflower: 'purple' };
+const HUE = { tropical: 'sunset', hibiscus: 'red', sage: 'red', firebush: 'red', gaillardia: 'red', milkweed: 'orange', coreopsis: 'yellow', susan: 'yellow', needles: 'white', rosemallow: 'pink', swampmilkweed: 'pink', mimosa: 'pink', porterweed: 'blue', spiderwort: 'blue', liatris: 'purple', passionflower: 'purple' };
+
+// Tropical hibiscus: salmon; yellow with a deep red eye; coral with a dark eye and gold edges.
+const TROPICAL = [
+  { petal: '#f37d4a', eye: '#e0552c', eyeSize: 0.12, edge: '#fb9d66', vein: 'rgba(196,70,30,0.15)', column: ['#e2532c', '#f68a4e'], pollen: '#f6c31a', stigma: '#e3111e' },
+  { petal: '#f6cd1a', eye: '#8e0f2b', eyeSize: 0.34, edge: '#fadc40', vein: 'rgba(180,130,0,0.15)', column: ['#b3122f', '#fbeae4'], pollen: '#f8b61e', stigma: '#f28a10' },
+  { petal: '#e84e3a', eye: '#5c0a1b', eyeSize: 0.32, edge: '#f4a64a', vein: 'rgba(255,236,226,0.35)', column: ['#c61d35', '#ea4a5c'], pollen: '#f2c01a', stigma: '#ec5216' },
+];
 
 // Florida butterflies, and the flowers each likes best.
 const BUTTERFLIES = {
   zebra: { wing: '#141414', mark: '#f7e27a', size: 1.15, flap: 5, glide: 0.5, shape: 'long', likes: ['passionflower', 'firebush', 'porterweed'] }, // zebra longwing, the state butterfly
   monarch: { wing: '#e8741a', mark: '#151515', size: 1.1, flap: 6, glide: 0.4, shape: 'round', dots: true, likes: ['milkweed', 'swampmilkweed', 'liatris'] },
   fritillary: { wing: '#f2711c', mark: '#2a1a10', size: 0.95, flap: 8, glide: 0.25, shape: 'round', spots: true, likes: ['passionflower', 'needles', 'porterweed'] }, // gulf fritillary
-  sulphur: { wing: '#ffe23d', mark: '#e0b400', size: 0.9, flap: 10, glide: 0.1, shape: 'round', likes: ['hibiscus', 'sage', 'firebush'] }, // cloudless sulphur
+  sulphur: { wing: '#ffe23d', mark: '#e0b400', size: 0.9, flap: 10, glide: 0.1, shape: 'round', likes: ['hibiscus', 'tropical', 'sage', 'firebush'] }, // cloudless sulphur
   swallowtail: { wing: '#24201b', mark: '#f2d14b', size: 1.25, flap: 5, glide: 0.45, shape: 'tailed', likes: ['firebush', 'liatris', 'milkweed'] }, // giant swallowtail
 };
 
@@ -1257,13 +1265,88 @@ function tiny(g, x, y, r, col) {
 }
 
 // One flower of the kind, centred at (x, y), R across (spikes grow upward from there).
-function flower(g, kind, x, y, R, r) {
+function flower(g, kind, x, y, R, r, variant = 0) {
   g.save();
   g.translate(x, y);
   g.lineCap = 'round';
   const spin = r() * TAU;
   const tilt = 0.7 + r() * 0.3; // seen a little from the side
   switch (kind) {
+    case 'tropical': {
+      // tropical hibiscus: five broad, ruffled, overlapping petals around a dark eye, and a long
+      // column dusted with pollen, tipped with five round stigma pads
+      const v = TROPICAL[variant % TROPICAL.length];
+      g.save();
+      g.scale(1, tilt);
+      g.rotate(spin);
+      for (let k = 0; k < 5; k++) {
+        g.rotate(TAU / 5);
+        // a broad lobe with a ruffled rim, narrowing to the notches between petals
+        const petal = new Path2D();
+        petal.moveTo(0, 0);
+        for (let i = 0; i <= 18; i++) {
+          const a = -0.74 + (1.48 * i) / 18;
+          const rr = R * (0.55 + 0.45 * Math.cos(a * 1.9)) * (1 + 0.035 * Math.sin(i * 2.3 + k * 1.7));
+          petal.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+        }
+        petal.closePath();
+        const gr = g.createRadialGradient(0, 0, 0, 0, 0, R);
+        gr.addColorStop(0, v.eye);
+        gr.addColorStop(v.eyeSize, v.eye);
+        gr.addColorStop(Math.min(0.9, v.eyeSize + 0.14), v.petal);
+        gr.addColorStop(0.86, v.petal);
+        gr.addColorStop(1, v.edge);
+        g.fillStyle = gr;
+        g.fill(petal);
+        // shade one side, so each petal shows where it overlaps the next
+        g.save();
+        g.clip(petal);
+        const sh = g.createLinearGradient(0, -R, 0, R);
+        sh.addColorStop(0, 'rgba(0,0,0,0)');
+        sh.addColorStop(0.55, 'rgba(0,0,0,0)');
+        sh.addColorStop(1, 'rgba(60,10,0,0.2)');
+        g.fillStyle = sh;
+        g.fillRect(0, -R, R * 1.1, 2 * R);
+        g.restore();
+        g.strokeStyle = v.vein;
+        g.lineWidth = R * 0.012;
+        for (let j = -1; j <= 1; j++) {
+          g.beginPath();
+          g.moveTo(R * 0.14, 0);
+          g.lineTo(Math.cos(j * 0.28) * R * 0.7, Math.sin(j * 0.28) * R * 0.7);
+          g.stroke();
+        }
+      }
+      g.restore();
+      const ex = R * 0.6;
+      const ey = -R * 0.42;
+      const cg = g.createLinearGradient(0, 0, ex, ey);
+      cg.addColorStop(0, v.column[0]);
+      cg.addColorStop(1, v.column[1]);
+      g.strokeStyle = cg;
+      g.lineWidth = R * 0.07;
+      g.beginPath();
+      g.moveTo(0, 0);
+      g.quadraticCurveTo(ex * 0.45, ey * 0.15, ex, ey);
+      g.stroke();
+      g.fillStyle = v.pollen;
+      for (let i = 0; i < 22; i++) {
+        const t = 0.6 + r() * 0.32;
+        const px = 2 * (1 - t) * t * ex * 0.45 + t * t * ex;
+        const py = 2 * (1 - t) * t * ey * 0.15 + t * t * ey;
+        g.beginPath();
+        g.arc(px + (r() - 0.5) * R * 0.14, py + (r() - 0.5) * R * 0.14, R * 0.035, 0, TAU);
+        g.fill();
+      }
+      g.fillStyle = v.stigma;
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * TAU;
+        g.beginPath();
+        g.arc(ex + R * 0.04 + Math.cos(a) * R * 0.06, ey - R * 0.05 + Math.sin(a) * R * 0.06, R * 0.045, 0, TAU);
+        g.fill();
+      }
+      break;
+    }
     case 'hibiscus': {
       // scarlet rosemallow: five narrow petals, spaced apart, and a long stamen column
       g.save();
@@ -1629,7 +1712,7 @@ function flower(g, kind, x, y, R, r) {
 
 // One plant: its leafy base is painted onto the static layer `fg`; its stems and flowers go into
 // a sprite that sways from the root. Returns the sprite and where its flowers are.
-function plant(fg, x, y, kind, s, r) {
+function plant(fg, x, y, kind, s, r, variant = 0) {
   const F = FLORA[kind];
   const H = lerp(F.h[0], F.h[1], r()) * s;
   const W = F.spread * s;
@@ -1662,7 +1745,7 @@ function plant(fg, x, y, kind, s, r) {
   g.lineCap = 'round';
   const heads = [];
   if (F.shrub) {
-    // firebush: a rounded crown, bronze new growth on top, flower clusters all round it
+    // a rounded crown, darker inside (firebush shows bronze new growth on top, hibiscus is glossy)
     for (let i = 0; i < 120; i++) {
       let lx;
       let ly;
@@ -1671,12 +1754,40 @@ function plant(fg, x, y, kind, s, r) {
         ly = -r() * H;
       } while ((lx / (W * 0.5)) ** 2 + ((ly + H * 0.55) / (H * 0.5)) ** 2 > 1);
       const k = -ly / H;
-      const col = k > 0.8 && r() < 0.35 ? '#8a3a26' : shade(lerp(-0.5, 0.25, k) + (r() - 0.5) * 0.2);
-      leaf(g, 'oval', lx, ly, s * (0.9 + r() * 0.5), r() * TAU, col);
+      const col = F.bronze && k > 0.8 && r() < 0.35 ? '#8a3a26' : shade(lerp(-0.5, F.gloss ? 0.4 : 0.25, k) + (r() - 0.5) * 0.2);
+      leaf(g, 'oval', lx, ly, s * (0.9 + r() * 0.5) * (F.gloss ? 1.25 : 1), r() * TAU, col);
+    }
+    if (F.gloss) {
+      // light catching the shiny leaves, and a few tight buds
+      g.fillStyle = 'rgba(255,255,255,0.16)';
+      for (let i = 0; i < 16; i++) {
+        g.beginPath();
+        g.ellipse((r() - 0.5) * W * 0.7, -H * (0.4 + r() * 0.5), s * 0.9, s * 0.25, r() * TAU, 0, TAU);
+        g.fill();
+      }
+      for (let i = 0; i < 3; i++) {
+        const a = -Math.PI * (0.15 + 0.7 * r());
+        const bx = Math.cos(a) * W * 0.47;
+        const by = -H * 0.55 + Math.sin(a) * H * 0.5;
+        g.save();
+        g.translate(bx, by);
+        g.rotate(a + Math.PI / 2);
+        g.fillStyle = '#5c8f3a';
+        g.beginPath();
+        g.ellipse(0, -s * 0.9, s * 0.45, s * 1.1, 0, 0, TAU);
+        g.fill();
+        g.fillStyle = TROPICAL[variant % TROPICAL.length].petal;
+        g.beginPath();
+        g.ellipse(0, -s * 1.7, s * 0.22, s * 0.45, 0, 0, TAU);
+        g.fill();
+        g.restore();
+      }
     }
     for (let i = 0; i < n; i++) {
       const a = -Math.PI * (0.06 + 0.88 * r());
-      heads.push({ dx: Math.cos(a) * W * 0.44, dy: -H * 0.55 + Math.sin(a) * H * 0.46, R: R * (0.85 + r() * 0.3) });
+      // hibiscus blooms sit all over the top of the bush; firebush clusters ring its edge
+      const k = F.gloss ? 0.45 + 0.45 * r() : 1;
+      heads.push({ dx: Math.cos(a) * W * 0.44 * k, dy: -H * 0.55 + Math.sin(a) * H * 0.46 * k, R: R * (0.85 + r() * 0.3) });
     }
   } else if (F.vine) {
     // passionflower scrambling over a low mound, tendrils curling off it
@@ -1736,7 +1847,7 @@ function plant(fg, x, y, kind, s, r) {
   }
   // flowers, highest first, so the nearer, lower ones overlap them
   heads.sort((a, b) => a.dy - b.dy);
-  for (const hd of heads) flower(g, kind, hd.dx, hd.dy, hd.R, r);
+  for (const hd of heads) flower(g, kind, hd.dx, hd.dy, hd.R, r, variant);
   // on a spike, butterflies and hummingbirds feed partway up it
   if (spike) for (const hd of heads) hd.dy -= hd.R * F.spike * 0.6;
   return trim({ c, ax, ay, heads, top: -H });
@@ -1937,22 +2048,31 @@ class Butterfly extends Painting {
     const all = Object.keys(FLORA);
     const rows = [
       { y: 0.685, sc: 0.8, gap: 7.5, must: ['firebush', 'firebush', 'liatris', 'hibiscus', 'passionflower', 'sage'], pool: ['firebush', 'hibiscus', 'rosemallow', 'liatris', 'passionflower', 'porterweed', 'sage', 'swampmilkweed', 'susan', 'coreopsis', 'needles'] },
-      { y: 0.765, sc: 1.15, gap: 10.5, must: ['rosemallow', 'swampmilkweed', 'porterweed', 'liatris', 'passionflower', 'susan'], pool: all.filter((k) => k !== 'firebush' && k !== 'mimosa') },
-      { y: 0.865, sc: 1.6, gap: 14, must: ['hibiscus', 'milkweed', 'coreopsis', 'gaillardia'], pool: all.filter((k) => k !== 'firebush') },
+      { y: 0.765, sc: 1.15, gap: 10.5, must: ['rosemallow', 'swampmilkweed', 'porterweed', 'liatris', 'passionflower', 'susan'], pool: all.filter((k) => !['firebush', 'mimosa', 'tropical'].includes(k)) },
+      { y: 0.865, sc: 1.6, gap: 14, must: ['tropical', 'hibiscus', 'milkweed', 'coreopsis', 'gaillardia'], pool: all.filter((k) => k !== 'firebush' && k !== 'tropical') },
       // the nearest bed, cut off by the bottom of the screen
-      { y: 0.985, sc: 2.2, gap: 19, must: ['milkweed', 'rosemallow', 'needles'], pool: ['milkweed', 'coreopsis', 'gaillardia', 'needles', 'mimosa', 'spiderwort', 'susan', 'swampmilkweed', 'hibiscus', 'rosemallow'] },
+      { y: 0.985, sc: 2.2, gap: 19, must: ['tropical', 'tropical', 'milkweed', 'needles'], pool: ['milkweed', 'coreopsis', 'gaillardia', 'needles', 'mimosa', 'spiderwort', 'susan', 'swampmilkweed', 'hibiscus', 'rosemallow'] },
     ];
     this.plants = [];
     this.heads = [];
+    let tropicals = 0; // each hibiscus bush gets the next of the three colours
     rows.forEach((row, ri) => {
       const n = Math.ceil(w / (row.gap * u)) + 1;
       const kinds = arrange(row.pool, n, r, row.must);
+      // the hibiscus go where they'll be seen: spread along the bed, in from the edges
+      const hib = kinds.filter((k) => k === 'tropical').length;
+      if (hib) {
+        const rest = kinds.filter((k) => k !== 'tropical');
+        for (const f of [[0.5], [0.3, 0.72], [0.2, 0.5, 0.8]][Math.min(hib, 3) - 1]) rest.splice(Math.round(f * (n - 1)), 0, 'tropical');
+        kinds.splice(0, n, ...rest.slice(0, n));
+      }
       bedBand(g, w, h * row.y, row.sc * u, r);
       for (let i = 0; i < n; i++) {
         const x = ((i + (r() - 0.5) * 0.6) / (n - 1)) * w;
         const y = h * row.y + (r() - 0.5) * h * 0.012;
         const F = FLORA[kinds[i]];
-        const p = { x, y, row: ri, kind: kinds[i], ph: r() * TAU, cos: 1, sin: 0, flex: F.shrub ? 0.008 : F.mat ? 0.004 : 0.016 + r() * 0.012, ...plant(g, x, y, kinds[i], row.sc * u, r) };
+        const variant = kinds[i] === 'tropical' ? tropicals++ : 0;
+        const p = { x, y, row: ri, kind: kinds[i], ph: r() * TAU, cos: 1, sin: 0, flex: F.shrub ? 0.008 : F.mat ? 0.004 : 0.016 + r() * 0.012, ...plant(g, x, y, kinds[i], row.sc * u, r, variant) };
         for (const hd of p.heads) Object.assign(hd, { p, kind: p.kind, tube: !!F.tube, x: x + hd.dx, y: y + hd.dy });
         if (F.shrub) this.perches.push({ p, dx: 0, dy: p.top * 0.97, x, y: y + p.top, kind: 'shrub' });
         this.heads.push(...p.heads);
