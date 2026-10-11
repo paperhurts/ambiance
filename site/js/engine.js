@@ -168,6 +168,7 @@ function place(layer, at, dur, spec, pos) {
   const input = ctx.createGain();
   let head = input;
   let distance = 0;
+  let posUsed = null;
 
   if (spec.space || pos) {
     const s = spec.space || {};
@@ -176,6 +177,7 @@ function place(layer, at, dur, spec, pos) {
       el: val(s.el, 0),
       dist: val(s.dist, 10),
     };
+    posUsed = p;
     distance = p.dist;
     // air absorption: far sounds lose their top end
     const lp = ctx.createBiquadFilter();
@@ -218,6 +220,7 @@ function place(layer, at, dur, spec, pos) {
   }
   nodes.input = input;
   nodes.head = head;
+  nodes.pos = posUsed && { az: posUsed.az, dist: posUsed.dist };
   return nodes;
 }
 
@@ -280,7 +283,7 @@ function playBuffer(layer, buffer, at, spec, opts = {}) {
   };
   layer.sources.add(src);
   src.addEventListener('ended', () => layer.sources.delete(src));
-  return { src, dur };
+  return { src, dur, pos: nodes.pos };
 }
 
 // --- layers -------------------------------------------------------------------------------------
@@ -524,8 +527,8 @@ class ShotLayer extends Layer {
   fire(at) {
     const item = pickFrom(this.available(), this.last);
     this.last = item;
-    const { dur } = playBuffer(this, item.buf, at, this.def, { gain: item.gain ?? 1 });
-    this.scene.emit({ type: 'shot', layer: this.id, at, dur, tag: item.tag });
+    const { dur, pos } = playBuffer(this, item.buf, at, this.def, { gain: item.gain ?? 1 });
+    this.scene.emit({ type: 'shot', layer: this.id, at, dur, tag: item.tag, az: pos?.az, dist: pos?.dist });
     this.rotate();
   }
 }
