@@ -8540,6 +8540,7 @@ class Sett extends Painting {
     this.puffs = [];
     this.motes = Array.from({ length: 30 }, () => ({ x: R(0, 1), y: R(0, 1), v: R(0.2, 0.6), a: R(0.2, 0.6) }));
     this.bird = null;
+    this.lightning = null;
     this.flip = null;
     this.tea = -99;
     // the cat pile: a tuxedo asleep facing the fire, a bicolour curled up against him, a black cat
@@ -8552,12 +8553,29 @@ class Sett extends Painting {
     this.blink = R(4, 10);
   }
 
+  // it's raining in the picture if either rain is up: on the windows, or the steady rain on the hill
   rainTarget() {
-    return clamp((this.engine.scene?.layers?.get('rain')?.level ?? 0.5) / 0.4, 0, 1);
+    const layers = this.engine.scene?.layers;
+    const lv = (id) => layers?.get(id)?.level ?? 0;
+    return clamp((layers?.get('rain') ? Math.max(lv('rain'), lv('storm')) : 0.5) / 0.4, 0, 1);
+  }
+
+  // far-off lightning: a soft double flicker that fades, only seen while it rains
+  flashLevel() {
+    const L = this.lightning;
+    if (!L) return 0;
+    const a = this.t - L.t0;
+    if (a > 1.5) {
+      this.lightning = null;
+      return 0;
+    }
+    const f = Math.exp(-a * 5) + (a > 0.18 ? 0.6 * Math.exp(-(a - 0.18) * 6) : 0);
+    return L.k * Math.min(1, f) * this.rk;
   }
 
   event(e) {
     if (e.type === 'shot' && e.layer === 'tea') this.at(e.at, () => (this.tea = this.t));
+    if (e.type === 'lightning') this.at(e.at, () => (this.lightning = { t0: this.t, k: e.strength ?? 0.4 }));
     if (e.type === 'shot' && e.layer === 'pages') this.at(e.at, () => (this.flip = { t0: this.t }));
     if (e.type === 'bird' && !this.bird) {
       this.at(e.at, () => {
@@ -8573,6 +8591,7 @@ class Sett extends Painting {
     this.rk += (this.rainTarget() - this.rk) * Math.min(1, dt * 0.6);
     const rk = this.rk;
     const sun = 1 - rk;
+    const fl = this.flashLevel();
     const VH = this.viewH;
 
     // --- outside, through each window
@@ -8620,6 +8639,10 @@ class Sett extends Painting {
       if (rk > 0.01) {
         g.fillStyle = `rgba(40,52,60,${0.3 * rk})`;
         g.fillRect(W.x - W.rx, W.y - W.ry, W.rx * 2, W.ry * 2);
+        if (fl > 0.01) {
+          g.fillStyle = `rgba(225,232,255,${0.55 * fl})`;
+          g.fillRect(W.x - W.rx, W.y - W.ry, W.rx * 2, W.ry * 2);
+        }
         // rain falling outside
         g.strokeStyle = `rgba(220,230,240,${0.35 * rk})`;
         g.lineWidth = Math.max(1, this.dpr * 0.8);
@@ -8695,6 +8718,12 @@ class Sett extends Painting {
     if (rk > 0.01) {
       g.fillStyle = `rgba(25,32,50,${0.16 * rk})`;
       g.fillRect(0, 0, w, h);
+    }
+    if (fl > 0.01) {
+      g.globalCompositeOperation = 'lighter';
+      g.fillStyle = `rgba(150,165,210,${0.06 * fl})`;
+      g.fillRect(0, 0, w, h);
+      g.globalCompositeOperation = 'source-over';
     }
     const fireOn = this.engine.scene?.layers?.get('fire')?.level ?? 0.6;
     const lvl = clamp(fireOn * 1.6, 0.25, 1);
