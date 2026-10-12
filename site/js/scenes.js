@@ -347,7 +347,7 @@ export function buildScenes(pools) {
     { id: 'cutlery', type: 'shots', label: 'Plates and goblets', icon: 'goblet', pool: items('castle/cutlery'), every: [3, 12], level: feast ? 0.3 : 0, gain: 0.45, reverb: 0.5, space: { dist: [5, 18], el: [-15, 0] } },
     { id: 'fire', type: 'bed', label: 'Fires in the hearths', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.45, gain: 0.75, pan: 0.3 },
     { id: 'castle', type: 'shots', label: 'The old castle', icon: 'creak', pool: items('mansion/creak', 'mansion/door', 'mansion/steps'), every: [45, 160], level: 0.25, gain: 0.7, reverb: 0.7, muffle: 3500, space: { dist: [12, 35], el: [-5, 30] } },
-    { id: 'toll', type: 'shots', label: 'The clock tower', icon: 'bell', pool: items('castle/toll'), every: [420, 1200], first: [60, 240], level: 0.35, gain: 0.7, reverb: 0.4, muffle: 4000, space: { dist: [60, 120], el: [20, 50] } },
+    { id: 'toll', type: 'shots', label: 'The clock tower', icon: 'bell', pool: items('castle/toll'), burst: [3, 12], burstGap: [2.5, 2.9], every: [600, 1500], first: [60, 240], level: 0.35, gain: 0.7, reverb: 0.4, muffle: 4000, space: { dist: [60, 120], el: [20, 50] } },
     { id: 'owls', type: 'shots', label: 'Owls in the grounds', icon: 'owl', group: 'Birds', pool: items('castle/tawny-owl'), every: [40, 160], level: 0.4, gain: 0.8, reverb: 0.3, muffle: 4500, space: { dist: [30, 90], el: [0, 30] } },
   ];
   const halloween = {
@@ -365,7 +365,7 @@ export function buildScenes(pools) {
       { id: 'wind', type: 'bed', label: 'Storm round the towers', icon: 'wind', files: files('mansion/wind'), level: 0.5, gain: 0.8, drive: { by: 'storm', gain: [0.55, 1] }, wander: [0.5, 1], wanderEvery: [4, 14], wanderTau: [2, 6] },
       { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0.35, gain: 0.75, drive: { by: 'storm', gain: [0.4, 1] } },
       { id: 'thunder', type: 'storm', label: 'Thunder', icon: 'bolt', pool: items('storm/thunder'), lazy: true, keep: 2, every: [50, 180], first: [15, 45], level: 0.45, gain: 1.4, muffle: 1800, drive: { by: 'storm', rate: [0.4, 1.4] } },
-      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/halloween-music'), lazy: true, keep: 1, every: [300, 900], first: [90, 300], level: 0.3, gain: 0.55, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
+      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/halloween-music'), stream: true, keep: 1, every: [300, 900], first: [90, 300], level: 0.3, gain: 0.55, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
       { id: 'forest', type: 'shots', label: 'The Forbidden Forest', icon: 'ghost', pool: items('mansion/wolf'), every: [120, 420], level: 0, gain: 0.7, reverb: 0.3, muffle: 3000, space: { dist: [150, 300], el: [0, 5] } },
     ],
   };
@@ -381,8 +381,8 @@ export function buildScenes(pools) {
       ...hallBits(0),
       { id: 'snowstorm', type: 'bed', label: 'Snow on the wind outside', icon: 'snow', files: files('snow/blizzard'), level: 0.3, gain: 0.7, muffle: 1600, wander: [0.5, 1], wanderEvery: [5, 16], wanderTau: [3, 8] },
       { id: 'peal', type: 'bed', label: 'Bells from the village', icon: 'bell', files: files('castle/peal'), level: 0.2, gain: 0.6, muffle: 5000, wander: [0.3, 1], wanderEvery: [20, 60], wanderTau: [6, 15] },
-      { id: 'carols', type: 'shots', label: 'Carols, somewhere in the castle', icon: 'note', pool: items('castle/carols'), lazy: true, keep: 1, every: [240, 720], first: [40, 180], level: 0.35, gain: 0.6, reverb: 0.8, muffle: 4500, space: { dist: [18, 30], el: [5, 25] } },
-      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/christmas-music'), lazy: true, keep: 1, every: [300, 900], first: [200, 500], level: 0.3, gain: 0.55, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
+      { id: 'carols', type: 'shots', label: 'Carols, somewhere in the castle', icon: 'note', pool: items('castle/carols'), stream: true, keep: 1, every: [240, 720], first: [40, 180], level: 0.35, gain: 0.6, reverb: 0.8, muffle: 4500, space: { dist: [18, 30], el: [5, 25] } },
+      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/christmas-music'), stream: true, keep: 1, every: [300, 900], first: [200, 500], level: 0.3, gain: 0.55, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
     ],
   };
   // Christmas in the fire's glow: a bigger, cosier hearth, louder than at Halloween
