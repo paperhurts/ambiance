@@ -232,12 +232,8 @@
   ],
   "common/purr": [
    {
-    "file": "audio/common/purr-1.fa775dec.mp3",
-    "dur": 120.0
-   },
-   {
-    "file": "audio/common/purr-2.6e91d0c3.mp3",
-    "dur": 120.0
+    "file": "audio/common/purr-1.587fc37c.mp3",
+    "dur": 217.6
    }
   ],
   "common/quill": [
@@ -1815,8 +1811,7 @@
   "audio/common/pages-6.41a9a1d5.mp3",
   "audio/common/pages-7.8b18dd1b.mp3",
   "audio/common/pages-8.03257f08.mp3",
-  "audio/common/purr-1.fa775dec.mp3",
-  "audio/common/purr-2.6e91d0c3.mp3",
+  "audio/common/purr-1.587fc37c.mp3",
   "audio/common/quill-1.5a8758d8.mp3",
   "audio/common/quill-2.854edc05.mp3",
   "audio/common/quill-3.7bc60add.mp3",
@@ -2343,14 +2338,6 @@
    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/"
   },
   {
-   "what": "Purr",
-   "title": "Linden, Randburg, 2195, South Africa - My Purring Cat",
-   "author": "Neville Smithers",
-   "page": "https://archive.org/details/aporee_32981_37894",
-   "license": "Public Domain Mark 1.0",
-   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
-  },
-  {
    "what": "Underwater",
    "title": "Rundvannet Troms\u00f8 / Romsa, North Norway / S\u00e1pmi - Hyrdophone in reeds at edge of pond",
    "author": "anguscarlyle (Angus Carlyle)",
@@ -2477,6 +2464,14 @@
    "page": "https://archive.org/details/Red_Library_Foley_Props_2",
    "license": "CC0 1.0",
    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Purr",
+   "title": "A cat purring",
+   "author": "paperhurts",
+   "page": "",
+   "license": "recorded for Ambiance, used with permission",
+   "license_url": ""
   },
   {
    "what": "Mockingbird",
@@ -3637,14 +3632,6 @@
    "page": "https://archive.org/details/aporee_50814_57967",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
-  },
-  {
-   "what": "East Hampton Waterfall",
-   "title": "East Hampton Waterfall",
-   "author": "paperhurts",
-   "page": "",
-   "license": "recorded for Ambiance, used with permission",
-   "license_url": ""
   },
   {
    "what": "Wood thrush",
