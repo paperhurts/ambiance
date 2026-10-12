@@ -1003,7 +1003,11 @@ export class Engine extends EventTarget {
       }
       this.attach(ctx);
       this._startClock();
-      ctx.addEventListener?.('statechange', () => this.dispatchEvent(new Event('state')));
+      ctx.addEventListener?.('statechange', () => {
+        // back from an interruption (a call, Siri, another app's sound): restart the silent loop too
+        if (ctx.state === 'running') this.keepAlive();
+        this.dispatchEvent(new Event('state'));
+      });
     }
     this._unlockIOS();
     return this.ctx;
@@ -1043,6 +1047,14 @@ export class Engine extends EventTarget {
       this._silent = a;
     }
     this._silent.play().catch(() => {});
+  }
+
+  // iOS stops the silent loop when something else takes the audio and never restarts it, and
+  // without it the lock screen and Control Center lose us. Pick it back up whenever we should be playing.
+  keepAlive() {
+    if (!this.ctx || this.paused || !this.scene) return;
+    this._unlockIOS();
+    this.resume();
   }
 
   _startClock() {
