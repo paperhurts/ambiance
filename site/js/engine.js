@@ -93,6 +93,7 @@ function decode(ctx, data) {
 // few early reflections for rooms. Cheap, smooth and convincing at low send levels.
 const REVERBS = {
   hall: { seconds: 3.6, decay: 3.2, damp: 0.86, early: 9, pre: 0.018 },
+  great: { seconds: 5.2, decay: 2.8, damp: 0.87, early: 12, pre: 0.03 }, // a stone hall the size of a church
   room: { seconds: 1.1, decay: 3.5, damp: 0.8, early: 6, pre: 0.006 },
   forest: { seconds: 1.8, decay: 4.5, damp: 0.93, early: 3, pre: 0.012 },
   open: { seconds: 2.6, decay: 5, damp: 0.95, early: 0, pre: 0.02 },
@@ -221,7 +222,7 @@ function place(layer, at, dur, spec, pos) {
   }
   nodes.input = input;
   nodes.head = head;
-  nodes.pos = posUsed && { az: posUsed.az, dist: posUsed.dist };
+  nodes.pos = posUsed && { az: posUsed.az, el: posUsed.el, dist: posUsed.dist };
   return nodes;
 }
 
@@ -475,7 +476,12 @@ class ShotLayer extends Layer {
   async load() {
     const d = this.def;
     const items = d.pool.map((p) => (typeof p === 'string' ? { file: p } : { ...p }));
-    if (d.lazy) {
+    if (d.stream) {
+      // Pieces of music run to minutes: fetch and decode only the one that plays next.
+      this.items = items;
+      await this.prepare(d.keep ?? 1);
+      if (!this.available().length) throw new Error('no recordings for ' + this.id);
+    } else if (d.lazy) {
       await Promise.allSettled(items.map(async (it) => (it.bytes = await this.engine.bytes(it.file))));
       this.items = items.filter((it) => it.bytes);
       if (!this.items.length) throw new Error('no recordings for ' + this.id);
@@ -493,6 +499,7 @@ class ShotLayer extends Layer {
   }
 
   async prepare(n) {
+    if (this.def.stream) return this.stream(n);
     const waiting = this.items.filter((i) => !i.buf && !i.decoding);
     for (let k = 0; k < n && waiting.length; k++) {
       const it = waiting.splice(Math.floor(Math.random() * waiting.length), 1)[0];
@@ -507,13 +514,32 @@ class ShotLayer extends Layer {
     while (decoded.length > keep) decoded.splice(Math.floor(Math.random() * decoded.length), 1)[0].buf = null;
   }
 
+  // fetch and decode up to n more, one at a time, skipping any that can't be had (offline, say)
+  async stream(n) {
+    const waiting = this.items.filter((i) => !i.buf && !i.decoding && !i.failed);
+    for (let got = 0; got < n && waiting.length; ) {
+      const it = waiting.splice(Math.floor(Math.random() * waiting.length), 1)[0];
+      it.decoding = this.engine
+        .bytes(it.file)
+        .then((b) => decode(this.ctx, b.slice(0)))
+        .then((b) => (it.buf = b))
+        .catch(() => (it.failed = true))
+        .finally(() => (it.decoding = null));
+      await it.decoding;
+      if (it.buf) got++;
+    }
+    const keep = this.def.keep ?? 1;
+    const decoded = this.items.filter((i) => i.buf && i !== this.last);
+    while (decoded.length > keep) decoded.splice(Math.floor(Math.random() * decoded.length), 1)[0].buf = null;
+  }
+
   available() {
     return this.items.filter((i) => i.buf);
   }
 
   // after playing one, swap a different recording into memory for next time
   rotate() {
-    if (this.def.lazy) this.prepare(1);
+    if (this.def.lazy || this.def.stream) this.prepare(1);
   }
 
   tick(now) {
@@ -535,8 +561,14 @@ class ShotLayer extends Layer {
   fire(at) {
     const item = pickFrom(this.available(), this.last);
     this.last = item;
-    const { dur, pos } = playBuffer(this, item.buf, at, this.def, { gain: item.gain ?? 1 });
-    this.scene.emit({ type: 'shot', layer: this.id, at, dur, tag: item.tag, az: pos?.az, dist: pos?.dist });
+    // a bell striking the hour: the same bell, from the same place, a few times over
+    const strikes = this.def.burst ? Math.round(val(this.def.burst)) : 1;
+    let pos;
+    for (let k = 0, t = at; k < strikes; k++, t += val(this.def.burstGap ?? [2.4, 2.8])) {
+      const played = playBuffer(this, item.buf, t, this.def, { gain: item.gain ?? 1, pos });
+      pos = played.pos;
+      this.scene.emit({ type: 'shot', layer: this.id, at: t, dur: played.dur, tag: item.tag, az: pos?.az, dist: pos?.dist });
+    }
     this.rotate();
   }
 }

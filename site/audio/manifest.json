@@ -1,5 +1,155 @@
 {
  "pools": {
+  "castle/carols": [
+   {
+    "file": "audio/castle/carols-1.67d177f5.mp3",
+    "dur": 125.2
+   },
+   {
+    "file": "audio/castle/carols-2.5ddd6fd2.mp3",
+    "dur": 107.5
+   },
+   {
+    "file": "audio/castle/carols-3.1e4eb21b.mp3",
+    "dur": 53.05
+   },
+   {
+    "file": "audio/castle/carols-4.e6bb09ea.mp3",
+    "dur": 72.3
+   },
+   {
+    "file": "audio/castle/carols-5.1ae65ad5.mp3",
+    "dur": 145.7
+   }
+  ],
+  "castle/christmas-music": [
+   {
+    "file": "audio/castle/christmas-music-1.0131268c.mp3",
+    "dur": 129.2
+   },
+   {
+    "file": "audio/castle/christmas-music-2.6d29482e.mp3",
+    "dur": 104.4
+   },
+   {
+    "file": "audio/castle/christmas-music-3.26483859.mp3",
+    "dur": 130.75
+   },
+   {
+    "file": "audio/castle/christmas-music-4.0197c374.mp3",
+    "dur": 127.59
+   }
+  ],
+  "castle/cutlery": [
+   {
+    "file": "audio/castle/cutlery-1.dcdfc0a2.mp3",
+    "dur": 2.5
+   },
+   {
+    "file": "audio/castle/cutlery-2.e564f350.mp3",
+    "dur": 2.5
+   },
+   {
+    "file": "audio/castle/cutlery-3.404286f8.mp3",
+    "dur": 1.85
+   },
+   {
+    "file": "audio/castle/cutlery-4.a6867b7b.mp3",
+    "dur": 1.2
+   },
+   {
+    "file": "audio/castle/cutlery-5.862f5e6b.mp3",
+    "dur": 1.25
+   },
+   {
+    "file": "audio/castle/cutlery-6.16a86a62.mp3",
+    "dur": 1.3
+   }
+  ],
+  "castle/feast": [
+   {
+    "file": "audio/castle/feast-1.671c04ac.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/castle/feast-2.8e12e85a.mp3",
+    "dur": 85.0
+   }
+  ],
+  "castle/hall": [
+   {
+    "file": "audio/castle/hall-1.a836ebd3.mp3",
+    "dur": 121.0
+   }
+  ],
+  "castle/halloween-music": [
+   {
+    "file": "audio/castle/halloween-music-1.f4511627.mp3",
+    "dur": 62.9
+   },
+   {
+    "file": "audio/castle/halloween-music-2.9c442a58.mp3",
+    "dur": 58.3
+   },
+   {
+    "file": "audio/castle/halloween-music-3.f6ab47bc.mp3",
+    "dur": 145.5
+   },
+   {
+    "file": "audio/castle/halloween-music-4.f68cb068.mp3",
+    "dur": 64.5
+   },
+   {
+    "file": "audio/castle/halloween-music-5.53cfaf22.mp3",
+    "dur": 136.0
+   }
+  ],
+  "castle/peal": [
+   {
+    "file": "audio/castle/peal-1.2b117939.mp3",
+    "dur": 90.0
+   }
+  ],
+  "castle/tawny-owl": [
+   {
+    "file": "audio/castle/tawny-owl-1.4b907f5b.mp3",
+    "dur": 7.3
+   },
+   {
+    "file": "audio/castle/tawny-owl-2.2f977763.mp3",
+    "dur": 6.0
+   },
+   {
+    "file": "audio/castle/tawny-owl-3.6b7fa24a.mp3",
+    "dur": 8.3
+   },
+   {
+    "file": "audio/castle/tawny-owl-4.83b001a2.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/castle/tawny-owl-5.824fc75e.mp3",
+    "dur": 1.6
+   }
+  ],
+  "castle/toll": [
+   {
+    "file": "audio/castle/toll-1.517aa434.mp3",
+    "dur": 4.9
+   },
+   {
+    "file": "audio/castle/toll-2.7ebc4550.mp3",
+    "dur": 5.53
+   },
+   {
+    "file": "audio/castle/toll-3.3e2a6c14.mp3",
+    "dur": 7.6
+   },
+   {
+    "file": "audio/castle/toll-4.d7906735.mp3",
+    "dur": 5.0
+   }
+  ],
   "florida/bees": [
    {
     "file": "audio/florida/bees-1.fd932158.mp3",
@@ -1448,6 +1598,39 @@
   ]
  },
  "files": [
+  "audio/castle/carols-1.67d177f5.mp3",
+  "audio/castle/carols-2.5ddd6fd2.mp3",
+  "audio/castle/carols-3.1e4eb21b.mp3",
+  "audio/castle/carols-4.e6bb09ea.mp3",
+  "audio/castle/carols-5.1ae65ad5.mp3",
+  "audio/castle/christmas-music-1.0131268c.mp3",
+  "audio/castle/christmas-music-2.6d29482e.mp3",
+  "audio/castle/christmas-music-3.26483859.mp3",
+  "audio/castle/christmas-music-4.0197c374.mp3",
+  "audio/castle/cutlery-1.dcdfc0a2.mp3",
+  "audio/castle/cutlery-2.e564f350.mp3",
+  "audio/castle/cutlery-3.404286f8.mp3",
+  "audio/castle/cutlery-4.a6867b7b.mp3",
+  "audio/castle/cutlery-5.862f5e6b.mp3",
+  "audio/castle/cutlery-6.16a86a62.mp3",
+  "audio/castle/feast-1.671c04ac.mp3",
+  "audio/castle/feast-2.8e12e85a.mp3",
+  "audio/castle/hall-1.a836ebd3.mp3",
+  "audio/castle/halloween-music-1.f4511627.mp3",
+  "audio/castle/halloween-music-2.9c442a58.mp3",
+  "audio/castle/halloween-music-3.f6ab47bc.mp3",
+  "audio/castle/halloween-music-4.f68cb068.mp3",
+  "audio/castle/halloween-music-5.53cfaf22.mp3",
+  "audio/castle/peal-1.2b117939.mp3",
+  "audio/castle/tawny-owl-1.4b907f5b.mp3",
+  "audio/castle/tawny-owl-2.2f977763.mp3",
+  "audio/castle/tawny-owl-3.6b7fa24a.mp3",
+  "audio/castle/tawny-owl-4.83b001a2.mp3",
+  "audio/castle/tawny-owl-5.824fc75e.mp3",
+  "audio/castle/toll-1.517aa434.mp3",
+  "audio/castle/toll-2.7ebc4550.mp3",
+  "audio/castle/toll-3.3e2a6c14.mp3",
+  "audio/castle/toll-4.d7906735.mp3",
   "audio/florida/bees-1.fd932158.mp3",
   "audio/florida/blue-jay-1.f38ab6d9.mp3",
   "audio/florida/blue-jay-2.caaa9c2f.mp3",
@@ -1756,6 +1939,206 @@
   "audio/waterfall/woodpecker-6.8c198323.mp3"
  ],
  "credits": [
+  {
+   "what": "The great hall",
+   "title": "St Albans Cathedral, St Albans, England, United Kingdom - Inside the Cathedral",
+   "author": "Tiago CarvE",
+   "page": "https://archive.org/details/aporee_67915_78612",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "The feast",
+   "title": "Po\u0142czyn-Zdr\u00f3j, Polen - dining hall at \"Gryf\"",
+   "author": "awareh@...",
+   "page": "https://archive.org/details/aporee_17244_20081",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "The feast",
+   "title": "Katedra Oliwska, Cysters\u00f3w, Gda\u0144sk, Poland - People in church before concert.",
+   "author": "Andrzej Maciejewski",
+   "page": "https://archive.org/details/aporee_51933_59305",
+   "license": "CC BY-NC 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc/3.0/"
+  },
+  {
+   "what": "Plates and goblets",
+   "title": "Schopenhauerstra\u00dfe 8, 14467 Potsdam, Deutschland - Dishes in Kitchen",
+   "author": "Niklas Dahlmann",
+   "page": "https://archive.org/details/aporee_59504_68318",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "The clock tower",
+   "title": "Life goes by as St Mary's Church clock strikes 12 noon, Halesworth IP19 8LL, UK",
+   "author": "Peter Cusack",
+   "page": "https://archive.org/details/aporee_66365_76732",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "The clock tower",
+   "title": "Big Ben 11am",
+   "author": "London Sound Survey",
+   "page": "https://archive.org/details/BigBen11am",
+   "license": "CC BY-NC 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc/3.0/"
+  },
+  {
+   "what": "The clock tower",
+   "title": "Bourdon Bell From Inside The Cathedral - Worcester Cathedral.UK",
+   "author": "david.j.pitt",
+   "page": "https://archive.org/details/aporee_52799_60318",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "The clock tower",
+   "title": "11 Rue Saint-Etienne, 45000 Orl\u00e9ans, France - Death Knell",
+   "author": "colinedevalence",
+   "page": "https://archive.org/details/aporee_67235_77779",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Church bells",
+   "title": "Wedding Bells, Tewkesbury Abbey, UK",
+   "author": "david.j.pitt",
+   "page": "https://archive.org/details/aporee_60579_69615",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Tawny owl",
+   "title": "XC647448 Tawny Owl",
+   "author": "David Tattersley",
+   "page": "https://xeno-canto.org/647448",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tawny owl",
+   "title": "XC785197 Tawny Owl",
+   "author": "B Whyte",
+   "page": "https://xeno-canto.org/785197",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tawny owl",
+   "title": "XC611876 Tawny Owl",
+   "author": "Scott Wotherspoon",
+   "page": "https://xeno-canto.org/611876",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tawny owl",
+   "title": "XC459193 Tawny Owl",
+   "author": "Peter Stronach",
+   "page": "https://xeno-canto.org/459193",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Tawny owl",
+   "title": "XC1184870 Tawny Owl",
+   "author": "Mark James Pearson",
+   "page": "https://xeno-canto.org/1184870",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Carols",
+   "title": "U.S. Army Band - Lo How a Rose",
+   "author": "U.S. Army Band \"Pershing's Own\" chorus (cond. Col. Thomas Rotondi Jr.)",
+   "page": "https://commons.wikimedia.org/wiki/File:U.S._Army_Band_-_Lo_How_a_Rose.ogg",
+   "license": "Public domain (US government work, PD-USGov-Military-Army)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-USGov-Military-Army"
+  },
+  {
+   "what": "Carols",
+   "title": "U.S. Army Band - Hark! The Herald Angels Sing",
+   "author": "U.S. Army Band \"Pershing's Own\" chorus (cond. Col. Thomas Rotondi Jr.)",
+   "page": "https://commons.wikimedia.org/wiki/File:U.S._Army_Band_-_Hark%21_The_Herald_Angels_Sing.ogg",
+   "license": "Public domain (US government work, PD-USGov-Military-Army)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-USGov-Military-Army"
+  },
+  {
+   "what": "Carols",
+   "title": "U.S. Army Band - Coventry Carol",
+   "author": "U.S. Army Band \"Pershing's Own\" chorus (cond. Col. Thomas Rotondi Jr.)",
+   "page": "https://commons.wikimedia.org/wiki/File:U.S._Army_Band_-_Coventry_Carol.ogg",
+   "license": "Public domain (US government work, PD-USGov)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-USGov"
+  },
+  {
+   "what": "Carols",
+   "title": "U.S. Army Band - Good King Wenceslaus",
+   "author": "U.S. Army Band \"Pershing's Own\" chorus (cond. Col. Thomas Rotondi Jr.)",
+   "page": "https://commons.wikimedia.org/wiki/File:U.S._Army_Band_-_Good_King_Wenceslaus.ogg",
+   "license": "Public domain (US government work, PD-USGov)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-USGov"
+  },
+  {
+   "what": "Carols",
+   "title": "Silent Night (choral)",
+   "author": "United States Army Chorus (U.S. Army Band \"Pershing's Own\")",
+   "page": "https://commons.wikimedia.org/wiki/File:Silent_Night_%28choral%29.ogg",
+   "license": "Public domain (US government work, PD-USGov-Military-Army)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-USGov-Military-Army"
+  },
+  {
+   "what": "Music (Halloween)",
+   "title": "J. S. Bach: Toccata and Fugue in D minor, BWV 565 (Toccata), from 'Favourite Organ Works' (OnClassical)",
+   "author": "Simone Stella (organ); OnClassical (recording, Alessandro Simonetto)",
+   "page": "https://archive.org/details/jamendo-175342",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "http://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Music (Halloween)",
+   "title": "Grieg: Peer Gynt Suite No. 1, Op. 46 - IV. In the Hall of the Mountain King (Musopen Kickstarter Project)",
+   "author": "Czech National Symphony Orchestra (Musopen, 2012)",
+   "page": "https://archive.org/details/MusopenCollectionAsFlac",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Music (Halloween)",
+   "title": "Chopin: Prelude in E minor, Op. 28 No. 4",
+   "author": "Paul Cantrell (piano)",
+   "page": "https://archive.org/details/Chopin_Preludes_4__9-5436",
+   "license": "CC BY-NC-SA 3.0 US",
+   "license_url": "http://creativecommons.org/licenses/by-nc-sa/3.0/us/"
+  },
+  {
+   "what": "Music (Christmas)",
+   "title": "Vivaldi: The Four Seasons - Winter (L'inverno), RV 297 - II. Largo",
+   "author": "John Harrison (violin), Robert Turizziani (cond.), Wichita State University Chamber Players",
+   "page": "https://archive.org/details/The_Four_Seasons_Vivaldi-10361",
+   "license": "CC BY-SA 3.0",
+   "license_url": "http://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  {
+   "what": "Music (Christmas)",
+   "title": "Corelli: Concerto grosso in G minor, Op. 6 No. 8 'Christmas Concerto' - VI. Pastorale (Largo)",
+   "author": "Advent Chamber Orchestra (Roxanna Pavel Goldstein, music director), December 2006 concert",
+   "page": "https://archive.org/details/Selections_from_the_December_2006_Concert-12520",
+   "license": "CC BY-NC-SA 3.0 US",
+   "license_url": "http://creativecommons.org/licenses/by-nc-sa/3.0/us/"
+  },
+  {
+   "what": "Music (Christmas)",
+   "title": "J. S. Bach: Christmas Oratorio, BWV 248 - Part II, No. 10 Sinfonia (pastoral)",
+   "author": "St Matthew's Concert Choir and Orchestra, Phiroz Dalal (cond.), 2012 concert",
+   "page": "https://archive.org/details/JsBach-ChristmasOratorio",
+   "license": "CC0 1.0",
+   "license_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
   {
    "what": "Mockingbird",
    "title": "XC139965 Northern Mockingbird",
