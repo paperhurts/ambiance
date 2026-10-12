@@ -423,14 +423,18 @@ export function buildScenes(pools) {
     id: 'kitchens',
     name: 'By the Kitchens',
     kicker: 'A common room',
-    what: 'A round room of honey-coloured wood, plants in copper pots, the kettle on, a pile of cats by the fire, and rain (or sun and dandelions) at the windows.',
+    what: 'A round room of honey-coloured wood, plants in copper pots, the kettle on, a pile of cats by the fire, and a soft thunderstorm (or sun and dandelions) outside.',
     requires: ['common/kettle'],
-    gain: 3.05,
+    gain: 2.85,
     reverb: { type: 'room', level: 0.3 },
     layers: [
       { id: 'fire', type: 'bed', label: 'The fire', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.45, gain: 0.8, pan: -0.35 },
       { id: 'purr', type: 'bed', label: 'Purring by the fire', icon: 'cat', files: files('common/purr'), level: 0.4, gain: 1.3, pan: -0.2 },
-      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0.5, gain: 1.0 },
+      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0.3, gain: 1.0 },
+      // a thunderstorm to read through: a smooth, steady downpour on the hill over the room, and
+      // thunder that only ever rolls in from far off
+      { id: 'storm', type: 'bed', label: 'Rain on the hill above', icon: 'rain', files: files('glades/downpour', 'storm/rain'), level: 0.5, gain: 1.0, muffle: 2600 },
+      { id: 'thunder', type: 'storm', label: 'Thunder, rolling far off', icon: 'bolt', pool: items('glades/thunder', 'storm/thunder').filter((i) => i.tag !== 'near'), lazy: true, keep: 2, every: [50, 160], first: [15, 50], level: 0.45, gain: 1.2, muffle: 1500, km: [11, 6] },
       { id: 'kettle', type: 'bed', label: 'The kettle on the hob', icon: 'kettle', files: files('common/kettle'), level: 0.3, gain: 1.0, pan: -0.2 },
       { id: 'kitchens', type: 'bed', label: 'The kitchens, through the wall', icon: 'pot', files: files('common/kitchen'), level: 0.3, gain: 1.8, muffle: 1300 },
       { id: 'tea', type: 'shots', label: 'Tea', icon: 'cup', pool: items('common/teacup'), every: [90, 300], first: [20, 90], level: 0.3, gain: 0.6, reverb: 0.2, space: { az: [20, 60], el: [-25, -10], dist: [1, 2] } },
