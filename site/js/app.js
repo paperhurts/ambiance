@@ -237,7 +237,10 @@ function wireEngine() {
   });
   // Phones interrupt audio (calls, Siri); pick back up when we're visible again.
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && engine.scene && !engine.paused) engine.resume();
+    if (!document.hidden && engine.scene && !engine.paused) {
+      engine.keepAlive();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+    }
     if (!document.hidden) engine.scene?.retryFailed();
     if (!document.hidden) keepAwake();
   });
