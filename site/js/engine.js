@@ -95,6 +95,7 @@ const REVERBS = {
   hall: { seconds: 3.6, decay: 3.2, damp: 0.86, early: 9, pre: 0.018 },
   great: { seconds: 5.2, decay: 2.8, damp: 0.87, early: 12, pre: 0.03 }, // a stone hall the size of a church
   room: { seconds: 1.1, decay: 3.5, damp: 0.8, early: 6, pre: 0.006 },
+  vault: { seconds: 1.9, decay: 3.4, damp: 0.84, early: 8, pre: 0.01 }, // a low stone room underground
   forest: { seconds: 1.8, decay: 4.5, damp: 0.93, early: 3, pre: 0.012 },
   open: { seconds: 2.6, decay: 5, damp: 0.95, early: 0, pre: 0.02 },
   snow: { seconds: 0.9, decay: 6, damp: 0.97, early: 0, pre: 0.01 },
