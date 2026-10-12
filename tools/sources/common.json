@@ -1,39 +1,5 @@
 [
  {
-  "key": "common/purr-1",
-  "kind": "bed",
-  "channels": 2,
-  "start": 305.0,
-  "end": 485.0,
-  "source_url": "https://archive.org/download/aporee_32981_37894/MyPurringCat.mp3",
-  "page": "https://archive.org/details/aporee_32981_37894",
-  "title": "Linden, Randburg, 2195, South Africa - My Purring Cat",
-  "author": "Neville Smithers",
-  "license": "Public Domain Mark 1.0",
-  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
-  "what": "Purr",
-  "hp": 30,
-  "max_len": 120,
-  "notes": "Cat purring in bed right next to the recordist (2x Primo EM172 into a Sony ICD-UX512F, 188k MP3). Very steady, close purr: every breath-cycle pulse, LRA 2.5 dB over this segment, no meows, no handling, no voices or TV; quiet room underneath. Most energy is the ~25-30 Hz purr fundamental with harmonics to ~1 kHz, so it reads as a soft rumble-purr. The build keeps the first ~93 s (305-398) which is "
- },
- {
-  "key": "common/purr-2",
-  "kind": "bed",
-  "channels": 2,
-  "start": 705.0,
-  "end": 885.0,
-  "source_url": "https://archive.org/download/aporee_32981_37894/MyPurringCat.mp3",
-  "page": "https://archive.org/details/aporee_32981_37894",
-  "title": "Linden, Randburg, 2195, South Africa - My Purring Cat",
-  "author": "Neville Smithers",
-  "license": "Public Domain Mark 1.0",
-  "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
-  "what": "Purr",
-  "hp": 30,
-  "max_len": 120,
-  "notes": "Same cat and session as purr-1, later stretch (705-885 s): steady purr, slightly softer and a little more mono (L/R corr 0.82), LRA 3.5 dB. Ends before a stir at ~893 s. Same caveat: mostly low-frequency purr energy, keep hp ~30."
- },
- {
   "key": "common/underwater-1",
   "kind": "bed",
   "channels": 2,
@@ -614,5 +580,24 @@
   "what": "Teacup",
   "hp": 150,
   "notes": "China cup set down: a set-down with a clear porcelain ring. Old analogue foley library transfer (band-limited ~10 kHz, low hum floor: hp 150). The clip opens with a voice slate / scrape (0-3.4 s) and another voiced scrape at 8.6-9.8 s, both excluded."
+ },
+ {
+  "key": "common/purr-1",
+  "kind": "bed",
+  "channels": 1,
+  "start": 0.0,
+  "end": 220.6,
+  "max_len": 221,
+  "file": "tools/originals/cat-purring.m4a",
+  "source_url": "",
+  "page": "",
+  "title": "A cat purring",
+  "author": "paperhurts",
+  "license": "recorded for Ambiance, used with permission",
+  "license_url": "",
+  "what": "Purr",
+  "hp": 30,
+  "lp": 2000,
+  "notes": "Recorded close up on a phone. Nine steady stretches from five short recordings, joined with 1.5 s crossfades and level-matched on the purr band; thumps, handling and a breathy patch left out. Band-limited 25-2500 Hz before encoding."
  }
 ]
