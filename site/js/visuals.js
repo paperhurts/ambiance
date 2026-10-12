@@ -7273,8 +7273,8 @@ class LakeRoom extends Painting {
 // ---------------------------------------------------------------------------------------------
 // A round, low common room by the kitchens: honey-coloured wood and warm plaster, round windows up
 // at the level of the grass outside, plants hanging in copper pots, a fire with a copper hood and
-// the kettle by it, tea and a book on the table, and two cats on the rug by the fire: a tuxedo asleep
-// and a black cat curled against his back, awake, slow-blinking. When it rains the sky outside greys and drops run
+// the kettle by it, tea and a book on the table, and a pile of three cats on the rug by the fire: a
+// tuxedo asleep, a bicolour curled up against him, and a black cat behind them, awake, slow-blinking. When it rains the sky outside greys and drops run
 // down the glass; when it doesn't, the sun slants in and dandelion seeds drift past. A garden bird
 // that sings outside comes down onto the grass while it sings.
 
@@ -7660,6 +7660,164 @@ function blackCatSprite(S, open) {
     g.beginPath();
     g.moveTo(hx + S * x0, hy + S * y0);
     g.quadraticCurveTo(hx + S * bx, hy + S * by, hx + S * x1, hy + S * y1);
+    g.stroke();
+  }
+  return c;
+}
+
+// a bicolour cat with more white than black, curled up asleep facing right, his white face tucked
+// in: a black cap over his ears and round his eyes with a white blaze up the middle, a pink nose,
+// white chest and paws, a black back with a white spot on it. The fire is on his left.
+function bicolourCatSprite(S) {
+  const c = layer(Math.ceil(S * 1.4), Math.ceil(S * 1.0));
+  const g = c.getContext('2d');
+  const cx = S * 0.62;
+  const cy = S * 0.6;
+  const BLACK = '#18181e';
+  const WHITE = '#f2efe8';
+  const lit = (path, col, a) => {
+    const rg = g.createLinearGradient(cx + S * 0.2, 0, cx - S * 0.5, 0);
+    rg.addColorStop(0, 'rgba(255,165,85,0)');
+    rg.addColorStop(1, `rgba(255,165,85,${a})`);
+    g.strokeStyle = rg;
+    g.lineWidth = S * 0.026;
+    g.stroke(path);
+    g.fillStyle = col;
+    g.fill(path);
+  };
+  g.fillStyle = 'rgba(0,0,0,0.33)';
+  g.beginPath();
+  g.ellipse(cx, cy + S * 0.25, S * 0.5, S * 0.07, 0, 0, TAU);
+  g.fill();
+  // the body, a round curl: white underneath, a black saddle over his back with a white spot in it
+  const body = new Path2D();
+  body.ellipse(cx, cy + S * 0.02, S * 0.42, S * 0.26, 0, 0, TAU);
+  body.moveTo(cx - S * 0.12 + S * 0.24, cy - S * 0.03);
+  body.ellipse(cx - S * 0.12, cy - S * 0.03, S * 0.24, S * 0.24, 0, 0, TAU);
+  lit(body, WHITE, 0.45);
+  g.save();
+  g.clip(body);
+  g.fillStyle = BLACK;
+  g.beginPath();
+  g.ellipse(cx - S * 0.05, cy - S * 0.2, S * 0.46, S * 0.24, 0.08, 0, TAU);
+  g.fill();
+  g.fillStyle = WHITE;
+  g.beginPath();
+  g.moveTo(cx - S * 0.36, cy - S * 0.06);
+  g.quadraticCurveTo(cx - S * 0.3, cy - S * 0.16, cx - S * 0.16, cy - S * 0.17);
+  g.quadraticCurveTo(cx - S * 0.24, cy - S * 0.1, cx - S * 0.3, cy - S * 0.02);
+  g.closePath();
+  g.fill();
+  const sheen = g.createLinearGradient(0, cy - S * 0.28, 0, cy + S * 0.02);
+  sheen.addColorStop(0, 'rgba(205,180,150,0.2)');
+  sheen.addColorStop(1, 'rgba(205,180,150,0)');
+  g.fillStyle = sheen;
+  g.fillRect(0, 0, c.width, c.height);
+  const under = g.createLinearGradient(0, cy, 0, cy + S * 0.28);
+  under.addColorStop(0, 'rgba(60,40,20,0)');
+  under.addColorStop(1, 'rgba(60,40,20,0.28)');
+  g.fillStyle = under;
+  g.fillRect(0, 0, c.width, c.height);
+  g.restore();
+  // his black tail round the front
+  g.strokeStyle = BLACK;
+  g.lineCap = 'round';
+  g.lineWidth = S * 0.09;
+  g.beginPath();
+  g.moveTo(cx - S * 0.36, cy + S * 0.12);
+  g.quadraticCurveTo(cx - S * 0.1, cy + S * 0.33, cx + S * 0.18, cy + S * 0.22);
+  g.stroke();
+  g.lineWidth = S * 0.06;
+  g.beginPath();
+  g.moveTo(cx + S * 0.15, cy + S * 0.23);
+  g.lineTo(cx + S * 0.22, cy + S * 0.2);
+  g.stroke();
+  // a white paw tucked under his chin
+  g.fillStyle = WHITE;
+  g.beginPath();
+  g.ellipse(cx + S * 0.3, cy + S * 0.19, S * 0.055, S * 0.03, 0, 0, TAU);
+  g.fill();
+  // his head, tucked low at the front, face white under a black cap
+  const hx = cx + S * 0.28;
+  const hy = cy + S * 0.02;
+  for (const [b0, tip, b1] of [
+    [
+      [-0.12, -0.06],
+      [-0.08, -0.24],
+      [0.0, -0.12],
+    ],
+    [
+      [0.05, -0.12],
+      [0.15, -0.22],
+      [0.16, -0.03],
+    ],
+  ]) {
+    const ear = new Path2D();
+    ear.moveTo(hx + b0[0] * S, hy + b0[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] - 0.01) * S, hy + (tip[1] + 0.04) * S, hx + tip[0] * S, hy + tip[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] + 0.03) * S, hy + (tip[1] + 0.06) * S, hx + b1[0] * S, hy + b1[1] * S);
+    ear.closePath();
+    lit(ear, BLACK, 0.4);
+    const m = [(b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2];
+    g.fillStyle = 'rgba(190,130,135,0.6)';
+    g.beginPath();
+    g.moveTo(hx + (m[0] * 0.55 + b0[0] * 0.45) * S, hy + (m[1] * 0.55 + b0[1] * 0.45) * S);
+    g.lineTo(hx + (tip[0] * 0.75 + m[0] * 0.25) * S, hy + (tip[1] * 0.75 + m[1] * 0.25) * S);
+    g.lineTo(hx + (m[0] * 0.55 + b1[0] * 0.45) * S, hy + (m[1] * 0.55 + b1[1] * 0.45) * S);
+    g.fill();
+  }
+  const head = new Path2D();
+  head.ellipse(hx, hy, S * 0.16, S * 0.13, 0.15, 0, TAU);
+  lit(head, WHITE, 0.4);
+  g.save();
+  g.clip(head);
+  // the black cap: over the top of his head and round his eyes, a white blaze up the middle
+  g.fillStyle = BLACK;
+  g.beginPath();
+  g.moveTo(hx - S * 0.2, hy - S * 0.2);
+  g.lineTo(hx + S * 0.22, hy - S * 0.2);
+  g.lineTo(hx + S * 0.2, hy + S * 0.01);
+  g.quadraticCurveTo(hx + S * 0.1, hy + S * 0.03, hx + S * 0.06, hy - S * 0.01);
+  g.lineTo(hx + S * 0.035, hy - S * 0.14);
+  g.lineTo(hx + S * 0.005, hy - S * 0.14);
+  g.lineTo(hx - S * 0.02, hy - S * 0.01);
+  g.quadraticCurveTo(hx - S * 0.1, hy + S * 0.04, hx - S * 0.2, hy + S * 0.02);
+  g.closePath();
+  g.fill();
+  const hs = g.createLinearGradient(0, hy - S * 0.13, 0, hy + S * 0.13);
+  hs.addColorStop(0, 'rgba(205,180,150,0.15)');
+  hs.addColorStop(1, 'rgba(60,40,20,0.15)');
+  g.fillStyle = hs;
+  g.fillRect(0, 0, c.width, c.height);
+  g.restore();
+  // eyes shut, a pink nose, pale whiskers
+  g.strokeStyle = '#6a6a74';
+  g.lineWidth = Math.max(1, S * 0.01);
+  for (const [ex, ey] of [
+    [-0.07, -0.005],
+    [0.105, 0.0],
+  ]) {
+    g.beginPath();
+    g.arc(hx + ex * S, hy + ey * S, S * 0.026, 0.3, Math.PI - 0.3);
+    g.stroke();
+  }
+  g.fillStyle = '#e8a0a4';
+  g.beginPath();
+  g.moveTo(hx + S * 0.01, hy + S * 0.05);
+  g.lineTo(hx + S * 0.045, hy + S * 0.05);
+  g.lineTo(hx + S * 0.028, hy + S * 0.07);
+  g.fill();
+  g.strokeStyle = 'rgba(150,140,135,0.6)';
+  g.lineWidth = Math.max(1, S * 0.004);
+  for (const [x0, y0, x1, y1] of [
+    [0.06, 0.07, 0.24, 0.05],
+    [0.06, 0.08, 0.23, 0.11],
+    [-0.01, 0.07, -0.17, 0.05],
+    [-0.01, 0.08, -0.16, 0.11],
+  ]) {
+    g.beginPath();
+    g.moveTo(hx + S * x0, hy + S * y0);
+    g.lineTo(hx + S * x1, hy + S * y1);
     g.stroke();
   }
   return c;
@@ -8366,10 +8524,13 @@ class Sett extends Painting {
     this.bird = null;
     this.flip = null;
     this.tea = -99;
-    // the two cats: one asleep facing the fire, one awake against his back
-    this.tux = catSprite(0.12 * k);
-    this.blackOpen = blackCatSprite(0.12 * k, true);
-    this.blackShut = blackCatSprite(0.12 * k, false);
+    // the cat pile: a tuxedo asleep facing the fire, a bicolour curled up against him, a black cat
+    // awake behind them
+    const cs = 0.105 * k;
+    this.tux = catSprite(cs);
+    this.bicolour = bicolourCatSprite(cs * 0.95);
+    this.blackOpen = blackCatSprite(cs, true);
+    this.blackShut = blackCatSprite(cs, false);
     this.blink = R(4, 10);
   }
 
@@ -8569,14 +8730,15 @@ class Sett extends Painting {
     }
     hearthFire(g, mo, this.mouthPath, this.glow, t, lvl, flick);
 
-    // the cats on the rug: the tuxedo asleep facing the fire, the black cat curled up against his
-    // back, awake, now and then closing his eyes in a slow blink
+    // the cat pile on the rug: the black cat awake at the back, now and then closing his eyes in a
+    // slow blink; the tuxedo asleep facing the fire; the bicolour curled up in front of him, face
+    // tucked in against his chest
     {
       const rug = this.rug;
       const tw = this.tux.width;
       const th = this.tux.height;
       const tb = 1 + 0.025 * Math.sin(t * 1.6);
-      const tx = rug.x - tw * 0.62;
+      const tx = rug.x - tw * 0.42;
       const bw = this.blackOpen.width;
       const bh = this.blackOpen.height;
       const bb = 1 + 0.018 * Math.sin(t * 1.3 + 2);
@@ -8589,6 +8751,10 @@ class Sett extends Painting {
       g.scale(-1, 1);
       g.drawImage(this.tux, 0, 0, tw, th * tb);
       g.restore();
+      const cw = this.bicolour.width;
+      const ch = this.bicolour.height;
+      const cb = 1 + 0.022 * Math.sin(t * 1.45 + 4);
+      g.drawImage(this.bicolour, tx - cw * 0.62, rug.y - ch * 0.8 - ch * (cb - 1) + th * 0.04, cw, ch * cb);
     }
     g.drawImage(this.front, 0, 0);
 
