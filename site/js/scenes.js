@@ -391,6 +391,53 @@ export function buildScenes(pools) {
   // Christmas in the fire's glow: a bigger, cosier hearth, louder than at Halloween
   christmas.layers.find((l) => l.id === 'fire').level = 0.55;
 
+  // Two common rooms in the same castle, made to read in: steady and warm, nothing sudden. Pages
+  // turn and a quill scratches now and then in both, as if someone else were reading nearby.
+  const reading = (pages, quill) => [
+    { id: 'pages', type: 'shots', label: 'Pages turning', icon: 'book', pool: items('common/pages'), every: [35, 120], first: [10, 40], level: pages, gain: 0.7, reverb: 0.25, space: { az: [-70, 70], el: [-20, 0], dist: [1.5, 3] } },
+    { id: 'quill', type: 'shots', label: 'A quill writing', icon: 'quill', pool: items('common/quill'), every: [50, 160], first: [30, 90], level: quill, gain: 0.5, reverb: 0.25, space: { az: [-70, 70], el: [-20, 0], dist: [1.5, 3] } },
+  ];
+  // Under the lake: a stone room with the water at its windows, a fire, a cat purring on the rug.
+  // Something sings far out in the deep, if you let it (off to start with).
+  const lake = {
+    id: 'lake',
+    name: 'Under the Lake',
+    kicker: 'A common room',
+    what: 'Green lamps, a fire, the lake at the windows, and a little snake asleep by the hearth, pointedly ignoring the cat.',
+    requires: ['common/underwater'],
+    gain: 2.9,
+    reverb: { type: 'vault', level: 0.4 },
+    layers: [
+      { id: 'lake', type: 'bed', label: 'The lake at the glass', icon: 'water', files: files('common/underwater'), level: 0.45, gain: 1.7, muffle: 1400 },
+      { id: 'fire', type: 'bed', label: 'The fire', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.5, gain: 0.8, pan: 0.35 },
+      { id: 'purr', type: 'bed', label: 'The cat, purring', icon: 'cat', files: files('common/purr'), level: 0.45, gain: 1.3, pan: 0.15 },
+      { id: 'bubbles', type: 'shots', label: 'Bubbles past the glass', icon: 'bubbles', pool: items('common/bubbles'), every: [30, 110], first: [8, 30], level: 0.3, gain: 0.75, reverb: 0.3, muffle: 2200, space: { az: [-50, 50], el: [0, 20], dist: [4, 9] } },
+      ...reading(0.3, 0),
+      { id: 'castle', type: 'shots', label: 'The old castle', icon: 'creak', pool: items('mansion/creak'), every: [60, 200], level: 0.15, gain: 0.6, reverb: 0.7, muffle: 3000, space: { dist: [8, 25], el: [10, 40] } },
+      { id: 'deep', type: 'shots', label: 'A song from the deep', icon: 'whale', pool: items('common/whale'), stream: true, keep: 1, every: [150, 480], first: [30, 120], level: 0, gain: 0.45, reverb: 0.5, muffle: 1600, space: { az: [-60, 60], el: [0, 15], dist: [6, 12] } },
+    ],
+  };
+  // By the kitchens: a round room half under the grass, the kettle on, rain or sun at the windows,
+  // garden birds outside and the kitchens busy through the wall.
+  const kitchens = {
+    id: 'kitchens',
+    name: 'By the Kitchens',
+    kicker: 'A common room',
+    what: 'A round room of honey-coloured wood, plants in copper pots, the kettle on, and rain (or sun and dandelions) at the windows.',
+    requires: ['common/kettle'],
+    gain: 3.6,
+    reverb: { type: 'room', level: 0.3 },
+    layers: [
+      { id: 'fire', type: 'bed', label: 'The fire', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.45, gain: 0.8, pan: -0.35 },
+      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0.5, gain: 1.0 },
+      { id: 'kettle', type: 'bed', label: 'The kettle on the hob', icon: 'kettle', files: files('common/kettle'), level: 0.3, gain: 1.0, pan: -0.2 },
+      { id: 'kitchens', type: 'bed', label: 'The kitchens, through the wall', icon: 'pot', files: files('common/kitchen'), level: 0.3, gain: 1.8, muffle: 1300 },
+      { id: 'tea', type: 'shots', label: 'Tea', icon: 'cup', pool: items('common/teacup'), every: [90, 300], first: [20, 90], level: 0.3, gain: 0.6, reverb: 0.2, space: { az: [20, 60], el: [-25, -10], dist: [1, 2] } },
+      ...reading(0.3, 0.2),
+      ...birds('garden', [], { only: ['robin', 'blackbird', 'wren', 'song-thrush'], level: 0.35, gain: 1.1, relocate: [80, 240] }).map((l) => ({ ...l, muffle: 3500 })),
+    ],
+  };
+
   const mixer = {
     id: 'mixer',
     name: 'Blank Canvas',
@@ -406,6 +453,9 @@ export function buildScenes(pools) {
       { ...pick(waterfall, 'creek'), id: 'creek' },
       { ...pick(garden, 'fountain'), id: 'fountain', pan: 0 },
       { ...pick(mansion, 'rain'), id: 'rain-glass', label: 'Rain on glass' },
+      { ...pick(lake, 'lake'), id: 'underwater', label: 'Under the water' },
+      { ...pick(lake, 'bubbles'), id: 'bubbles', label: 'Bubbles' },
+      { ...pick(lake, 'deep'), id: 'whales', label: 'Whale song, far off' },
       { ...pick(storm, 'thunder'), id: 'thunder', group: 'Weather' },
       { ...pick(storm, 'wind'), id: 'gale' },
       { ...pick(snow, 'wind'), id: 'pines', drive: { by: 'wind', gain: [0.5, 1] } },
@@ -413,10 +463,15 @@ export function buildScenes(pools) {
       { ...pick(waterfall, 'leaves'), id: 'leaves' },
       { ...pick(mansion, 'fire'), id: 'fire', label: 'Crackling fire', pan: 0, group: 'Warmth' },
       { ...pick(mansion, 'clock'), id: 'clock', label: 'Grandfather clock', pan: 0 },
+      { ...pick(lake, 'purr'), id: 'purr', label: 'A cat purring', pan: 0 },
+      { ...pick(kitchens, 'kettle'), id: 'kettle', label: 'A kettle simmering', pan: 0 },
+      { ...pick(lake, 'pages'), id: 'pages' },
+      { ...pick(kitchens, 'quill'), id: 'quill' },
       { ...pick(halloween, 'hall'), id: 'great-hall', label: 'A great stone hall', group: 'The castle' },
       { ...pick(halloween, 'feast'), id: 'feast', label: 'A feast in the hall' },
       { ...pick(christmas, 'peal'), id: 'peal', label: 'Church bells, far off' },
       { ...pick(christmas, 'carols'), id: 'carols', label: 'Carols, somewhere' },
+      { ...pick(kitchens, 'kitchens'), id: 'kitchens', label: 'Kitchens through a wall' },
       { ...pick(butterfly, 'morning'), id: 'fl-morning', group: 'Outdoors' },
       { ...pick(butterfly, 'palms'), id: 'palms' },
       { ...pick(butterfly, 'cicadas'), id: 'cicadas' },
@@ -456,7 +511,7 @@ export function buildScenes(pools) {
     (l.type === 'pulse' && l.tick);
 
   // a scene whose recordings aren't installed drops out entirely, rather than showing up silent
-  return [storm, waterfall, garden, butterfly, glades, pond, mansion, snow, halloween, christmas, mixer]
+  return [storm, waterfall, garden, butterfly, glades, pond, mansion, snow, halloween, christmas, lake, kitchens, mixer]
     .map((s) => ({ ...s, layers: s.layers.filter((l) => l && l.id && usable(l)) }))
     .filter((s) => s.layers.some((l) => l.type !== 'synth') && (s.requires || []).every((k) => list(k).length));
 }

@@ -150,6 +150,168 @@
     "dur": 5.0
    }
   ],
+  "common/bubbles": [
+   {
+    "file": "audio/common/bubbles-1.8c0bc1b9.mp3",
+    "dur": 10.8
+   },
+   {
+    "file": "audio/common/bubbles-2.ecf8cf3f.mp3",
+    "dur": 1.7
+   },
+   {
+    "file": "audio/common/bubbles-3.dec482bd.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/common/bubbles-4.19855a65.mp3",
+    "dur": 3.7
+   },
+   {
+    "file": "audio/common/bubbles-5.ffd4cde8.mp3",
+    "dur": 2.7
+   },
+   {
+    "file": "audio/common/bubbles-6.22a18ace.mp3",
+    "dur": 2.3
+   }
+  ],
+  "common/kettle": [
+   {
+    "file": "audio/common/kettle-1.25cef839.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/common/kettle-2.5a0a93b5.mp3",
+    "dur": 90.0
+   }
+  ],
+  "common/kitchen": [
+   {
+    "file": "audio/common/kitchen-1.7ae5bc18.mp3",
+    "dur": 68.0
+   },
+   {
+    "file": "audio/common/kitchen-2.981f3c8c.mp3",
+    "dur": 53.3
+   }
+  ],
+  "common/pages": [
+   {
+    "file": "audio/common/pages-1.07d46d24.mp3",
+    "dur": 1.85
+   },
+   {
+    "file": "audio/common/pages-2.cf609bff.mp3",
+    "dur": 1.8
+   },
+   {
+    "file": "audio/common/pages-3.b970fa7b.mp3",
+    "dur": 1.78
+   },
+   {
+    "file": "audio/common/pages-4.bb780887.mp3",
+    "dur": 1.75
+   },
+   {
+    "file": "audio/common/pages-5.22a6122b.mp3",
+    "dur": 0.95
+   },
+   {
+    "file": "audio/common/pages-6.41a9a1d5.mp3",
+    "dur": 1.95
+   },
+   {
+    "file": "audio/common/pages-7.8b18dd1b.mp3",
+    "dur": 2.05
+   },
+   {
+    "file": "audio/common/pages-8.03257f08.mp3",
+    "dur": 1.62
+   }
+  ],
+  "common/purr": [
+   {
+    "file": "audio/common/purr-1.587fc37c.mp3",
+    "dur": 217.6
+   }
+  ],
+  "common/quill": [
+   {
+    "file": "audio/common/quill-1.5a8758d8.mp3",
+    "dur": 4.25
+   },
+   {
+    "file": "audio/common/quill-2.854edc05.mp3",
+    "dur": 2.55
+   },
+   {
+    "file": "audio/common/quill-3.7bc60add.mp3",
+    "dur": 3.45
+   },
+   {
+    "file": "audio/common/quill-4.252ec2c7.mp3",
+    "dur": 5.15
+   },
+   {
+    "file": "audio/common/quill-5.166930b9.mp3",
+    "dur": 2.25
+   }
+  ],
+  "common/teacup": [
+   {
+    "file": "audio/common/teacup-1.05ed0747.mp3",
+    "dur": 5.6
+   },
+   {
+    "file": "audio/common/teacup-2.d95dd290.mp3",
+    "dur": 1.45
+   },
+   {
+    "file": "audio/common/teacup-3.577f8870.mp3",
+    "dur": 1.6
+   },
+   {
+    "file": "audio/common/teacup-4.61f1e998.mp3",
+    "dur": 1.35
+   },
+   {
+    "file": "audio/common/teacup-5.e76075b0.mp3",
+    "dur": 1.55
+   }
+  ],
+  "common/underwater": [
+   {
+    "file": "audio/common/underwater-1.ef41a3f0.mp3",
+    "dur": 149.0
+   },
+   {
+    "file": "audio/common/underwater-2.e44b97ae.mp3",
+    "dur": 150.0
+   }
+  ],
+  "common/whale": [
+   {
+    "file": "audio/common/whale-1.5af548ca.mp3",
+    "dur": 36.9
+   },
+   {
+    "file": "audio/common/whale-2.5f1e85f0.mp3",
+    "dur": 39.9
+   },
+   {
+    "file": "audio/common/whale-3.f984db9f.mp3",
+    "dur": 42.8
+   },
+   {
+    "file": "audio/common/whale-4.a8a5b021.mp3",
+    "dur": 44.2
+   },
+   {
+    "file": "audio/common/whale-5.e81feda7.mp3",
+    "dur": 42.9
+   }
+  ],
   "florida/bees": [
    {
     "file": "audio/florida/bees-1.fd932158.mp3",
@@ -1631,6 +1793,42 @@
   "audio/castle/toll-2.7ebc4550.mp3",
   "audio/castle/toll-3.3e2a6c14.mp3",
   "audio/castle/toll-4.d7906735.mp3",
+  "audio/common/bubbles-1.8c0bc1b9.mp3",
+  "audio/common/bubbles-2.ecf8cf3f.mp3",
+  "audio/common/bubbles-3.dec482bd.mp3",
+  "audio/common/bubbles-4.19855a65.mp3",
+  "audio/common/bubbles-5.ffd4cde8.mp3",
+  "audio/common/bubbles-6.22a18ace.mp3",
+  "audio/common/kettle-1.25cef839.mp3",
+  "audio/common/kettle-2.5a0a93b5.mp3",
+  "audio/common/kitchen-1.7ae5bc18.mp3",
+  "audio/common/kitchen-2.981f3c8c.mp3",
+  "audio/common/pages-1.07d46d24.mp3",
+  "audio/common/pages-2.cf609bff.mp3",
+  "audio/common/pages-3.b970fa7b.mp3",
+  "audio/common/pages-4.bb780887.mp3",
+  "audio/common/pages-5.22a6122b.mp3",
+  "audio/common/pages-6.41a9a1d5.mp3",
+  "audio/common/pages-7.8b18dd1b.mp3",
+  "audio/common/pages-8.03257f08.mp3",
+  "audio/common/purr-1.587fc37c.mp3",
+  "audio/common/quill-1.5a8758d8.mp3",
+  "audio/common/quill-2.854edc05.mp3",
+  "audio/common/quill-3.7bc60add.mp3",
+  "audio/common/quill-4.252ec2c7.mp3",
+  "audio/common/quill-5.166930b9.mp3",
+  "audio/common/teacup-1.05ed0747.mp3",
+  "audio/common/teacup-2.d95dd290.mp3",
+  "audio/common/teacup-3.577f8870.mp3",
+  "audio/common/teacup-4.61f1e998.mp3",
+  "audio/common/teacup-5.e76075b0.mp3",
+  "audio/common/underwater-1.ef41a3f0.mp3",
+  "audio/common/underwater-2.e44b97ae.mp3",
+  "audio/common/whale-1.5af548ca.mp3",
+  "audio/common/whale-2.5f1e85f0.mp3",
+  "audio/common/whale-3.f984db9f.mp3",
+  "audio/common/whale-4.a8a5b021.mp3",
+  "audio/common/whale-5.e81feda7.mp3",
   "audio/florida/bees-1.fd932158.mp3",
   "audio/florida/blue-jay-1.f38ab6d9.mp3",
   "audio/florida/blue-jay-2.caaa9c2f.mp3",
@@ -2138,6 +2336,142 @@
    "page": "https://archive.org/details/JsBach-ChristmasOratorio",
    "license": "CC0 1.0",
    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Underwater",
+   "title": "Rundvannet Troms\u00f8 / Romsa, North Norway / S\u00e1pmi - Hyrdophone in reeds at edge of pond",
+   "author": "anguscarlyle (Angus Carlyle)",
+   "page": "https://archive.org/details/aporee_65152_75247",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Underwater",
+   "title": "Loch Moidart - Alpheidae (pistol shrimp) Before a Storm",
+   "author": "Sylvia Shale",
+   "page": "https://archive.org/details/aporee_45276_51425",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Whale",
+   "title": "Humpback Whale Songs (humpback-whales-2017-long-session)",
+   "author": "Monterey Bay Aquarium Research Institute (MBARI MARS hydrophone)",
+   "page": "https://archive.org/details/humpbackwhalesongs",
+   "license": "CC BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+   "what": "Bubbles",
+   "title": "Small pond close to river Main - Early spring in a fresh water pond with sound of underwater insects.",
+   "author": "Dr. Lutz Nevermann",
+   "page": "https://archive.org/details/aporee_39292_44906",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "Bubbles",
+   "title": "The Designer's Choice UCS Collection - WATER: Bubble, Glugs, Multiple, Short 01",
+   "author": "Nicholas A. Judy (The Designer's Choice)",
+   "page": "https://archive.org/details/Designers-Choice-Collection-Water",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Pages",
+   "title": "Book, Paper, Pages, assorted (PDSounds #231)",
+   "author": "stephan (pdsounds.org)",
+   "page": "https://commons.wikimedia.org/wiki/File:Book_paper_pages_assorted.ogg",
+   "license": "Public domain (PD-author, released via pdsounds.org)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-author"
+  },
+  {
+   "what": "Pages",
+   "title": "Turning a page (PDSounds #304)",
+   "author": "planish (pdsounds.org)",
+   "page": "https://commons.wikimedia.org/wiki/File:Turning_a_page.ogg",
+   "license": "Public domain (PD-author, released via pdsounds.org)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-author"
+  },
+  {
+   "what": "Pages",
+   "title": "Leafing through pages, flicking pages, shutting book (PDSounds 'Old book')",
+   "author": "cori (pdsounds.org)",
+   "page": "https://commons.wikimedia.org/wiki/File:Old_book.ogg",
+   "license": "Public domain (PD-author, released via pdsounds.org)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-author"
+  },
+  {
+   "what": "Quill",
+   "title": "Writing with inkpen (PDSounds #179)",
+   "author": "stephan (pdsounds.org)",
+   "page": "https://commons.wikimedia.org/wiki/File:Writing_with_inkpen.ogg",
+   "license": "Public domain (PD-author, released via pdsounds.org)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-author"
+  },
+  {
+   "what": "Quill",
+   "title": "Red Library: Foley Props 1 - R09-64 Pen or Tape Scratches",
+   "author": "Red Library (USC Cinema / Sunset Editorial sound effects collection)",
+   "page": "https://archive.org/details/Red_Library_Foley_Props_1",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Kettle",
+   "title": "Poznan, Kochanowskiego street - kettle warm up/cool down",
+   "author": "maciej janasik",
+   "page": "https://archive.org/details/aporee_40341_46074",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Kettle",
+   "title": "Goss - Grove, Boulder, CO, USA - Boiling water",
+   "author": "a radio aporee ::: maps recordist",
+   "page": "https://archive.org/details/aporee_16770_19512",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Kitchen",
+   "title": "St. Gallen (CH), restaurant kitchen",
+   "author": "a radio aporee ::: maps recordist",
+   "page": "https://archive.org/details/aporee_2014_2903",
+   "license": "CC BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  {
+   "what": "Kitchen",
+   "title": "Kitchen Tidy-up (PDSounds)",
+   "author": "starlite (pdsounds.org)",
+   "page": "https://commons.wikimedia.org/wiki/File:Kitchen_tidy_up.ogg",
+   "license": "Public domain (PD-author, released via pdsounds.org)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-author"
+  },
+  {
+   "what": "Teacup",
+   "title": "Boiling water being poured into a mug for tea (PDSounds #508)",
+   "author": "cori (pdsounds.org)",
+   "page": "https://commons.wikimedia.org/wiki/File:Boiling_water_being_poured_into_a_mug_for_tea.ogg",
+   "license": "Public domain (PD-author, released via pdsounds.org)",
+   "license_url": "https://commons.wikimedia.org/wiki/Template:PD-author"
+  },
+  {
+   "what": "Teacup",
+   "title": "Red Library: Foley Props 2 - R19-11 Set Cup Down on Table",
+   "author": "Red Library (USC Cinema / Sunset Editorial sound effects collection)",
+   "page": "https://archive.org/details/Red_Library_Foley_Props_2",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Purr",
+   "title": "A cat purring",
+   "author": "paperhurts",
+   "page": "",
+   "license": "recorded for Ambiance, used with permission",
+   "license_url": ""
   },
   {
    "what": "Mockingbird",
@@ -3298,14 +3632,6 @@
    "page": "https://archive.org/details/aporee_50814_57967",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
-  },
-  {
-   "what": "East Hampton Waterfall",
-   "title": "East Hampton Waterfall",
-   "author": "paperhurts",
-   "page": "",
-   "license": "recorded for Ambiance, used with permission",
-   "license_url": ""
   },
   {
    "what": "Wood thrush",
