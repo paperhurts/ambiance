@@ -5002,6 +5002,1021 @@ class Pond extends Painting {
 }
 
 // ---------------------------------------------------------------------------------------------
+// The great hall of a castle in the Highlands, looking down its length: four long tables running
+// up to the dais, tall windows down both walls, candles floating in their hundreds under an
+// enchanted ceiling that shows the sky. At Halloween the sky is a storm, jack-o'-lanterns float
+// among the candles and bats flit under the roof; at Christmas it snows from the ceiling (the
+// flakes fade before they reach the tables) and twelve frosted trees stand along the walls.
+const HALL = { eye: 0.42, top: 3.2, far: 4.2, near: 0.12 }; // the hall's unit is about 10 m
+const HOUSE_BANNERS = [
+  ['#7a1622', '#d4a640'], // crimson and gold
+  ['#1b4a2e', '#b9c2c6'], // green and silver
+  ['#1d2f68', '#b07a45'], // blue and bronze
+  ['#c9961c', '#1a1612'], // yellow and black
+];
+
+// one carved pumpkin, lit from inside, as a sprite (centre at the middle)
+function jackSprite(R, lit = 1) {
+  const c = layer(Math.ceil(R * 2.4), Math.ceil(R * 2.4));
+  const g = c.getContext('2d');
+  const cx = c.width / 2;
+  const cy = c.height / 2 + R * 0.08;
+  // ribbed body: overlapping lobes, darker toward the edges
+  for (const [dx, rx, col] of [
+    [-0.55, 0.55, '#b34a10'],
+    [0.55, 0.55, '#b34a10'],
+    [-0.28, 0.6, '#d0621a'],
+    [0.28, 0.6, '#d0621a'],
+    [0, 0.62, '#e2782a'],
+  ]) {
+    g.fillStyle = col;
+    g.beginPath();
+    g.ellipse(cx + dx * R, cy, rx * R, R * 0.82, 0, 0, TAU);
+    g.fill();
+  }
+  g.strokeStyle = 'rgba(90,30,5,0.5)';
+  g.lineWidth = R * 0.04;
+  for (const dx of [-0.42, 0, 0.42]) {
+    g.beginPath();
+    g.ellipse(cx + dx * R, cy, R * 0.32, R * 0.8, 0, -Math.PI / 2, Math.PI / 2, dx > 0);
+    g.stroke();
+  }
+  // stem
+  g.fillStyle = '#4a3a1a';
+  g.beginPath();
+  g.moveTo(cx - R * 0.08, cy - R * 0.74);
+  g.quadraticCurveTo(cx - R * 0.02, cy - R * 1.02, cx + R * 0.16, cy - R * 1.08);
+  g.lineTo(cx + R * 0.12, cy - R * 0.92);
+  g.lineTo(cx + R * 0.08, cy - R * 0.72);
+  g.fill();
+  // the carved face, glowing
+  const glow = `rgba(255,${200 + 30 * lit},${90 + 40 * lit},1)`;
+  g.fillStyle = glow;
+  g.shadowColor = 'rgba(255,190,80,0.9)';
+  g.shadowBlur = R * 0.25;
+  const tri = (x, y, s, flip) => {
+    g.beginPath();
+    g.moveTo(cx + (x - s) * R, cy + (y + (flip ? -s : s) * 0.6) * R);
+    g.lineTo(cx + (x + s) * R, cy + (y + (flip ? -s : s) * 0.6) * R);
+    g.lineTo(cx + x * R, cy + (y - (flip ? -s : s) * 0.6) * R);
+    g.fill();
+  };
+  tri(-0.3, -0.18, 0.15);
+  tri(0.3, -0.18, 0.15);
+  tri(0, 0.04, 0.08, true);
+  g.beginPath(); // a jagged grin
+  const m = [
+    [-0.48, 0.2],
+    [-0.36, 0.3],
+    [-0.28, 0.22],
+    [-0.16, 0.36],
+    [-0.04, 0.26],
+    [0.08, 0.38],
+    [0.2, 0.26],
+    [0.32, 0.34],
+    [0.48, 0.2],
+    [0.36, 0.5],
+    [0.12, 0.56],
+    [0.04, 0.48],
+    [-0.08, 0.58],
+    [-0.3, 0.52],
+  ];
+  g.moveTo(cx + m[0][0] * R, cy + m[0][1] * R);
+  for (const [x, y] of m.slice(1)) g.lineTo(cx + x * R, cy + y * R);
+  g.closePath();
+  g.fill();
+  return c;
+}
+
+class GreatHall extends Painting {
+  get season() {
+    return 'halloween';
+  }
+  // world → screen: X across the hall (the walls at ±1), Y up from the floor, d down the hall
+  P(X, Y, d) {
+    return [this.vx + (this.F * X) / d, this.vy - (this.F * (Y - HALL.eye)) / d];
+  }
+
+  build() {
+    const { w, h } = this;
+    const xmas = this.season === 'christmas';
+    this.F = Math.min(w, h * 0.9) * 0.5;
+    this.vx = w / 2;
+    this.vy = h * 0.6;
+    const P = (X, Y, d) => this.P(X, Y, d);
+    const F = this.F;
+    const { top: T, far: D, near: N } = HALL;
+    let seed = 11;
+    const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const R = (a, b) => a + r() * (b - a);
+
+    this.hall = layer(w, h);
+    const g = this.hall.getContext('2d');
+    const poly = (pts, pen = g) => {
+      pen.moveTo(...pts[0]);
+      for (const p of pts.slice(1)) pen.lineTo(...p);
+      pen.closePath();
+    };
+    const seg = (a, b) => {
+      g.moveTo(...a);
+      g.lineTo(...b);
+    };
+
+    // the enchanted ceiling is everything above the walls' tops: drawn live, so left clear here
+    this.sky = new Path2D();
+    poly([P(-1, T, N), P(-1, T, D), P(1, T, D), P(1, T, N)], this.sky);
+    this.skyTop = Math.max(0, P(0, T, D)[1]);
+
+    // --- the far wall, with the great window over the dais
+    const farTop = P(-1, T, D)[1];
+    const farBot = P(-1, 0, D)[1];
+    g.fillStyle = vgrad(g, farTop, farBot, [
+      [0, '#2a2129'],
+      [0.55, '#4b3b37'],
+      [1, '#3a2d2b'],
+    ]);
+    g.beginPath();
+    poly([P(-1, 0, D), P(1, 0, D), P(1, T, D), P(-1, T, D)]);
+    g.fill();
+    g.strokeStyle = 'rgba(18,12,14,0.5)';
+    g.lineWidth = Math.max(1, (F * 0.006) / D);
+    g.beginPath();
+    for (let Y = 0.12, k = 0; Y < T; Y += 0.12, k++) {
+      seg(P(-1, Y, D), P(1, Y, D));
+      for (let X = -1 + (k % 2) * 0.1; X < 1; X += 0.2) seg(P(X, Y - 0.12, D), P(X, Y, D));
+    }
+    g.stroke();
+    const farWindow = (pen) => {
+      const [xa, y0] = P(-0.4, 0.62, D);
+      const [xb] = P(0.4, 0.62, D);
+      const y1 = P(0, 2.25, D)[1];
+      const ya = P(0, 2.85, D)[1];
+      const xm = (xa + xb) / 2;
+      pen.moveTo(xa, y0);
+      pen.lineTo(xa, y1);
+      pen.quadraticCurveTo(xa + (xm - xa) * 0.1, y1 - (y1 - ya) * 0.8, xm, ya);
+      pen.quadraticCurveTo(xb - (xb - xm) * 0.1, y1 - (y1 - ya) * 0.8, xb, y1);
+      pen.lineTo(xb, y0);
+      pen.closePath();
+    };
+
+    // --- the side walls: stone courses, tall lancet windows, banners, torches and two hearths
+    this.glass = new Path2D();
+    farWindow(this.glass);
+    const WIN = [1.12, 1.74, 2.4, 3.1];
+    const WD = 0.36;
+    const sideWindow = (pen, s, d0, d1, y0 = 0.75, y1 = 2.3, apex = 2.72) => {
+      const dm = (d0 + d1) / 2;
+      pen.moveTo(...P(s, y0, d0));
+      pen.lineTo(...P(s, y1, d0));
+      pen.quadraticCurveTo(...P(s, y1 + (apex - y1) * 0.8, d0 + (dm - d0) * 0.12), ...P(s, apex, dm));
+      pen.quadraticCurveTo(...P(s, y1 + (apex - y1) * 0.8, d1 - (d1 - dm) * 0.12), ...P(s, y1, d1));
+      pen.lineTo(...P(s, y0, d1));
+      pen.closePath();
+    };
+    this.torches = [];
+    this.hearths = [];
+    this.lights = []; // the giant pumpkins' faces, flickering
+    for (const s of [-1, 1]) {
+      const near = P(s, T * 0.5, 0.45)[0];
+      const far = P(s, T * 0.5, D)[0];
+      const gr = g.createLinearGradient(near, 0, far, 0);
+      gr.addColorStop(0, '#2c2326');
+      gr.addColorStop(0.45, '#46383a');
+      gr.addColorStop(1, '#382c2e');
+      g.fillStyle = gr;
+      g.beginPath();
+      poly([P(s, 0, N), P(s, T, N), P(s, T, D), P(s, 0, D)]);
+      g.fill();
+      // stones, each a slightly different tint
+      for (let Y = 0, k = 0; Y < T - 0.01; Y += 0.12, k++) {
+        for (let d = N + (k % 2) * 0.13; d < D; d += 0.26) {
+          const d1 = Math.min(D, d + 0.26);
+          const v = R(-1, 1);
+          g.fillStyle = v > 0 ? `rgba(255,225,190,${v * 0.05})` : `rgba(0,0,0,${-v * 0.1})`;
+          g.beginPath();
+          poly([P(s, Y, d), P(s, Y + 0.12, d), P(s, Y + 0.12, d1), P(s, Y, d1)]);
+          g.fill();
+        }
+      }
+      g.strokeStyle = 'rgba(16,10,12,0.55)';
+      g.beginPath();
+      for (let Y = 0.12, k = 0; Y < T; Y += 0.12, k++) seg(P(s, Y, N), P(s, Y, D));
+      g.lineWidth = Math.max(1, F * 0.004);
+      g.stroke();
+      g.beginPath();
+      for (let Y = 0, k = 0; Y < T - 0.01; Y += 0.12, k++) for (let d = N + (k % 2) * 0.13; d < D; d += 0.26) seg(P(s, Y, d), P(s, Y + 0.12, d));
+      g.stroke();
+      // warm light from the candles in the middle of the wall, dark toward the floor and roof
+      const yl = P(s, 2.2, 1)[1];
+      const wash = g.createLinearGradient(0, P(s, T, 0.8)[1], 0, P(s, 0, 0.8)[1]);
+      wash.addColorStop(0, 'rgba(10,6,12,0.55)');
+      wash.addColorStop(0.45, 'rgba(255,170,90,0.07)');
+      wash.addColorStop(1, 'rgba(8,5,6,0.5)');
+      g.fillStyle = wash;
+      g.beginPath();
+      poly([P(s, 0, N), P(s, T, N), P(s, T, D), P(s, 0, D)]);
+      g.fill();
+      void yl;
+      // windows
+      for (const d0 of WIN) {
+        const d1 = d0 + WD;
+        sideWindow(this.glass, s, d0, d1);
+        // the deep stone reveal around the glass
+        g.beginPath();
+        sideWindow(g, s, d0 - 0.05, d1 + 0.05, 0.68, 2.3, 2.8);
+        g.fillStyle = '#5a4a44';
+        g.fill();
+        g.beginPath();
+        sideWindow(g, s, d0, d1);
+        const gy0 = P(s, 2.7, d0)[1];
+        const gy1 = P(s, 0.75, d0)[1];
+        g.fillStyle = xmas
+          ? vgrad(g, gy0, gy1, [
+              [0, '#0f2240'],
+              [1, '#2a4a74'],
+            ])
+          : vgrad(g, gy0, gy1, [
+              [0, '#140f2c'],
+              [1, '#2b2350'],
+            ]);
+        g.fill();
+        // leading and the mullion
+        g.save();
+        g.clip();
+        g.strokeStyle = 'rgba(20,16,24,0.85)';
+        g.lineWidth = Math.max(1, (F * 0.012) / d0);
+        g.beginPath();
+        seg(P(s, 0.75, (d0 + d1) / 2), P(s, 2.72, (d0 + d1) / 2));
+        seg(P(s, 1.5, d0), P(s, 1.5, d1));
+        g.stroke();
+        g.lineWidth = Math.max(0.6, (F * 0.004) / d0);
+        g.beginPath();
+        for (let Y = 0.85; Y < 2.7; Y += 0.1) seg(P(s, Y, d0), P(s, Y, d1));
+        g.globalAlpha = 0.5;
+        g.stroke();
+        g.globalAlpha = 1;
+        if (xmas) {
+          // snow banked against the panes
+          g.fillStyle = 'rgba(232,240,250,0.85)';
+          g.beginPath();
+          g.moveTo(...P(s, 0.75, d0));
+          for (let k = 0; k <= 8; k++) g.lineTo(...P(s, 0.8 + Math.sin(k * 1.7) * 0.02 + (k % 4 === 0 ? 0.025 : 0), d0 + (WD * k) / 8));
+          g.lineTo(...P(s, 0.75, d1));
+          g.fill();
+          g.fillStyle = 'rgba(230,238,250,0.5)';
+          for (let k = 0; k < 14; k++) {
+            const [x, y] = P(s, R(0.85, 2.6), R(d0, d1));
+            g.fillRect(x, y, Math.max(1, F * 0.006 / d0), Math.max(1, F * 0.006 / d0));
+          }
+        } else {
+          // rain running down the glass
+          g.strokeStyle = 'rgba(150,150,210,0.25)';
+          g.lineWidth = Math.max(0.6, (F * 0.003) / d0);
+          g.beginPath();
+          for (let k = 0; k < 10; k++) {
+            const dd = R(d0, d1);
+            const Y = R(0.85, 2.5);
+            seg(P(s, Y, dd), P(s, Y - R(0.08, 0.25), dd));
+          }
+          g.stroke();
+        }
+        g.restore();
+        // the sill
+        g.fillStyle = '#6a5850';
+        g.beginPath();
+        poly([P(s, 0.75, d0 - 0.05), P(s, 0.75, d1 + 0.05), P(s * 0.97, 0.72, d1 + 0.05), P(s * 0.97, 0.72, d0 - 0.05)]);
+        g.fill();
+      }
+      // banners between the windows, in the four house colours
+      const gaps = [0.82, 1.6, 2.24, 2.93, 3.68];
+      gaps.forEach((dc, i) => {
+        const [col, trim] = HOUSE_BANNERS[(i + (s > 0 ? 1 : 0)) % 4];
+        const b0 = dc - 0.07;
+        const b1 = dc + 0.07;
+        const yb = 1.75;
+        g.fillStyle = col;
+        g.beginPath();
+        poly([P(s * 0.985, 2.92, b0), P(s * 0.985, 2.92, b1), P(s * 0.985, yb, b1), P(s * 0.985, yb + 0.14, dc), P(s * 0.985, yb, b0)]);
+        g.fill();
+        g.strokeStyle = trim;
+        g.lineWidth = Math.max(1, (F * 0.01) / dc);
+        g.stroke();
+        // a fold of shadow down the middle
+        g.strokeStyle = 'rgba(0,0,0,0.25)';
+        g.lineWidth = Math.max(1, (F * 0.02) / dc);
+        g.beginPath();
+        seg(P(s * 0.985, 2.88, dc), P(s * 0.985, yb + 0.16, dc));
+        g.stroke();
+        // the pole
+        g.strokeStyle = '#2a2018';
+        g.lineWidth = Math.max(1, (F * 0.012) / dc);
+        g.beginPath();
+        seg(P(s * 0.985, 2.94, b0 - 0.02), P(s * 0.985, 2.94, b1 + 0.02));
+        g.stroke();
+        // a torch in an iron bracket below
+        const [tx, ty] = P(s * 0.985, 0.55, dc);
+        const sc = F / dc;
+        g.fillStyle = '#1c1512';
+        g.fillRect(tx - sc * 0.005, ty, sc * 0.01, sc * 0.05);
+        g.beginPath();
+        g.moveTo(tx - sc * 0.014, ty);
+        g.lineTo(tx + sc * 0.014, ty);
+        g.lineTo(tx + sc * 0.007, ty + sc * 0.018);
+        g.lineTo(tx - sc * 0.007, ty + sc * 0.018);
+        g.fill();
+        this.torches.push({ x: tx, y: ty, s: sc, ph: R(0, TAU) });
+      });
+      // a great hearth on each wall, under the windows
+      const [h0, h1] = s > 0 ? [1.32, 1.72] : [2.0, 2.38];
+      g.fillStyle = '#5e4c45';
+      g.beginPath();
+      poly([P(s, 0, h0 - 0.08), P(s, 0.42, h0 - 0.08), P(s, 0.42, h1 + 0.08), P(s, 0, h1 + 0.08)]);
+      g.fill();
+      g.fillStyle = '#120a08';
+      g.beginPath();
+      const mouth = [P(s, 0, h0), P(s, 0.3, h0), P(s, 0.34, (h0 + h1) / 2), P(s, 0.3, h1), P(s, 0, h1)];
+      poly(mouth);
+      g.fill();
+      g.fillStyle = '#6e5a50';
+      g.beginPath(); // the mantel shelf
+      poly([P(s, 0.42, h0 - 0.1), P(s * 0.96, 0.42, h0 - 0.1), P(s * 0.96, 0.42, h1 + 0.1), P(s, 0.42, h1 + 0.1)]);
+      g.fill();
+      const [mx, my] = P(s * 0.99, 0.12, (h0 + h1) / 2);
+      this.hearths.push({ x: mx, y: my, s: F / ((h0 + h1) / 2), mouth });
+      if (xmas) {
+        // holly swags along the top of the wall
+        for (let d = 0.5; d < D - 0.1; d += 0.42) {
+          const d1 = Math.min(D - 0.02, d + 0.42);
+          const a = P(s * 0.99, 3.04, d);
+          const b = P(s * 0.99, 3.04, d1);
+          const m = P(s * 0.99, 2.84, (d + d1) / 2);
+          g.strokeStyle = '#1e3a22';
+          g.lineWidth = Math.max(1.5, (F * 0.035) / (d + 0.2));
+          g.lineCap = 'round';
+          g.beginPath();
+          g.moveTo(...a);
+          g.quadraticCurveTo(2 * m[0] - (a[0] + b[0]) / 2, 2 * m[1] - (a[1] + b[1]) / 2, ...b);
+          g.stroke();
+          g.strokeStyle = '#2f5a33';
+          g.lineWidth *= 0.45;
+          g.stroke();
+          for (let k = 0; k < 6; k++) {
+            const tt = R(0.1, 0.9);
+            const qx = (1 - tt) * (1 - tt) * a[0] + 2 * (1 - tt) * tt * (2 * m[0] - (a[0] + b[0]) / 2) + tt * tt * b[0];
+            const qy = (1 - tt) * (1 - tt) * a[1] + 2 * (1 - tt) * tt * (2 * m[1] - (a[1] + b[1]) / 2) + tt * tt * b[1];
+            g.fillStyle = '#c0182a';
+            g.beginPath();
+            g.arc(qx + R(-2, 2), qy + R(-2, 2), Math.max(1, (F * 0.012) / (d + 0.2)), 0, TAU);
+            g.fill();
+          }
+        }
+      }
+    }
+    // the cornice along the tops of the walls
+    g.fillStyle = '#6b5a52';
+    for (const s of [-1, 1]) {
+      g.beginPath();
+      poly([P(s, T, N), P(s, T, D), P(s, T - 0.08, D), P(s, T - 0.08, N)]);
+      g.fill();
+    }
+    g.beginPath();
+    poly([P(-1, T, D), P(1, T, D), P(1, T - 0.08, D), P(-1, T - 0.08, D)]);
+    g.fill();
+
+    // the far window itself, over the dais
+    g.beginPath();
+    farWindow(g);
+    g.fillStyle = '#5a4a44';
+    g.lineWidth = (F * 0.05) / D;
+    g.strokeStyle = '#5a4a44';
+    g.stroke();
+    g.fillStyle = xmas
+      ? vgrad(g, P(0, 2.9, D)[1], P(0, 0.62, D)[1], [
+          [0, '#0e2040'],
+          [1, '#2a4a76'],
+        ])
+      : vgrad(g, P(0, 2.9, D)[1], P(0, 0.62, D)[1], [
+          [0, '#120d28'],
+          [1, '#2e2552'],
+        ]);
+    g.fill();
+    g.save();
+    g.clip();
+    if (xmas) {
+      g.fillStyle = 'rgba(232,240,250,0.85)';
+      g.beginPath();
+      g.moveTo(...P(-0.45, 0.62, D));
+      for (let k = 0; k <= 12; k++) g.lineTo(...P(-0.4 + (0.8 * k) / 12, 0.68 + Math.sin(k * 1.3) * 0.025, D));
+      g.lineTo(...P(0.45, 0.62, D));
+      g.fill();
+    }
+    g.strokeStyle = 'rgba(22,16,26,0.9)';
+    g.lineWidth = Math.max(1, (F * 0.022) / D);
+    g.beginPath();
+    for (const X of [-0.2, 0, 0.2]) seg(P(X, 0.62, D), P(X, 2.25, D));
+    for (const Y of [1.2, 1.75]) seg(P(-0.4, Y, D), P(0.4, Y, D));
+    g.stroke();
+    // a rose of tracery in the head of the arch
+    const [rx, ry] = P(0, 2.53, D);
+    const rr = (F * 0.14) / D;
+    g.beginPath();
+    g.arc(rx, ry, rr, 0, TAU);
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * TAU;
+      g.moveTo(rx + Math.cos(a) * rr * 0.45 + rr * 0.3, ry + Math.sin(a) * rr * 0.45);
+      g.arc(rx + Math.cos(a) * rr * 0.45, ry + Math.sin(a) * rr * 0.45, rr * 0.3, 0, TAU);
+    }
+    g.stroke();
+    g.restore();
+
+    // --- the floor: flagstones, with a warm sheen down the aisles
+    g.fillStyle = vgrad(g, P(0, 0, D)[1], h, [
+      [0, '#2c2628'],
+      [1, '#4a4244'],
+    ]);
+    g.beginPath();
+    poly([P(-1, 0, N), P(1, 0, N), P(1, 0, D), P(-1, 0, D)]);
+    g.fill();
+    g.strokeStyle = 'rgba(12,8,10,0.45)';
+    g.lineWidth = Math.max(1, F * 0.003);
+    g.beginPath();
+    for (let X = -1; X <= 1.001; X += 0.25) seg(P(X, 0, N), P(X, 0, D));
+    for (let d = N; d < D; d *= 1.16) seg(P(-1, 0, d), P(1, 0, d));
+    g.stroke();
+    for (const X of [-0.4, 0, 0.4]) {
+      g.fillStyle = 'rgba(255,175,95,0.05)';
+      g.beginPath();
+      poly([P(X - 0.1, 0, N), P(X + 0.1, 0, N), P(X + 0.1, 0, D), P(X - 0.1, 0, D)]);
+      g.fill();
+    }
+
+    // --- the dais and the staff table
+    const dd = D - 0.5;
+    g.fillStyle = '#4f403b';
+    g.beginPath();
+    poly([P(-1, 0, dd), P(1, 0, dd), P(1, 0.1, dd), P(-1, 0.1, dd)]);
+    g.fill();
+    g.fillStyle = '#3e3230';
+    g.beginPath();
+    poly([P(-1, 0.1, dd), P(1, 0.1, dd), P(1, 0.1, D), P(-1, 0.1, D)]);
+    g.fill();
+    // high-backed chairs, the middle one grandest
+    g.fillStyle = '#24170f';
+    for (let X = -0.72; X <= 0.721; X += 0.12) {
+      const big = Math.abs(X) < 0.05;
+      const top = big ? 0.46 : 0.34;
+      const hw = big ? 0.032 : 0.022;
+      g.beginPath();
+      poly([P(X - hw, 0.15, D - 0.1), P(X - hw, top - 0.03, D - 0.1), P(X, top + 0.02, D - 0.1), P(X + hw, top - 0.03, D - 0.1), P(X + hw, 0.15, D - 0.1)]);
+      g.fill();
+    }
+    const dt = D - 0.3;
+    g.fillStyle = xmas ? '#1d3f2a' : '#4e1620';
+    g.beginPath();
+    poly([P(-0.8, 0.1, dt), P(0.8, 0.1, dt), P(0.8, 0.185, dt), P(-0.8, 0.185, dt)]);
+    g.fill();
+    g.strokeStyle = '#c9a24a';
+    g.lineWidth = Math.max(1, (F * 0.008) / dt);
+    g.beginPath();
+    seg(P(-0.8, 0.17, dt), P(0.8, 0.17, dt));
+    g.stroke();
+    g.fillStyle = '#5a3a24';
+    g.beginPath();
+    poly([P(-0.8, 0.185, dt), P(0.8, 0.185, dt), P(0.8, 0.185, dt + 0.1), P(-0.8, 0.185, dt + 0.1)]);
+    g.fill();
+
+    // --- the four long tables, with benches and gold plates and goblets all down them
+    const TX = [-0.6, -0.2, 0.2, 0.6];
+    this.tableFlames = [];
+    const t0 = 0.34;
+    const t1 = D - 0.78;
+    for (const X of TX) {
+      for (const bx of [X - 0.105, X + 0.105]) {
+        const side = bx > 0 ? -1 : 1; // the face we can see is the one toward the middle
+        g.fillStyle = '#3a2416';
+        g.beginPath();
+        poly([P(bx + side * 0.022, 0.05, t0), P(bx + side * 0.022, 0.05, t1), P(bx + side * 0.022, 0.03, t1), P(bx + side * 0.022, 0.03, t0)]);
+        g.fill();
+        g.fillStyle = '#5a3a22';
+        g.beginPath();
+        poly([P(bx - 0.022, 0.05, t0), P(bx + 0.022, 0.05, t0), P(bx + 0.022, 0.05, t1), P(bx - 0.022, 0.05, t1)]);
+        g.fill();
+        g.fillStyle = '#2e1c10';
+        g.beginPath();
+        poly([P(bx - 0.022, 0.05, t0), P(bx + 0.022, 0.05, t0), P(bx + 0.022, 0, t0), P(bx - 0.022, 0, t0)]);
+        g.fill();
+      }
+      const side = X > 0 ? -1 : 1;
+      g.fillStyle = '#26170f';
+      g.beginPath();
+      poly([P(X + side * 0.06, 0.085, t0), P(X + side * 0.06, 0.085, t1), P(X + side * 0.06, 0.065, t1), P(X + side * 0.06, 0.065, t0)]);
+      g.fill();
+      const top = [P(X - 0.06, 0.085, t0), P(X + 0.06, 0.085, t0), P(X + 0.06, 0.085, t1), P(X - 0.06, 0.085, t1)];
+      g.fillStyle = vgrad(g, top[2][1], top[0][1], [
+        [0, '#3a2212'],
+        [1, '#6e4426'],
+      ]);
+      g.beginPath();
+      poly(top);
+      g.fill();
+      // the near end: the board's edge, and legs into shadow
+      g.fillStyle = '#2a170c';
+      g.beginPath();
+      poly([P(X - 0.06, 0.085, t0), P(X + 0.06, 0.085, t0), P(X + 0.06, 0.075, t0), P(X - 0.06, 0.075, t0)]);
+      g.fill();
+      g.fillStyle = 'rgba(8,4,4,0.55)';
+      g.beginPath();
+      poly([P(X - 0.06, 0.075, t0), P(X + 0.06, 0.075, t0), P(X + 0.075, 0, t0 + 0.03), P(X - 0.075, 0, t0 + 0.03)]);
+      g.fill();
+      g.fillStyle = '#1e1009';
+      for (const lx of [X - 0.052, X + 0.044]) {
+        g.beginPath();
+        poly([P(lx, 0.075, t0 + 0.01), P(lx + 0.008, 0.075, t0 + 0.01), P(lx + 0.008, 0, t0 + 0.01), P(lx, 0, t0 + 0.01)]);
+        g.fill();
+      }
+      g.strokeStyle = 'rgba(255,200,140,0.22)';
+      g.lineWidth = Math.max(1, F * 0.004);
+      g.beginPath();
+      seg(top[0], top[3]);
+      seg(top[1], top[2]);
+      g.stroke();
+      // places laid down both sides; down the middle, candelabra and dishes of the feast
+      for (let d = t0 + 0.04, k = 0; d < t1 - 0.04; d += 0.085, k++) {
+        const sc = F / d;
+        for (const px of [X - 0.036, X + 0.036]) {
+          const [x, y] = P(px, 0.085, d);
+          const rx = sc * 0.013;
+          const ry = rx * clamp((HALL.eye - 0.085) / d, 0.1, 0.8);
+          g.fillStyle = '#8a6a2c';
+          g.beginPath();
+          g.ellipse(x, y, rx, ry, 0, 0, TAU);
+          g.fill();
+          g.fillStyle = '#d8b65e';
+          g.beginPath();
+          g.ellipse(x, y - ry * 0.12, rx * 0.72, ry * 0.62, 0, 0, TAU);
+          g.fill();
+          // a goblet beside every other plate
+          if ((k + (px < X ? 0 : 1)) % 2 === 0) {
+            const [gx, gy] = P(px + (px < X ? 0.018 : -0.018), 0.085, d + 0.03);
+            const gs = F / (d + 0.03);
+            const cw = gs * 0.0065;
+            const ch = gs * 0.011;
+            g.fillStyle = '#b08a3a';
+            g.beginPath();
+            g.ellipse(gx, gy, cw * 0.8, cw * 0.28, 0, 0, TAU); // foot
+            g.fill();
+            g.fillRect(gx - cw * 0.12, gy - ch * 0.9, cw * 0.24, ch * 0.9); // stem
+            g.fillStyle = '#d4ae58';
+            g.beginPath(); // bowl
+            g.moveTo(gx - cw, gy - ch * 1.9);
+            g.lineTo(gx + cw, gy - ch * 1.9);
+            g.quadraticCurveTo(gx + cw * 0.9, gy - ch * 0.95, gx, gy - ch * 0.85);
+            g.quadraticCurveTo(gx - cw * 0.9, gy - ch * 0.95, gx - cw, gy - ch * 1.9);
+            g.fill();
+            g.fillStyle = 'rgba(255,240,200,0.55)';
+            g.fillRect(gx - cw * 0.6, gy - ch * 1.8, cw * 0.25, ch * 0.6);
+          }
+        }
+        const [x, y] = P(X, 0.085, d + 0.042);
+        const ds = F / (d + 0.042);
+        if (k % 6 === 1) {
+          // a gold candelabrum, three candles lit
+          g.fillStyle = '#b8923e';
+          g.fillRect(x - ds * 0.002, y - ds * 0.05, ds * 0.004, ds * 0.05);
+          g.beginPath();
+          g.ellipse(x, y, ds * 0.011, ds * 0.0035, 0, 0, TAU);
+          g.fill();
+          g.strokeStyle = '#b8923e';
+          g.lineWidth = Math.max(1, ds * 0.003);
+          g.beginPath();
+          g.moveTo(x - ds * 0.02, y - ds * 0.06);
+          g.quadraticCurveTo(x - ds * 0.02, y - ds * 0.04, x, y - ds * 0.04);
+          g.quadraticCurveTo(x + ds * 0.02, y - ds * 0.04, x + ds * 0.02, y - ds * 0.06);
+          g.stroke();
+          for (const cx of [-0.02, 0, 0.02]) {
+            const top = y - ds * (cx ? 0.06 : 0.07);
+            g.fillStyle = '#ece0c8';
+            g.fillRect(x + ds * cx - ds * 0.002, top - ds * 0.025, ds * 0.004, ds * 0.025);
+            this.tableFlames.push({ x: x + ds * cx, y: top - ds * 0.025, s: ds, ph: R(0, TAU) });
+          }
+        } else if (k % 6 === 4 && !xmas) {
+          g.drawImage(jackSprite(ds * 0.018, 0.4), x - ds * 0.022, y - ds * 0.038, ds * 0.044, ds * 0.044);
+        } else if (k % 2 === 1 || k % 6 === 4) {
+          // a dish: a roast, a pie, a pudding with holly on top
+          const rx = ds * 0.022;
+          const ry = rx * clamp((HALL.eye - 0.085) / d, 0.1, 0.8);
+          g.fillStyle = '#c9a24a';
+          g.beginPath();
+          g.ellipse(x, y, rx, ry, 0, 0, TAU);
+          g.fill();
+          const kind = Math.floor(r() * 3);
+          g.fillStyle = ['#7a3a1c', '#b8742e', '#4a2416'][kind];
+          g.beginPath();
+          g.ellipse(x, y - rx * 0.28, rx * 0.68, rx * 0.4, 0, Math.PI, 0);
+          g.lineTo(x + rx * 0.68, y - rx * 0.1);
+          g.lineTo(x - rx * 0.68, y - rx * 0.1);
+          g.fill();
+          g.fillStyle = 'rgba(255,220,170,0.3)';
+          g.beginPath();
+          g.ellipse(x - rx * 0.2, y - rx * 0.5, rx * 0.25, rx * 0.12, -0.3, 0, TAU);
+          g.fill();
+          if (xmas && kind === 2) {
+            g.fillStyle = '#f2ead8';
+            g.beginPath();
+            g.ellipse(x, y - rx * 0.62, rx * 0.4, rx * 0.12, 0, 0, TAU);
+            g.fill();
+            g.fillStyle = '#c0182a';
+            g.beginPath();
+            g.arc(x, y - rx * 0.72, Math.max(1, rx * 0.08), 0, TAU);
+            g.fill();
+          }
+        }
+      }
+    }
+
+    // --- along the walls: twelve Christmas trees, or Hagrid-sized pumpkins
+    const spots = [
+      [-0.88, 1.0],
+      [-0.88, 1.55],
+      [-0.88, 2.62],
+      [-0.88, 3.25],
+      [-0.88, 3.75],
+      [-0.88, 3.0],
+      [0.88, 1.06],
+      [0.88, 2.0],
+      [0.88, 2.55],
+      [0.88, 3.05],
+      [0.88, 3.5],
+      [0.88, 3.85],
+    ].sort((a, b) => b[1] - a[1]);
+    this.twinkles = [];
+    for (const [X, d] of spots) {
+      const [bx, by] = P(X, 0, d);
+      const sc = F / d;
+      if (xmas) {
+        // a tall fir in a tub, snow on its boughs, baubles and candle-lights
+        g.fillStyle = '#5a3a24';
+        g.fillRect(bx - sc * 0.04, by - sc * 0.08, sc * 0.08, sc * 0.08);
+        g.fillStyle = '#3a2416';
+        g.fillRect(bx - sc * 0.012, by - sc * 0.12, sc * 0.024, sc * 0.04);
+        const tiers = 7;
+        for (let i = 0; i < tiers; i++) {
+          const yb = by - sc * (0.11 + i * 0.12);
+          const hw = sc * 0.12 * (1 - i / (tiers + 0.6));
+          const ht = sc * 0.21;
+          g.fillStyle = i % 2 ? '#1c3a24' : '#234a2c';
+          g.beginPath();
+          g.moveTo(bx - hw, yb);
+          for (let k = 1; k < 6; k++) g.lineTo(bx - hw + (2 * hw * k) / 6, yb + (k % 2 ? sc * 0.014 : 0));
+          g.lineTo(bx + hw, yb);
+          g.lineTo(bx, yb - ht);
+          g.closePath();
+          g.fill();
+          g.strokeStyle = 'rgba(236,244,252,0.8)';
+          g.lineWidth = Math.max(1, sc * 0.007);
+          g.beginPath();
+          g.moveTo(bx - hw * 0.95, yb - sc * 0.006);
+          g.quadraticCurveTo(bx - hw * 0.3, yb - ht * 0.25, bx, yb - ht * 0.8);
+          g.stroke();
+          for (let k = 0; k < 3; k++) {
+            const u2 = R(-0.8, 0.8);
+            const yy = yb - R(0.05, 0.6) * ht * (1 - Math.abs(u2) * 0.6);
+            g.fillStyle = ['#b81c2a', '#d4a640', '#c0c8d0'][Math.floor(r() * 3)];
+            g.beginPath();
+            g.arc(bx + u2 * hw * 0.8, yy, Math.max(1, sc * 0.01), 0, TAU);
+            g.fill();
+          }
+          for (let k = 0; k < 4; k++) this.twinkles.push({ x: bx + R(-0.85, 0.85) * hw, y: yb - R(0.08, 0.55) * ht, s: sc, ph: R(0, TAU), f: R(0.6, 1.6) });
+        }
+        // the star
+        const sy = by - sc * (0.11 + tiers * 0.12 + 0.07);
+        g.fillStyle = '#f0d070';
+        g.beginPath();
+        for (let k = 0; k < 10; k++) {
+          const a = -Math.PI / 2 + (k / 10) * TAU;
+          const rr = k % 2 ? sc * 0.015 : sc * 0.035;
+          g.lineTo(bx + Math.cos(a) * rr, sy + Math.sin(a) * rr);
+        }
+        g.fill();
+        this.twinkles.push({ x: bx, y: sy, s: sc * 2.2, ph: 0, f: 0.3, star: true });
+      } else {
+        const R0 = sc * 0.065;
+        g.drawImage(jackSprite(R0, 1), bx - R0 * 1.2, by - R0 * 2.0, R0 * 2.4, R0 * 2.4);
+        this.lights.push({ x: bx, y: by - R0 * 0.85, s: R0, ph: R(0, TAU) });
+      }
+    }
+
+    // --- what lives in the air: candles (and jack-o'-lanterns), at random down the hall
+    this.candles = [];
+    for (let i = 0; i < 190; i++) this.candles.push({ X: R(-0.92, 0.92), Y: R(0.75, T - 0.3), d: R(0.6, D - 0.2), ph: R(0, TAU), f: R(0.25, 0.6), fl: R(0, TAU) });
+    if (!xmas) for (let i = 0; i < 22; i++) this.candles.push({ X: R(-0.85, 0.85), Y: R(0.65, 1.6), d: R(0.75, D - 0.4), ph: R(0, TAU), f: R(0.2, 0.4), fl: R(0, TAU), jack: true });
+    this.candles.sort((a, b) => b.d - a.d);
+    this.jack = jackSprite(48, 1);
+    // a warm glow, and a flame
+    this.glow = layer(64, 64);
+    const gg = this.glow.getContext('2d');
+    const rg = gg.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0, 'rgba(255,205,130,0.85)');
+    rg.addColorStop(0.25, 'rgba(255,170,90,0.28)');
+    rg.addColorStop(1, 'rgba(255,140,60,0)');
+    gg.fillStyle = rg;
+    gg.fillRect(0, 0, 64, 64);
+    this.flame = layer(16, 32);
+    const fg = this.flame.getContext('2d');
+    const fr = fg.createRadialGradient(8, 22, 0, 8, 22, 12);
+    fr.addColorStop(0, 'rgba(255,255,230,1)');
+    fr.addColorStop(0.45, 'rgba(255,215,120,1)');
+    fr.addColorStop(1, 'rgba(255,140,40,0)');
+    fg.fillStyle = fr;
+    fg.beginPath();
+    fg.moveTo(8, 1);
+    fg.quadraticCurveTo(15, 18, 12, 26);
+    fg.quadraticCurveTo(8, 31, 4, 26);
+    fg.quadraticCurveTo(1, 18, 8, 1);
+    fg.fill();
+
+    // --- the sky's own weather
+    const sy0 = 0;
+    const sy1 = this.skyTop;
+    // the clouds are one long strip that drifts across and wraps; at Halloween a twin of it, lit
+    // from within, shows when the lightning goes
+    const cw = Math.ceil(w * 2);
+    const ch = Math.max(8, Math.ceil(sy1 * 1.05));
+    const blobs = Array.from({ length: xmas ? 26 : 70 }, () => ({ x: R(0, cw), y: R(-0.1, 1) * ch, r: R(0.06, 0.2) * Math.max(w, ch) }));
+    const paint = (lit) => {
+      const c = layer(cw, ch);
+      const q = c.getContext('2d');
+      for (const pass of xmas ? ['soft'] : ['rim', 'body']) {
+        for (const b of blobs) {
+          for (const ox of [-cw, 0, cw]) {
+            const x = b.x + ox;
+            if (x < -b.r || x > cw + b.r) continue;
+            const y = pass === 'rim' ? b.y + b.r * 0.18 : b.y;
+            const gr = q.createRadialGradient(x, y, 0, x, y, b.r);
+            const col = xmas ? 'rgba(160,180,215,' : lit ? (pass === 'rim' ? 'rgba(235,230,255,' : 'rgba(170,160,230,') : pass === 'rim' ? 'rgba(120,104,170,' : 'rgba(12,8,22,';
+            const a = xmas ? 0.13 : lit ? 0.5 : pass === 'rim' ? 0.55 : 0.7;
+            gr.addColorStop(0, col + a + ')');
+            gr.addColorStop(0.6, col + a * 0.5 + ')');
+            gr.addColorStop(1, col + '0)');
+            q.fillStyle = gr;
+            q.fillRect(x - b.r, y - b.r, b.r * 2, b.r * 2);
+          }
+        }
+      }
+      return c;
+    };
+    this.cloudTex = paint(false);
+    this.cloudLit = xmas ? null : paint(true);
+    this.cloudV = R(0.006, 0.01) * w;
+    this.stars = Array.from({ length: 70 }, () => ({ x: R(0, w), y: R(0, sy1), a: R(0.2, 0.8), ph: R(0, TAU) }));
+    if (xmas) this.flakes = Array.from({ length: 320 }, () => this.flake(true));
+    this.bats = xmas ? [] : Array.from({ length: 6 }, () => ({ cx: R(0.2, 0.8) * w, cy: R(0.08, 0.6) * Math.max(sy1, h * 0.25), ax: R(0.15, 0.35) * w, ay: R(0.03, 0.08) * h, fx: R(0.08, 0.16), fy: R(0.15, 0.3), ph: R(0, TAU), size: R(0.7, 1.2) }));
+  }
+
+  // a snowflake, born at the ceiling (or anywhere, at the start)
+  flake(anywhere) {
+    return { X: rand(-1, 1), Y: anywhere ? rand(0.6, HALL.top) : HALL.top + rand(0, 0.2), d: rand(0.45, HALL.far - 0.1), v: rand(0.1, 0.2), sw: rand(0, TAU), s: rand(0.6, 1.3) };
+  }
+
+  event(e) {
+    if (e.type === 'lightning') this.at(e.at, () => this.flashes.push({ t0: this.t, k: e.strength ?? 0.7, bolt: this.bolt() }));
+  }
+
+  // a forked bolt across the enchanted ceiling, in screen space
+  bolt() {
+    const { w } = this;
+    const pts = [[rand(0.25, 0.75) * w, 0]];
+    const end = this.skyTop * rand(0.55, 0.95);
+    while (pts[pts.length - 1][1] < end) {
+      const [x, y] = pts[pts.length - 1];
+      pts.push([x + rand(-0.06, 0.06) * w, y + rand(0.04, 0.09) * end]);
+    }
+    const fork = pts.slice(Math.floor(pts.length * 0.4), Math.floor(pts.length * 0.4) + 1);
+    for (let k = 0; k < 3; k++) {
+      const [x, y] = fork[fork.length - 1];
+      fork.push([x + rand(0.02, 0.07) * w * (Math.random() < 0.5 ? -1 : 1), y + rand(0.04, 0.08) * end]);
+    }
+    return [pts, fork];
+  }
+
+  frame(dt) {
+    const { g, w, h, t } = this;
+    const xmas = this.season === 'christmas';
+    const F = this.F;
+    // the flash of lightning, if any
+    this.flashes = this.flashes.filter((f) => t - f.t0 < 0.7);
+    let flash = 0;
+    for (const f of this.flashes) {
+      const age = t - f.t0;
+      flash = Math.max(flash, f.k * (age < 0.07 || (age > 0.14 && age < 0.22) ? 1 : Math.max(0, 1 - age / 0.7) * 0.35));
+    }
+
+    // the enchanted ceiling
+    g.save();
+    g.clip(this.sky);
+    g.fillStyle = xmas
+      ? vgrad(g, 0, this.skyTop, [
+          [0, '#06102a'],
+          [1, '#1c3560'],
+        ])
+      : vgrad(g, 0, this.skyTop, [
+          [0, '#0a0716'],
+          [1, '#2a1f42'],
+        ]);
+    g.fillRect(0, 0, w, this.skyTop + 2);
+    for (const s of this.stars) {
+      const a = s.a * (0.6 + 0.4 * Math.sin(t * 0.9 + s.ph)) * (xmas ? 1 : 0.35);
+      g.fillStyle = `rgba(235,240,255,${a})`;
+      g.fillRect(s.x, s.y, 1.5 * this.dpr, 1.5 * this.dpr);
+    }
+    const cw = this.cloudTex.width;
+    const off = (t * this.cloudV) % cw;
+    g.drawImage(this.cloudTex, -off, 0);
+    g.drawImage(this.cloudTex, cw - off, 0);
+    if (flash > 0 && this.cloudLit) {
+      g.globalAlpha = Math.min(1, flash * 1.2);
+      g.drawImage(this.cloudLit, -off, 0);
+      g.drawImage(this.cloudLit, cw - off, 0);
+      g.globalAlpha = 1;
+    }
+    if (flash > 0) {
+      g.fillStyle = `rgba(190,190,255,${0.35 * flash})`;
+      g.fillRect(0, 0, w, this.skyTop + 2);
+      for (const f of this.flashes) {
+        if (t - f.t0 > 0.22) continue;
+        g.strokeStyle = `rgba(240,240,255,${f.k})`;
+        g.shadowColor = 'rgba(200,200,255,0.9)';
+        g.shadowBlur = 12 * this.dpr;
+        for (const [i, line] of f.bolt.entries()) {
+          g.lineWidth = (i ? 1.2 : 2.4) * this.dpr;
+          g.beginPath();
+          g.moveTo(...line[0]);
+          for (const p of line.slice(1)) g.lineTo(...p);
+          g.stroke();
+        }
+        g.shadowBlur = 0;
+      }
+    }
+    g.restore();
+
+    g.drawImage(this.hall, 0, 0);
+    if (flash > 0) {
+      g.fillStyle = `rgba(205,210,255,${0.7 * flash})`;
+      g.fill(this.glass);
+      g.fillStyle = `rgba(170,175,255,${0.08 * flash})`;
+      g.fillRect(0, 0, w, h);
+    }
+
+    // fires in the hearths
+    const fireOn = this.engine.scene?.layers?.get('fire')?.level ?? 0.6;
+    for (const hh of this.hearths) {
+      const k = (0.55 + 0.25 * Math.sin(t * 7.1 + hh.x) * Math.sin(t * 3.3) + 0.1 * Math.sin(t * 13)) * clamp(fireOn * 1.6, 0.15, 1);
+      g.save();
+      g.beginPath();
+      g.moveTo(...hh.mouth[0]);
+      for (const p of hh.mouth.slice(1)) g.lineTo(...p);
+      g.closePath();
+      g.clip();
+      const fr = g.createRadialGradient(hh.x, hh.y + hh.s * 0.06, 0, hh.x, hh.y, hh.s * 0.26);
+      fr.addColorStop(0, `rgba(255,220,140,${k})`);
+      fr.addColorStop(0.4, `rgba(255,120,40,${0.8 * k})`);
+      fr.addColorStop(1, 'rgba(120,30,10,0)');
+      g.fillStyle = fr;
+      g.fillRect(hh.x - hh.s, hh.y - hh.s, hh.s * 2, hh.s * 2);
+      g.restore();
+      g.globalCompositeOperation = 'lighter';
+      g.globalAlpha = 0.35 * k;
+      g.drawImage(this.glow, hh.x - hh.s * 0.4, hh.y - hh.s * 0.3, hh.s * 0.8, hh.s * 0.8);
+      g.globalAlpha = 1;
+      g.globalCompositeOperation = 'source-over';
+    }
+    // torches
+    g.globalCompositeOperation = 'lighter';
+    for (const to of this.torches) {
+      const k = 0.75 + 0.25 * Math.sin(t * 9 + to.ph) * Math.sin(t * 5.3 + to.ph * 2);
+      g.globalAlpha = 0.5 * k;
+      g.drawImage(this.glow, to.x - to.s * 0.09, to.y - to.s * 0.11, to.s * 0.18, to.s * 0.18);
+    }
+    // the giant pumpkins' faces
+    for (const l of this.lights) {
+      const k = 0.7 + 0.3 * Math.sin(t * 8 + l.ph) * Math.sin(t * 4.7 + l.ph * 2);
+      g.globalAlpha = 0.45 * k;
+      g.drawImage(this.glow, l.x - l.s * 1.4, l.y - l.s * 1.4, l.s * 2.8, l.s * 2.8);
+    }
+    // fairy lights on the trees
+    for (const tw of this.twinkles) {
+      const k = tw.star ? 0.5 + 0.2 * Math.sin(t * 0.8) : Math.max(0, Math.sin(t * tw.f + tw.ph)) ** 2;
+      g.globalAlpha = 0.9 * k;
+      const s = tw.s * (tw.star ? 0.1 : 0.028);
+      g.drawImage(this.glow, tw.x - s, tw.y - s, s * 2, s * 2);
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    for (const to of this.torches) {
+      const s = to.s * 0.022;
+      g.drawImage(this.flame, to.x - s * 0.5, to.y - s * 1.9, s, s * 2);
+    }
+    g.globalCompositeOperation = 'lighter';
+    for (const f of this.tableFlames) {
+      g.globalAlpha = 0.35 + 0.08 * Math.sin(t * 7 + f.ph);
+      const s = f.s * 0.06;
+      g.drawImage(this.glow, f.x - s / 2, f.y - s * 0.6, s, s);
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    for (const f of this.tableFlames) {
+      const s = f.s * 0.013;
+      g.drawImage(this.flame, f.x - s * 0.25, f.y - s, s * 0.5, s);
+    }
+
+    // snow from the enchanted ceiling, melting away above the tables
+    if (xmas) {
+      g.fillStyle = '#eef4fb';
+      for (const f of this.flakes) {
+        f.Y -= f.v * dt;
+        f.X += Math.sin(t * 0.7 + f.sw) * 0.02 * dt;
+        if (f.Y < 0.6) Object.assign(f, this.flake(false));
+        const a = clamp((HALL.top - f.Y) / 0.25, 0, 1) * clamp((f.Y - 0.6) / 0.45, 0, 1);
+        if (a <= 0) continue;
+        const [x, y] = this.P(f.X, f.Y, f.d);
+        if (x < -4 || x > w + 4 || y < -4 || y > h) continue;
+        const s = Math.max(0.8 * this.dpr, ((F * 0.006) / f.d) * f.s);
+        g.globalAlpha = a * 0.85;
+        g.fillRect(x - s / 2, y - s / 2, s, s);
+      }
+      g.globalAlpha = 1;
+    }
+
+    // candles and jack-o'-lanterns, bobbing gently in the air: glows first, then the flames
+    const pos = [];
+    for (const c of this.candles) {
+      const Y = c.Y + 0.035 * Math.sin(t * c.f + c.ph);
+      const [x, y] = this.P(c.X, Y, c.d);
+      const s = F / c.d;
+      if (x < -s * 0.3 || x > w + s * 0.3 || y < -s * 0.3 || y > h + s * 0.3) continue;
+      pos.push([c, x, y, s]);
+    }
+    g.globalCompositeOperation = 'lighter';
+    for (const [c, x, y, s] of pos) {
+      const k = 0.8 + 0.2 * Math.sin(t * 7 + c.fl) * Math.sin(t * 4.3 + c.fl * 1.7);
+      const gs = s * (c.jack ? 0.28 : 0.12);
+      g.globalAlpha = (c.jack ? 0.5 : 0.42) * k;
+      g.drawImage(this.glow, x - gs / 2, y - gs * (c.jack ? 0.5 : 0.75), gs, gs);
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    for (const [c, x, y, s] of pos) {
+      if (c.jack) {
+        const js = s * 0.09;
+        g.drawImage(this.jack, x - js / 2, y - js / 2, js, js);
+        continue;
+      }
+      const bh = s * 0.045;
+      const bw = Math.max(1, s * 0.0075);
+      g.fillStyle = '#eadcbf';
+      g.fillRect(x - bw / 2, y - bh * 0.25, bw, bh);
+      g.fillStyle = 'rgba(120,90,60,0.35)';
+      g.fillRect(x, y - bh * 0.25, bw / 2, bh);
+      const fh = s * 0.02 * (0.9 + 0.1 * Math.sin(t * 11 + c.fl));
+      g.drawImage(this.flame, x - fh * 0.25, y - bh * 0.25 - fh, fh * 0.5, fh);
+    }
+
+    // bats under the roof
+    for (const b of this.bats) {
+      const x = b.cx + b.ax * Math.sin(t * b.fx + b.ph);
+      const y = b.cy + b.ay * Math.sin(t * b.fy + b.ph * 1.3);
+      const dir = Math.cos(t * b.fx + b.ph) >= 0 ? 1 : -1;
+      const flap = Math.sin(t * 16 + b.ph);
+      const s = 1.6 * this.u * b.size;
+      g.fillStyle = '#0a0608';
+      g.beginPath();
+      g.moveTo(x, y);
+      g.quadraticCurveTo(x - s * 0.6, y - s * (0.2 + flap * 0.6), x - s * 1.4, y - flap * s * 0.8);
+      g.quadraticCurveTo(x - s * 0.9, y + s * 0.1, x - s * 0.5, y + s * 0.15);
+      g.quadraticCurveTo(x - s * 0.25, y + s * 0.05, x, y + s * 0.2);
+      g.quadraticCurveTo(x + s * 0.25, y + s * 0.05, x + s * 0.5, y + s * 0.15);
+      g.quadraticCurveTo(x + s * 0.9, y + s * 0.1, x + s * 1.4, y - flap * s * 0.8);
+      g.quadraticCurveTo(x + s * 0.6, y - s * (0.2 + flap * 0.6), x, y);
+      g.fill();
+      g.beginPath();
+      g.ellipse(x + dir * s * 0.05, y + s * 0.05, s * 0.16, s * 0.22, 0, 0, TAU);
+      g.fill();
+    }
+  }
+}
+class Halloween extends GreatHall {
+  get season() {
+    return 'halloween';
+  }
+}
+class Christmas extends GreatHall {
+  get season() {
+    return 'christmas';
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // The blank canvas: black, with a slow breathing ring so you know it's alive.
 class Blank extends Painting {
   frame() {
@@ -5020,7 +6035,7 @@ class Blank extends Painting {
   }
 }
 
-const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, mixer: Blank };
+const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, halloween: Halloween, christmas: Christmas, mixer: Blank };
 
 export function createPainting(id, canvas, engine) {
   const P = PAINTINGS[id] || Blank;

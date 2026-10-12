@@ -93,6 +93,7 @@ function decode(ctx, data) {
 // few early reflections for rooms. Cheap, smooth and convincing at low send levels.
 const REVERBS = {
   hall: { seconds: 3.6, decay: 3.2, damp: 0.86, early: 9, pre: 0.018 },
+  great: { seconds: 5.2, decay: 2.8, damp: 0.87, early: 12, pre: 0.03 }, // a stone hall the size of a church
   room: { seconds: 1.1, decay: 3.5, damp: 0.8, early: 6, pre: 0.006 },
   forest: { seconds: 1.8, decay: 4.5, damp: 0.93, early: 3, pre: 0.012 },
   open: { seconds: 2.6, decay: 5, damp: 0.95, early: 0, pre: 0.02 },
