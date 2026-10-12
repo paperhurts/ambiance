@@ -7273,7 +7273,8 @@ class LakeRoom extends Painting {
 // ---------------------------------------------------------------------------------------------
 // A round, low common room by the kitchens: honey-coloured wood and warm plaster, round windows up
 // at the level of the grass outside, plants hanging in copper pots, a fire with a copper hood and
-// the kettle by it, tea and a book on the table. When it rains the sky outside greys and drops run
+// the kettle by it, tea and a book on the table, and a pile of three cats on the rug by the fire: a
+// tuxedo asleep, a bicolour curled up against him, and a black cat behind them, awake, slow-blinking. When it rains the sky outside greys and drops run
 // down the glass; when it doesn't, the sun slants in and dandelion seeds drift past. A garden bird
 // that sings outside comes down onto the grass while it sings.
 
@@ -7481,6 +7482,365 @@ function hangingPlant(S, L, seed) {
   return c;
 }
 
+// an all-black cat with long, soft fur and yellow eyes, lying in a loaf facing left with his head up,
+// drawn smooth like his friend; open eyes, or shut for a slow blink. The fire is on his left.
+function blackCatSprite(S, open) {
+  const c = layer(Math.ceil(S * 1.6), Math.ceil(S * 1.2));
+  const g = c.getContext('2d');
+  const cx = S * 0.85;
+  const cy = S * 0.82;
+  const BLACK = '#141418';
+  const lit = (path, col, a) => {
+    const rg = g.createLinearGradient(cx + S * 0.2, 0, cx - S * 0.6, 0);
+    rg.addColorStop(0, 'rgba(255,165,85,0)');
+    rg.addColorStop(1, `rgba(255,165,85,${a})`);
+    g.strokeStyle = rg;
+    g.lineWidth = S * 0.026;
+    g.stroke(path);
+    g.fillStyle = col;
+    g.fill(path);
+  };
+  const sheen = (path, y0, y1, a) => {
+    g.save();
+    g.clip(path);
+    const sg = g.createLinearGradient(0, y0, 0, y1);
+    sg.addColorStop(0, `rgba(205,180,150,${a})`);
+    sg.addColorStop(1, 'rgba(205,180,150,0)');
+    g.fillStyle = sg;
+    g.fillRect(0, 0, c.width, c.height);
+    g.restore();
+  };
+  g.fillStyle = 'rgba(0,0,0,0.35)';
+  g.beginPath();
+  g.ellipse(cx - S * 0.05, cy + S * 0.27, S * 0.58, S * 0.08, 0, 0, TAU);
+  g.fill();
+  // the body, his haunch at the back, his deep soft chest at the front
+  const body = new Path2D();
+  body.ellipse(cx, cy + S * 0.02, S * 0.46, S * 0.27, 0, 0, TAU);
+  body.moveTo(cx + S * 0.2 + S * 0.26, cy - S * 0.02);
+  body.ellipse(cx + S * 0.2, cy - S * 0.02, S * 0.26, S * 0.26, 0, 0, TAU);
+  body.moveTo(cx - S * 0.3 + S * 0.19, cy - S * 0.1);
+  body.ellipse(cx - S * 0.3, cy - S * 0.1, S * 0.19, S * 0.24, 0.15, 0, TAU);
+  lit(body, BLACK, 0.5);
+  sheen(body, cy - S * 0.32, cy + S * 0.02, 0.22);
+  // the long fur of his chest, a little lighter, and his black paws tucked in front
+  g.fillStyle = 'rgba(70,64,62,0.45)';
+  g.beginPath();
+  g.moveTo(cx - S * 0.44, cy - S * 0.16);
+  g.quadraticCurveTo(cx - S * 0.52, cy + S * 0.04, cx - S * 0.4, cy + S * 0.18);
+  g.quadraticCurveTo(cx - S * 0.3, cy + S * 0.08, cx - S * 0.3, cy - S * 0.12);
+  g.closePath();
+  g.fill();
+  for (const dx of [-0.42, -0.28]) {
+    const paw = new Path2D();
+    paw.ellipse(cx + S * dx, cy + S * 0.25, S * 0.062, S * 0.034, 0, 0, TAU);
+    lit(paw, '#1c1c22', 0.4);
+  }
+  // his tail, round the front from the back
+  const tp = (u) => {
+    const a = [cx + S * 0.3, cy + S * 0.17];
+    const b = [cx + S * 0.05, cy + S * 0.37];
+    const e = [cx - S * 0.2, cy + S * 0.27];
+    return [(1 - u) ** 2 * a[0] + 2 * (1 - u) * u * b[0] + u * u * e[0], (1 - u) ** 2 * a[1] + 2 * (1 - u) * u * b[1] + u * u * e[1]];
+  };
+  const one = [];
+  const two = [];
+  for (let i = 0; i <= 30; i++) {
+    const u = i / 30;
+    const [x, y] = tp(u);
+    const [x2, y2] = tp(Math.min(1, u + 0.01));
+    const [x1, y1] = tp(Math.max(0, u - 0.01));
+    const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+    const wd = S * (0.075 - 0.03 * u);
+    one.push([x - ((y2 - y1) / len) * wd, y + ((x2 - x1) / len) * wd]);
+    two.push([x + ((y2 - y1) / len) * wd, y - ((x2 - x1) / len) * wd]);
+  }
+  const tail = new Path2D();
+  tail.moveTo(...one[0]);
+  for (const p of one.slice(1)) tail.lineTo(...p);
+  const [ex, ey] = tp(1);
+  tail.arc(ex, ey, S * 0.045, Math.atan2(one[30][1] - ey, one[30][0] - ex), Math.atan2(two[30][1] - ey, two[30][0] - ex), true);
+  for (const p of two.reverse()) tail.lineTo(...p);
+  tail.closePath();
+  lit(tail, '#1a1a20', 0.35);
+  // his head, up and turned a little toward us, with full cheeks
+  const hx = cx - S * 0.36;
+  const hy = cy - S * 0.36;
+  for (const [b0, tip, b1] of [
+    [
+      [-0.16, -0.04],
+      [-0.17, -0.26],
+      [-0.04, -0.13],
+    ],
+    [
+      [0.03, -0.14],
+      [0.13, -0.27],
+      [0.16, -0.05],
+    ],
+  ]) {
+    const ear = new Path2D();
+    ear.moveTo(hx + b0[0] * S, hy + b0[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] + 0.01) * S, hy + (tip[1] + 0.04) * S, hx + tip[0] * S, hy + tip[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] + 0.03) * S, hy + (tip[1] + 0.07) * S, hx + b1[0] * S, hy + b1[1] * S);
+    ear.closePath();
+    lit(ear, BLACK, 0.5);
+    const m = [(b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2];
+    g.fillStyle = 'rgba(105,72,80,0.55)';
+    g.beginPath();
+    g.moveTo(hx + (m[0] * 0.55 + b0[0] * 0.45) * S, hy + (m[1] * 0.55 + b0[1] * 0.45) * S);
+    g.lineTo(hx + (tip[0] * 0.75 + m[0] * 0.25) * S, hy + (tip[1] * 0.75 + m[1] * 0.25) * S);
+    g.lineTo(hx + (m[0] * 0.55 + b1[0] * 0.45) * S, hy + (m[1] * 0.55 + b1[1] * 0.45) * S);
+    g.fill();
+  }
+  const head = new Path2D();
+  head.ellipse(hx, hy, S * 0.17, S * 0.145, -0.05, 0, TAU);
+  head.moveTo(hx - S * 0.06 + S * 0.12, hy + S * 0.06);
+  head.ellipse(hx - S * 0.06, hy + S * 0.06, S * 0.12, S * 0.085, 0, 0, TAU);
+  head.moveTo(hx + S * 0.07 + S * 0.11, hy + S * 0.055);
+  head.ellipse(hx + S * 0.07, hy + S * 0.055, S * 0.11, S * 0.08, 0, 0, TAU);
+  lit(head, BLACK, 0.5);
+  sheen(head, hy - S * 0.15, hy + S * 0.02, 0.2);
+  // eyes: yellow, a little green round the pupil, or shut in a slow blink
+  for (const [ex2, ey2, sc] of [
+    [-0.075, -0.005, 0.92],
+    [0.055, -0.012, 1],
+  ]) {
+    const x = hx + ex2 * S;
+    const y = hy + ey2 * S;
+    if (open) {
+      const eg = g.createRadialGradient(x, y, 0, x, y, S * 0.036 * sc);
+      eg.addColorStop(0, '#c8d860');
+      eg.addColorStop(0.6, '#e2dc6a');
+      eg.addColorStop(1, '#a89a3a');
+      g.fillStyle = eg;
+      g.beginPath();
+      g.ellipse(x, y, S * 0.036 * sc, S * 0.027 * sc, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = '#08080a';
+      g.beginPath();
+      g.ellipse(x, y, S * 0.011 * sc, S * 0.022 * sc, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.85)';
+      g.beginPath();
+      g.arc(x + S * 0.008, y - S * 0.009, S * 0.0055, 0, TAU);
+      g.fill();
+    } else {
+      g.strokeStyle = '#5c5a64';
+      g.lineWidth = Math.max(1, S * 0.01);
+      g.lineCap = 'round';
+      g.beginPath();
+      g.arc(x, y - S * 0.012, S * 0.03 * sc, 0.35, Math.PI - 0.35);
+      g.stroke();
+    }
+  }
+  // nose and mouth, and his whiskers, pale, both sides
+  g.fillStyle = '#2c2428';
+  g.beginPath();
+  g.moveTo(hx - S * 0.03, hy + S * 0.045);
+  g.lineTo(hx + S * 0.0, hy + S * 0.045);
+  g.lineTo(hx - S * 0.015, hy + S * 0.065);
+  g.fill();
+  g.strokeStyle = 'rgba(60,52,56,0.9)';
+  g.lineWidth = Math.max(1, S * 0.006);
+  g.beginPath();
+  g.moveTo(hx - S * 0.015, hy + S * 0.065);
+  g.quadraticCurveTo(hx - S * 0.025, hy + S * 0.085, hx - S * 0.045, hy + S * 0.083);
+  g.moveTo(hx - S * 0.015, hy + S * 0.065);
+  g.quadraticCurveTo(hx - S * 0.005, hy + S * 0.085, hx + S * 0.015, hy + S * 0.083);
+  g.stroke();
+  g.strokeStyle = 'rgba(235,230,225,0.55)';
+  g.lineWidth = Math.max(1, S * 0.004);
+  for (const [x0, y0, x1, y1, bx, by] of [
+    [-0.06, 0.06, -0.3, 0.02, -0.18, 0.03],
+    [-0.06, 0.072, -0.29, 0.09, -0.18, 0.07],
+    [-0.055, 0.082, -0.26, 0.14, -0.16, 0.1],
+    [0.03, 0.06, 0.24, 0.03, 0.14, 0.035],
+    [0.03, 0.072, 0.23, 0.1, 0.14, 0.075],
+  ]) {
+    g.beginPath();
+    g.moveTo(hx + S * x0, hy + S * y0);
+    g.quadraticCurveTo(hx + S * bx, hy + S * by, hx + S * x1, hy + S * y1);
+    g.stroke();
+  }
+  return c;
+}
+
+// a cow cat, mostly white with black patches, curled up asleep facing right with his white front legs
+// stretched out: black over his rear and in a patch on his back, a black tail, a black cap over his
+// ears and round his eyes with a wide white blaze down the middle, a pink nose. The fire is on his left.
+function bicolourCatSprite(S) {
+  const c = layer(Math.ceil(S * 1.4), Math.ceil(S * 1.0));
+  const g = c.getContext('2d');
+  const cx = S * 0.62;
+  const cy = S * 0.6;
+  const BLACK = '#18181e';
+  const WHITE = '#f2efe8';
+  const lit = (path, col, a) => {
+    const rg = g.createLinearGradient(cx + S * 0.2, 0, cx - S * 0.5, 0);
+    rg.addColorStop(0, 'rgba(255,165,85,0)');
+    rg.addColorStop(1, `rgba(255,165,85,${a})`);
+    g.strokeStyle = rg;
+    g.lineWidth = S * 0.026;
+    g.stroke(path);
+    g.fillStyle = col;
+    g.fill(path);
+  };
+  g.fillStyle = 'rgba(0,0,0,0.33)';
+  g.beginPath();
+  g.ellipse(cx, cy + S * 0.25, S * 0.5, S * 0.07, 0, 0, TAU);
+  g.fill();
+  // the body, a round curl: white underneath, a black saddle over his back with a white spot in it
+  const body = new Path2D();
+  body.ellipse(cx, cy + S * 0.02, S * 0.42, S * 0.26, 0, 0, TAU);
+  body.moveTo(cx - S * 0.12 + S * 0.24, cy - S * 0.03);
+  body.ellipse(cx - S * 0.12, cy - S * 0.03, S * 0.24, S * 0.24, 0, 0, TAU);
+  lit(body, WHITE, 0.45);
+  g.save();
+  g.clip(body);
+  g.fillStyle = BLACK;
+  g.beginPath();
+  g.ellipse(cx - S * 0.34, cy - S * 0.02, S * 0.2, S * 0.3, 0.1, 0, TAU);
+  g.ellipse(cx - S * 0.2, cy - S * 0.2, S * 0.14, S * 0.1, -0.3, 0, TAU);
+  g.fill();
+  g.beginPath();
+  g.ellipse(cx + S * 0.06, cy - S * 0.23, S * 0.15, S * 0.075, 0.1, 0, TAU);
+  g.fill();
+  const sheen = g.createLinearGradient(0, cy - S * 0.28, 0, cy + S * 0.02);
+  sheen.addColorStop(0, 'rgba(205,180,150,0.2)');
+  sheen.addColorStop(1, 'rgba(205,180,150,0)');
+  g.fillStyle = sheen;
+  g.fillRect(0, 0, c.width, c.height);
+  const under = g.createLinearGradient(0, cy, 0, cy + S * 0.28);
+  under.addColorStop(0, 'rgba(60,40,20,0)');
+  under.addColorStop(1, 'rgba(60,40,20,0.28)');
+  g.fillStyle = under;
+  g.fillRect(0, 0, c.width, c.height);
+  g.restore();
+  // his black tail round the front
+  g.strokeStyle = BLACK;
+  g.lineCap = 'round';
+  g.lineWidth = S * 0.09;
+  g.beginPath();
+  g.moveTo(cx - S * 0.36, cy + S * 0.12);
+  g.quadraticCurveTo(cx - S * 0.1, cy + S * 0.33, cx + S * 0.18, cy + S * 0.22);
+  g.stroke();
+  g.lineWidth = S * 0.06;
+  g.beginPath();
+  g.moveTo(cx + S * 0.15, cy + S * 0.23);
+  g.lineTo(cx + S * 0.22, cy + S * 0.2);
+  g.stroke();
+  // his white front legs stretched out in front of him, one a little ahead of the other
+  for (const [y0, x1, dip] of [
+    [0.15, 0.56, 0.01],
+    [0.2, 0.5, 0.0],
+  ]) {
+    const leg = new Path2D();
+    leg.moveTo(cx + S * 0.18, cy + S * (y0 - 0.035));
+    leg.quadraticCurveTo(cx + S * (x1 * 0.6 + 0.08), cy + S * (y0 - 0.03 + dip), cx + S * x1, cy + S * (y0 - 0.022));
+    leg.lineTo(cx + S * x1, cy + S * (y0 + 0.022));
+    leg.quadraticCurveTo(cx + S * (x1 * 0.6 + 0.08), cy + S * (y0 + 0.035 + dip), cx + S * 0.18, cy + S * (y0 + 0.04));
+    leg.closePath();
+    lit(leg, WHITE, 0.3);
+    const paw = new Path2D();
+    paw.ellipse(cx + S * (x1 + 0.015), cy + S * y0, S * 0.042, S * 0.03, 0, 0, TAU);
+    lit(paw, WHITE, 0.3);
+    g.strokeStyle = 'rgba(150,140,135,0.55)';
+    g.lineWidth = Math.max(1, S * 0.005);
+    g.lineCap = 'round';
+    g.beginPath();
+    for (const dy of [-0.011, 0.011]) {
+      g.moveTo(cx + S * (x1 + 0.03), cy + S * (y0 + dy));
+      g.lineTo(cx + S * (x1 + 0.05), cy + S * (y0 + dy));
+    }
+    g.stroke();
+  }
+  // his head, tucked low at the front, face white under a black cap
+  const hx = cx + S * 0.28;
+  const hy = cy + S * 0.02;
+  for (const [b0, tip, b1] of [
+    [
+      [-0.12, -0.06],
+      [-0.08, -0.24],
+      [0.0, -0.12],
+    ],
+    [
+      [0.05, -0.12],
+      [0.15, -0.22],
+      [0.16, -0.03],
+    ],
+  ]) {
+    const ear = new Path2D();
+    ear.moveTo(hx + b0[0] * S, hy + b0[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] - 0.01) * S, hy + (tip[1] + 0.04) * S, hx + tip[0] * S, hy + tip[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] + 0.03) * S, hy + (tip[1] + 0.06) * S, hx + b1[0] * S, hy + b1[1] * S);
+    ear.closePath();
+    lit(ear, BLACK, 0.4);
+    const m = [(b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2];
+    g.fillStyle = 'rgba(190,130,135,0.6)';
+    g.beginPath();
+    g.moveTo(hx + (m[0] * 0.55 + b0[0] * 0.45) * S, hy + (m[1] * 0.55 + b0[1] * 0.45) * S);
+    g.lineTo(hx + (tip[0] * 0.75 + m[0] * 0.25) * S, hy + (tip[1] * 0.75 + m[1] * 0.25) * S);
+    g.lineTo(hx + (m[0] * 0.55 + b1[0] * 0.45) * S, hy + (m[1] * 0.55 + b1[1] * 0.45) * S);
+    g.fill();
+  }
+  const head = new Path2D();
+  head.ellipse(hx, hy, S * 0.16, S * 0.13, 0.15, 0, TAU);
+  lit(head, WHITE, 0.4);
+  g.save();
+  g.clip(head);
+  // the black cap: over the top of his head and round his eyes, more on the far side, with a wide
+  // white blaze coming down the middle to his white muzzle
+  g.fillStyle = BLACK;
+  g.beginPath();
+  g.moveTo(hx - S * 0.2, hy - S * 0.2);
+  g.lineTo(hx + S * 0.22, hy - S * 0.2);
+  g.lineTo(hx + S * 0.22, hy + S * 0.05);
+  g.quadraticCurveTo(hx + S * 0.14, hy + S * 0.04, hx + S * 0.08, hy + S * 0.01);
+  g.quadraticCurveTo(hx + S * 0.05, hy - S * 0.08, hx + S * 0.03, hy - S * 0.15);
+  g.lineTo(hx + S * 0.0, hy - S * 0.15);
+  g.quadraticCurveTo(hx - S * 0.03, hy - S * 0.07, hx - S * 0.06, hy - S * 0.02);
+  g.quadraticCurveTo(hx - S * 0.12, hy + S * 0.0, hx - S * 0.2, hy - S * 0.01);
+  g.closePath();
+  g.fill();
+  const hs = g.createLinearGradient(0, hy - S * 0.13, 0, hy + S * 0.13);
+  hs.addColorStop(0, 'rgba(205,180,150,0.15)');
+  hs.addColorStop(1, 'rgba(60,40,20,0.15)');
+  g.fillStyle = hs;
+  g.fillRect(0, 0, c.width, c.height);
+  g.restore();
+  // eyes shut, a pink nose, pale whiskers
+  g.strokeStyle = '#6a6a74';
+  g.lineWidth = Math.max(1, S * 0.01);
+  for (const [ex, ey] of [
+    [-0.07, -0.005],
+    [0.105, 0.0],
+  ]) {
+    g.beginPath();
+    g.arc(hx + ex * S, hy + ey * S, S * 0.026, 0.3, Math.PI - 0.3);
+    g.stroke();
+  }
+  g.fillStyle = '#e8a0a4';
+  g.beginPath();
+  g.moveTo(hx + S * 0.01, hy + S * 0.05);
+  g.lineTo(hx + S * 0.045, hy + S * 0.05);
+  g.lineTo(hx + S * 0.028, hy + S * 0.07);
+  g.fill();
+  g.strokeStyle = 'rgba(150,140,135,0.6)';
+  g.lineWidth = Math.max(1, S * 0.004);
+  for (const [x0, y0, x1, y1] of [
+    [0.06, 0.07, 0.24, 0.05],
+    [0.06, 0.08, 0.23, 0.11],
+    [-0.01, 0.07, -0.17, 0.05],
+    [-0.01, 0.08, -0.16, 0.11],
+  ]) {
+    g.beginPath();
+    g.moveTo(hx + S * x0, hy + S * y0);
+    g.lineTo(hx + S * x1, hy + S * y1);
+    g.stroke();
+  }
+  return c;
+}
+
 class Sett extends Painting {
   build() {
     const { w, h, u } = this;
@@ -7490,7 +7850,8 @@ class Sett extends Painting {
     const R = (a, b) => a + r() * (b - a);
     this.grain = grainLayer(w, h);
     this.room = layer(w, h);
-    const g = this.room.getContext('2d');
+    this.front = layer(w, h); // the table near us, drawn over the cats on the rug
+    let g = this.room.getContext('2d');
 
     // the room is round: its far wall curves away, so the ceiling line dips to the middle and the
     // floor line rises to it. Things on the wall are placed by their angle round it.
@@ -7955,6 +8316,7 @@ class Sett extends Painting {
 
     // a round braided rug
     const rug = { x: Math.min(F.x1 + 0.08 * k, w * 0.4), y: hb + 0.065 * k, rx: 0.2 * k, ry: 0.045 * k };
+    this.rug = rug;
     const rings = ['#3a2a1a', '#e2b23a', '#a86a2a', '#f0e0b0', '#e2b23a', '#3a2a1a', '#c8893a'];
     rings.forEach((col, i) => {
       const f = 1 - i / rings.length;
@@ -8016,6 +8378,7 @@ class Sett extends Painting {
       }
       g.restore();
     }
+    g = this.front.getContext('2d');
     g.fillStyle = '#5a3818';
     g.fillRect(tb.x - 0.018 * k, tb.y, 0.036 * k, h - tb.y);
     g.fillStyle = '#8a5a28';
@@ -8095,6 +8458,7 @@ class Sett extends Painting {
     g.fill();
 
     printGrain(this.room, this.grain, 0.14);
+    printGrain(this.front, this.grain, 0.14);
 
     // the view outside: a strip as wide as the screen, sky over grass, two skies to fade between
     const VH = Math.ceil(wr * 2.3);
@@ -8178,6 +8542,14 @@ class Sett extends Painting {
     this.bird = null;
     this.flip = null;
     this.tea = -99;
+    // the cat pile: a tuxedo asleep facing the fire, a bicolour curled up against him, a black cat
+    // awake behind them
+    const cs = 0.105 * k;
+    this.tux = catSprite(cs);
+    this.bicolour = bicolourCatSprite(cs * 0.95);
+    this.blackOpen = blackCatSprite(cs, true);
+    this.blackShut = blackCatSprite(cs, false);
+    this.blink = R(4, 10);
   }
 
   rainTarget() {
@@ -8375,6 +8747,34 @@ class Sett extends Painting {
       g.fill();
     }
     hearthFire(g, mo, this.mouthPath, this.glow, t, lvl, flick);
+
+    // the cat pile on the rug: the black cat awake at the back, now and then closing his eyes in a
+    // slow blink; the tuxedo asleep facing the fire; the bicolour curled up in front of him, face
+    // tucked in against his chest
+    {
+      const rug = this.rug;
+      const tw = this.tux.width;
+      const th = this.tux.height;
+      const tb = 1 + 0.025 * Math.sin(t * 1.6);
+      const tx = rug.x - tw * 0.42;
+      const bw = this.blackOpen.width;
+      const bh = this.blackOpen.height;
+      const bb = 1 + 0.018 * Math.sin(t * 1.3 + 2);
+      this.blink -= dt;
+      if (this.blink < -0.9) this.blink = rand(6, 14);
+      const eyes = this.blink < 0 ? this.blackShut : this.blackOpen;
+      g.drawImage(eyes, tx + tw * 0.3, rug.y - bh * 0.88 - bh * (bb - 1) - th * 0.05, bw, bh * bb);
+      g.save();
+      g.translate(tx + tw, rug.y - th * 0.84 - th * (tb - 1));
+      g.scale(-1, 1);
+      g.drawImage(this.tux, 0, 0, tw, th * tb);
+      g.restore();
+      const cw = this.bicolour.width;
+      const ch = this.bicolour.height;
+      const cb = 1 + 0.022 * Math.sin(t * 1.45 + 4);
+      g.drawImage(this.bicolour, tx - cw * 0.62, rug.y - ch * 0.8 - ch * (cb - 1) + th * 0.04, cw, ch * cb);
+    }
+    g.drawImage(this.front, 0, 0);
 
     // steam: a little always off the tea, more when a fresh cup's poured, and the kettle's as it simmers
     const c = this.cup;
