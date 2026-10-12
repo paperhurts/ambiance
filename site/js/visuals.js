@@ -7665,9 +7665,9 @@ function blackCatSprite(S, open) {
   return c;
 }
 
-// a bicolour cat with more white than black, curled up asleep facing right, his white face tucked
-// in: a black cap over his ears and round his eyes with a white blaze up the middle, a pink nose,
-// white chest and paws, a black back with a white spot on it. The fire is on his left.
+// a cow cat, mostly white with black patches, curled up asleep facing right with his white front legs
+// stretched out: black over his rear and in a patch on his back, a black tail, a black cap over his
+// ears and round his eyes with a wide white blaze down the middle, a pink nose. The fire is on his left.
 function bicolourCatSprite(S) {
   const c = layer(Math.ceil(S * 1.4), Math.ceil(S * 1.0));
   const g = c.getContext('2d');
@@ -7699,14 +7699,11 @@ function bicolourCatSprite(S) {
   g.clip(body);
   g.fillStyle = BLACK;
   g.beginPath();
-  g.ellipse(cx - S * 0.05, cy - S * 0.2, S * 0.46, S * 0.24, 0.08, 0, TAU);
+  g.ellipse(cx - S * 0.34, cy - S * 0.02, S * 0.2, S * 0.3, 0.1, 0, TAU);
+  g.ellipse(cx - S * 0.2, cy - S * 0.2, S * 0.14, S * 0.1, -0.3, 0, TAU);
   g.fill();
-  g.fillStyle = WHITE;
   g.beginPath();
-  g.moveTo(cx - S * 0.36, cy - S * 0.06);
-  g.quadraticCurveTo(cx - S * 0.3, cy - S * 0.16, cx - S * 0.16, cy - S * 0.17);
-  g.quadraticCurveTo(cx - S * 0.24, cy - S * 0.1, cx - S * 0.3, cy - S * 0.02);
-  g.closePath();
+  g.ellipse(cx + S * 0.06, cy - S * 0.23, S * 0.15, S * 0.075, 0.1, 0, TAU);
   g.fill();
   const sheen = g.createLinearGradient(0, cy - S * 0.28, 0, cy + S * 0.02);
   sheen.addColorStop(0, 'rgba(205,180,150,0.2)');
@@ -7732,11 +7729,31 @@ function bicolourCatSprite(S) {
   g.moveTo(cx + S * 0.15, cy + S * 0.23);
   g.lineTo(cx + S * 0.22, cy + S * 0.2);
   g.stroke();
-  // a white paw tucked under his chin
-  g.fillStyle = WHITE;
-  g.beginPath();
-  g.ellipse(cx + S * 0.3, cy + S * 0.19, S * 0.055, S * 0.03, 0, 0, TAU);
-  g.fill();
+  // his white front legs stretched out in front of him, one a little ahead of the other
+  for (const [y0, x1, dip] of [
+    [0.15, 0.56, 0.01],
+    [0.2, 0.5, 0.0],
+  ]) {
+    const leg = new Path2D();
+    leg.moveTo(cx + S * 0.18, cy + S * (y0 - 0.035));
+    leg.quadraticCurveTo(cx + S * (x1 * 0.6 + 0.08), cy + S * (y0 - 0.03 + dip), cx + S * x1, cy + S * (y0 - 0.022));
+    leg.lineTo(cx + S * x1, cy + S * (y0 + 0.022));
+    leg.quadraticCurveTo(cx + S * (x1 * 0.6 + 0.08), cy + S * (y0 + 0.035 + dip), cx + S * 0.18, cy + S * (y0 + 0.04));
+    leg.closePath();
+    lit(leg, WHITE, 0.3);
+    const paw = new Path2D();
+    paw.ellipse(cx + S * (x1 + 0.015), cy + S * y0, S * 0.042, S * 0.03, 0, 0, TAU);
+    lit(paw, WHITE, 0.3);
+    g.strokeStyle = 'rgba(150,140,135,0.55)';
+    g.lineWidth = Math.max(1, S * 0.005);
+    g.lineCap = 'round';
+    g.beginPath();
+    for (const dy of [-0.011, 0.011]) {
+      g.moveTo(cx + S * (x1 + 0.03), cy + S * (y0 + dy));
+      g.lineTo(cx + S * (x1 + 0.05), cy + S * (y0 + dy));
+    }
+    g.stroke();
+  }
   // his head, tucked low at the front, face white under a black cap
   const hx = cx + S * 0.28;
   const hy = cy + S * 0.02;
@@ -7771,17 +7788,18 @@ function bicolourCatSprite(S) {
   lit(head, WHITE, 0.4);
   g.save();
   g.clip(head);
-  // the black cap: over the top of his head and round his eyes, a white blaze up the middle
+  // the black cap: over the top of his head and round his eyes, more on the far side, with a wide
+  // white blaze coming down the middle to his white muzzle
   g.fillStyle = BLACK;
   g.beginPath();
   g.moveTo(hx - S * 0.2, hy - S * 0.2);
   g.lineTo(hx + S * 0.22, hy - S * 0.2);
-  g.lineTo(hx + S * 0.2, hy + S * 0.01);
-  g.quadraticCurveTo(hx + S * 0.1, hy + S * 0.03, hx + S * 0.06, hy - S * 0.01);
-  g.lineTo(hx + S * 0.035, hy - S * 0.14);
-  g.lineTo(hx + S * 0.005, hy - S * 0.14);
-  g.lineTo(hx - S * 0.02, hy - S * 0.01);
-  g.quadraticCurveTo(hx - S * 0.1, hy + S * 0.04, hx - S * 0.2, hy + S * 0.02);
+  g.lineTo(hx + S * 0.22, hy + S * 0.05);
+  g.quadraticCurveTo(hx + S * 0.14, hy + S * 0.04, hx + S * 0.08, hy + S * 0.01);
+  g.quadraticCurveTo(hx + S * 0.05, hy - S * 0.08, hx + S * 0.03, hy - S * 0.15);
+  g.lineTo(hx + S * 0.0, hy - S * 0.15);
+  g.quadraticCurveTo(hx - S * 0.03, hy - S * 0.07, hx - S * 0.06, hy - S * 0.02);
+  g.quadraticCurveTo(hx - S * 0.12, hy + S * 0.0, hx - S * 0.2, hy - S * 0.01);
   g.closePath();
   g.fill();
   const hs = g.createLinearGradient(0, hy - S * 0.13, 0, hy + S * 0.13);
