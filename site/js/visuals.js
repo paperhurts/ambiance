@@ -5008,12 +5008,18 @@ class Pond extends Painting {
 // among the candles and bats flit under the roof; at Christmas it snows from the ceiling (the
 // flakes fade before they reach the tables) and twelve frosted trees stand along the walls.
 const HALL = { eye: 0.42, top: 3.2, far: 4.2, near: 0.12 }; // the hall's unit is about 10 m
+const HALL_PIERS = [0.82, 1.6, 2.24, 2.93, 3.68]; // between the windows: piers, banners, torches, arches
 const HOUSE_BANNERS = [
   ['#7a1622', '#d4a640'], // crimson and gold
   ['#1b4a2e', '#b9c2c6'], // green and silver
   ['#1d2f68', '#b07a45'], // blue and bronze
   ['#c9961c', '#1a1612'], // yellow and black
 ];
+// two moods for the one hall: plum stone and coral light for Halloween, indigo and gold for Christmas
+const HALL_PAL = {
+  halloween: { dark: '#24122a', mid: '#4e2846', lit: '#7c3e5c', edge: '#a0566c', rim: '#ff9a76', floor: ['#22121f', '#4a2a3e'], sky: ['#10061a', '#3e1a44'], glass: ['#1a0e2c', '#3a2054'] },
+  christmas: { dark: '#0f1830', mid: '#233658', lit: '#3a5480', edge: '#5a74a0', rim: '#ffd08a', floor: ['#121a30', '#2a3656'], sky: ['#060e26', '#1e3462'], glass: ['#0f2240', '#2a4a74'] },
+};
 
 // one carved pumpkin, lit from inside, as a sprite (centre at the middle)
 function jackSprite(R, lit = 1) {
@@ -5100,6 +5106,7 @@ class GreatHall extends Painting {
   build() {
     const { w, h } = this;
     const xmas = this.season === 'christmas';
+    const C = (this.C = HALL_PAL[this.season]);
     this.F = Math.min(w, h * 0.9) * 0.5;
     this.vx = w / 2;
     this.vy = h * 0.6;
@@ -5130,13 +5137,26 @@ class GreatHall extends Painting {
     // --- the far wall, with the great window over the dais
     const farTop = P(-1, T, D)[1];
     const farBot = P(-1, 0, D)[1];
-    g.fillStyle = vgrad(g, farTop, farBot, [
-      [0, '#2a2129'],
-      [0.55, '#4b3b37'],
-      [1, '#3a2d2b'],
+    const VAULT = 0.95; // how far the arches rise above the tops of the walls
+    const gable = (pen, d, lift = 0, inset = 0, cont = false) => {
+      const l = P(-1 + inset, T, d);
+      const a = P(0, T + VAULT - lift, d);
+      const rr = P(1 - inset, T, d);
+      if (cont) pen.lineTo(...l);
+      else pen.moveTo(...l);
+      pen.quadraticCurveTo(l[0] + (a[0] - l[0]) * 0.12, l[1] - (l[1] - a[1]) * 0.82, ...a);
+      pen.quadraticCurveTo(rr[0] - (rr[0] - a[0]) * 0.12, rr[1] - (rr[1] - a[1]) * 0.82, ...rr);
+    };
+    g.fillStyle = vgrad(g, P(0, T + VAULT, D)[1], farBot, [
+      [0, C.dark],
+      [0.55, C.mid],
+      [1, C.dark],
     ]);
     g.beginPath();
-    poly([P(-1, 0, D), P(1, 0, D), P(1, T, D), P(-1, T, D)]);
+    g.moveTo(...P(-1, 0, D));
+    gable(g, D, 0, 0, true);
+    g.lineTo(...P(1, 0, D));
+    g.closePath();
     g.fill();
     g.strokeStyle = 'rgba(18,12,14,0.5)';
     g.lineWidth = Math.max(1, (F * 0.006) / D);
@@ -5181,9 +5201,9 @@ class GreatHall extends Painting {
       const near = P(s, T * 0.5, 0.45)[0];
       const far = P(s, T * 0.5, D)[0];
       const gr = g.createLinearGradient(near, 0, far, 0);
-      gr.addColorStop(0, '#2c2326');
-      gr.addColorStop(0.45, '#46383a');
-      gr.addColorStop(1, '#382c2e');
+      gr.addColorStop(0, C.dark);
+      gr.addColorStop(0.45, C.mid);
+      gr.addColorStop(1, C.dark);
       g.fillStyle = gr;
       g.beginPath();
       poly([P(s, 0, N), P(s, T, N), P(s, T, D), P(s, 0, D)]);
@@ -5225,21 +5245,21 @@ class GreatHall extends Painting {
         // the deep stone reveal around the glass
         g.beginPath();
         sideWindow(g, s, d0 - 0.05, d1 + 0.05, 0.68, 2.3, 2.8);
-        g.fillStyle = '#5a4a44';
+        g.fillStyle = C.lit;
         g.fill();
+        g.strokeStyle = C.rim;
+        g.globalAlpha = 0.55;
+        g.lineWidth = Math.max(1, (F * 0.006) / d0);
+        g.stroke();
+        g.globalAlpha = 1;
         g.beginPath();
         sideWindow(g, s, d0, d1);
         const gy0 = P(s, 2.7, d0)[1];
         const gy1 = P(s, 0.75, d0)[1];
-        g.fillStyle = xmas
-          ? vgrad(g, gy0, gy1, [
-              [0, '#0f2240'],
-              [1, '#2a4a74'],
-            ])
-          : vgrad(g, gy0, gy1, [
-              [0, '#140f2c'],
-              [1, '#2b2350'],
-            ]);
+        g.fillStyle = vgrad(g, gy0, gy1, [
+          [0, C.glass[0]],
+          [1, C.glass[1]],
+        ]);
         g.fill();
         // leading and the mullion
         g.save();
@@ -5283,22 +5303,62 @@ class GreatHall extends Painting {
         }
         g.restore();
         // the sill
-        g.fillStyle = '#6a5850';
+        g.fillStyle = C.edge;
         g.beginPath();
         poly([P(s, 0.75, d0 - 0.05), P(s, 0.75, d1 + 0.05), P(s * 0.97, 0.72, d1 + 0.05), P(s * 0.97, 0.72, d0 - 0.05)]);
         g.fill();
       }
       // banners between the windows, in the four house colours
-      const gaps = [0.82, 1.6, 2.24, 2.93, 3.68];
+      const gaps = HALL_PIERS;
+      for (const dc of gaps) {
+        // a pier, standing proud of the wall, with a capital where the arch springs
+        const face = [P(s * 0.965, 0, dc - 0.055), P(s * 0.965, T, dc - 0.055), P(s * 0.965, T, dc + 0.055), P(s * 0.965, 0, dc + 0.055)];
+        g.fillStyle = C.mid;
+        g.beginPath();
+        poly([P(s, 0, dc - 0.055), P(s, T, dc - 0.055), P(s * 0.965, T, dc - 0.055), P(s * 0.965, 0, dc - 0.055)]);
+        g.fill();
+        g.fillStyle = C.lit;
+        g.beginPath();
+        poly(face);
+        g.fill();
+        g.strokeStyle = C.rim;
+        g.globalAlpha = 0.6;
+        g.lineWidth = Math.max(1, (F * 0.008) / dc);
+        g.beginPath();
+        seg(face[0], face[1]);
+        g.stroke();
+        g.globalAlpha = 1;
+        g.fillStyle = C.edge;
+        g.beginPath();
+        poly([P(s * 0.95, T - 0.12, dc - 0.075), P(s * 0.95, T - 0.03, dc - 0.075), P(s * 0.95, T - 0.03, dc + 0.075), P(s * 0.95, T - 0.12, dc + 0.075)]);
+        g.fill();
+      }
       gaps.forEach((dc, i) => {
         const [col, trim] = HOUSE_BANNERS[(i + (s > 0 ? 1 : 0)) % 4];
         const b0 = dc - 0.07;
         const b1 = dc + 0.07;
-        const yb = 1.75;
+        const yb = 1.3;
         g.fillStyle = col;
         g.beginPath();
-        poly([P(s * 0.985, 2.92, b0), P(s * 0.985, 2.92, b1), P(s * 0.985, yb, b1), P(s * 0.985, yb + 0.14, dc), P(s * 0.985, yb, b0)]);
+        const flag = [P(s * 0.955, 2.92, b0), P(s * 0.955, 2.92, b1), P(s * 0.955, yb, b1), P(s * 0.955, yb + 0.16, dc), P(s * 0.955, yb, b0)];
+        poly(flag);
         g.fill();
+        // the harlequin pattern: diamonds, light and dark
+        g.save();
+        g.clip();
+        g.lineWidth = Math.max(1, (F * 0.01) / dc);
+        for (const [dir, col] of [
+          [1, 'rgba(255,255,255,0.22)'],
+          [-1, 'rgba(0,0,0,0.3)'],
+        ]) {
+          g.strokeStyle = col;
+          g.beginPath();
+          for (let Y = 3.1; Y > yb - 0.4; Y -= 0.16) seg(P(s * 0.955, Y, dir > 0 ? b0 : b1), P(s * 0.955, Y - 0.16, dir > 0 ? b1 : b0));
+          g.stroke();
+        }
+        g.restore();
+        g.beginPath();
+        poly(flag);
         g.strokeStyle = trim;
         g.lineWidth = Math.max(1, (F * 0.01) / dc);
         g.stroke();
@@ -5306,16 +5366,16 @@ class GreatHall extends Painting {
         g.strokeStyle = 'rgba(0,0,0,0.25)';
         g.lineWidth = Math.max(1, (F * 0.02) / dc);
         g.beginPath();
-        seg(P(s * 0.985, 2.88, dc), P(s * 0.985, yb + 0.16, dc));
+        seg(P(s * 0.955, 2.88, dc), P(s * 0.955, yb + 0.18, dc));
         g.stroke();
         // the pole
         g.strokeStyle = '#2a2018';
         g.lineWidth = Math.max(1, (F * 0.012) / dc);
         g.beginPath();
-        seg(P(s * 0.985, 2.94, b0 - 0.02), P(s * 0.985, 2.94, b1 + 0.02));
+        seg(P(s * 0.955, 2.94, b0 - 0.02), P(s * 0.955, 2.94, b1 + 0.02));
         g.stroke();
         // a torch in an iron bracket below
-        const [tx, ty] = P(s * 0.985, 0.55, dc);
+        const [tx, ty] = P(s * 0.955, 0.55, dc);
         const sc = F / dc;
         g.fillStyle = '#1c1512';
         g.fillRect(tx - sc * 0.005, ty, sc * 0.01, sc * 0.05);
@@ -5329,7 +5389,7 @@ class GreatHall extends Painting {
       });
       // a great hearth on each wall, under the windows
       const [h0, h1] = s > 0 ? [1.32, 1.72] : [2.0, 2.38];
-      g.fillStyle = '#5e4c45';
+      g.fillStyle = C.lit;
       g.beginPath();
       poly([P(s, 0, h0 - 0.08), P(s, 0.42, h0 - 0.08), P(s, 0.42, h1 + 0.08), P(s, 0, h1 + 0.08)]);
       g.fill();
@@ -5338,7 +5398,7 @@ class GreatHall extends Painting {
       const mouth = [P(s, 0, h0), P(s, 0.3, h0), P(s, 0.34, (h0 + h1) / 2), P(s, 0.3, h1), P(s, 0, h1)];
       poly(mouth);
       g.fill();
-      g.fillStyle = '#6e5a50';
+      g.fillStyle = C.edge;
       g.beginPath(); // the mantel shelf
       poly([P(s, 0.42, h0 - 0.1), P(s * 0.96, 0.42, h0 - 0.1), P(s * 0.96, 0.42, h1 + 0.1), P(s, 0.42, h1 + 0.1)]);
       g.fill();
@@ -5374,7 +5434,7 @@ class GreatHall extends Painting {
       }
     }
     // the cornice along the tops of the walls
-    g.fillStyle = '#6b5a52';
+    g.fillStyle = C.lit;
     for (const s of [-1, 1]) {
       g.beginPath();
       poly([P(s, T, N), P(s, T, D), P(s, T - 0.08, D), P(s, T - 0.08, N)]);
@@ -5383,23 +5443,44 @@ class GreatHall extends Painting {
     g.beginPath();
     poly([P(-1, T, D), P(1, T, D), P(1, T - 0.08, D), P(-1, T - 0.08, D)]);
     g.fill();
+    g.strokeStyle = C.rim;
+    g.globalAlpha = 0.5;
+    g.lineWidth = Math.max(1, F * 0.004);
+    g.beginPath();
+    for (const s of [-1, 1]) seg(P(s, T - 0.08, N), P(s, T - 0.08, D));
+    g.stroke();
+    g.globalAlpha = 1;
+    // ribbed arches across the vault, springing from the piers, with the sky between them
+    for (const dc of [...HALL_PIERS].reverse()) {
+      if (P(0, T + VAULT, dc)[1] < -this.h * 0.6) continue;
+      g.beginPath();
+      gable(g, dc, 0.03, 0.035);
+      g.strokeStyle = C.mid;
+      g.lineWidth = (F * 0.13) / dc;
+      g.lineCap = 'butt';
+      g.stroke();
+      g.strokeStyle = C.lit;
+      g.lineWidth = (F * 0.08) / dc;
+      g.stroke();
+      g.beginPath();
+      gable(g, dc, 0.09, 0.08);
+      g.strokeStyle = C.rim;
+      g.globalAlpha = 0.65;
+      g.lineWidth = Math.max(1, (F * 0.008) / dc);
+      g.stroke();
+      g.globalAlpha = 1;
+    }
 
     // the far window itself, over the dais
     g.beginPath();
     farWindow(g);
-    g.fillStyle = '#5a4a44';
     g.lineWidth = (F * 0.05) / D;
-    g.strokeStyle = '#5a4a44';
+    g.strokeStyle = C.lit;
     g.stroke();
-    g.fillStyle = xmas
-      ? vgrad(g, P(0, 2.9, D)[1], P(0, 0.62, D)[1], [
-          [0, '#0e2040'],
-          [1, '#2a4a76'],
-        ])
-      : vgrad(g, P(0, 2.9, D)[1], P(0, 0.62, D)[1], [
-          [0, '#120d28'],
-          [1, '#2e2552'],
-        ]);
+    g.fillStyle = vgrad(g, P(0, 2.9, D)[1], P(0, 0.62, D)[1], [
+      [0, C.glass[0]],
+      [1, C.glass[1]],
+    ]);
     g.fill();
     g.save();
     g.clip();
@@ -5432,8 +5513,8 @@ class GreatHall extends Painting {
 
     // --- the floor: flagstones, with a warm sheen down the aisles
     g.fillStyle = vgrad(g, P(0, 0, D)[1], h, [
-      [0, '#2c2628'],
-      [1, '#4a4244'],
+      [0, C.floor[0]],
+      [1, C.floor[1]],
     ]);
     g.beginPath();
     poly([P(-1, 0, N), P(1, 0, N), P(1, 0, D), P(-1, 0, D)]);
@@ -5453,11 +5534,11 @@ class GreatHall extends Painting {
 
     // --- the dais and the staff table
     const dd = D - 0.5;
-    g.fillStyle = '#4f403b';
+    g.fillStyle = C.mid;
     g.beginPath();
     poly([P(-1, 0, dd), P(1, 0, dd), P(1, 0.1, dd), P(-1, 0.1, dd)]);
     g.fill();
-    g.fillStyle = '#3e3230';
+    g.fillStyle = C.dark;
     g.beginPath();
     poly([P(-1, 0.1, dd), P(1, 0.1, dd), P(1, 0.1, D), P(-1, 0.1, D)]);
     g.fill();
@@ -5535,12 +5616,14 @@ class GreatHall extends Painting {
         poly([P(lx, 0.075, t0 + 0.01), P(lx + 0.008, 0.075, t0 + 0.01), P(lx + 0.008, 0, t0 + 0.01), P(lx, 0, t0 + 0.01)]);
         g.fill();
       }
-      g.strokeStyle = 'rgba(255,200,140,0.22)';
+      g.strokeStyle = C.rim;
+      g.globalAlpha = 0.4;
       g.lineWidth = Math.max(1, F * 0.004);
       g.beginPath();
       seg(top[0], top[3]);
       seg(top[1], top[2]);
       g.stroke();
+      g.globalAlpha = 1;
       // places laid down both sides; down the middle, candelabra and dishes of the feast
       for (let d = t0 + 0.04, k = 0; d < t1 - 0.04; d += 0.085, k++) {
         const sc = F / d;
@@ -5710,6 +5793,12 @@ class GreatHall extends Painting {
     // --- what lives in the air: candles (and jack-o'-lanterns), at random down the hall
     this.candles = [];
     for (let i = 0; i < 190; i++) this.candles.push({ X: R(-0.92, 0.92), Y: R(0.75, T - 0.3), d: R(0.6, D - 0.2), ph: R(0, TAU), f: R(0.25, 0.6), fl: R(0, TAU) });
+    for (let i = 0; i < 12; i++) {
+      // a few hang close enough to be big; kept low enough to be on screen
+      const d = R(0.3, 0.6);
+      const top = HALL.eye + (this.vy * 0.92 * d) / F;
+      this.candles.push({ X: R(-0.75, 0.75), Y: R(top * 0.6, top), d, ph: R(0, TAU), f: R(0.2, 0.4), fl: R(0, TAU) });
+    }
     if (!xmas) for (let i = 0; i < 22; i++) this.candles.push({ X: R(-0.85, 0.85), Y: R(0.65, 1.6), d: R(0.75, D - 0.4), ph: R(0, TAU), f: R(0.2, 0.4), fl: R(0, TAU), jack: true });
     this.candles.sort((a, b) => b.d - a.d);
     this.jack = jackSprite(48, 1);
@@ -5735,6 +5824,59 @@ class GreatHall extends Painting {
     fg.quadraticCurveTo(8, 31, 4, 26);
     fg.quadraticCurveTo(1, 18, 8, 1);
     fg.fill();
+
+    // --- a crescent moon on the ceiling, and grain over everything, like a print
+    this.moon = { x: w * 0.62, y: Math.min(h * 0.07, this.skyTop * 0.3), r: Math.max(10, this.u * 4.2) };
+    this.crescent = layer(64, 64);
+    const cg = this.crescent.getContext('2d');
+    cg.fillStyle = '#f8ead2';
+    cg.beginPath();
+    cg.arc(32, 32, 30, 0, TAU);
+    cg.fill();
+    cg.globalCompositeOperation = 'destination-out';
+    cg.beginPath();
+    cg.arc(44, 24, 27, 0, TAU);
+    cg.fill();
+    this.moonGlow = layer(64, 64);
+    const mg = this.moonGlow.getContext('2d');
+    const mgr = mg.createRadialGradient(32, 32, 0, 32, 32, 32);
+    mgr.addColorStop(0, 'rgba(255,220,200,0.35)');
+    mgr.addColorStop(1, 'rgba(255,200,190,0)');
+    mg.fillStyle = mgr;
+    mg.fillRect(0, 0, 64, 64);
+    const gw = Math.ceil(w / 2);
+    const gh = Math.ceil(h / 2);
+    this.grain = layer(gw, gh);
+    const gc = this.grain.getContext('2d');
+    const img = gc.createImageData(gw, gh);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 128 + (Math.random() - 0.5) * 200;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = 255;
+    }
+    gc.putImageData(img, 0, 0);
+    const printed = (c, alpha) => {
+      const m = layer(c.width, c.height);
+      const mc = m.getContext('2d');
+      mc.drawImage(this.grain, 0, 0, c.width, c.height);
+      mc.globalCompositeOperation = 'destination-in';
+      mc.drawImage(c, 0, 0);
+      const cc = c.getContext('2d');
+      cc.globalCompositeOperation = 'overlay';
+      cc.globalAlpha = alpha;
+      cc.drawImage(m, 0, 0);
+      cc.globalAlpha = 1;
+      cc.globalCompositeOperation = 'source-over';
+    };
+    printed(this.hall, 0.16);
+    this.skyBase = layer(w, Math.max(2, Math.ceil(this.skyTop) + 2));
+    const sk = this.skyBase.getContext('2d');
+    sk.fillStyle = vgrad(sk, 0, this.skyTop, [
+      [0, C.sky[0]],
+      [1, C.sky[1]],
+    ]);
+    sk.fillRect(0, 0, w, this.skyBase.height);
+    printed(this.skyBase, 0.2);
 
     // --- the sky's own weather
     const sy0 = 0;
@@ -5815,16 +5957,11 @@ class GreatHall extends Painting {
     // the enchanted ceiling
     g.save();
     g.clip(this.sky);
-    g.fillStyle = xmas
-      ? vgrad(g, 0, this.skyTop, [
-          [0, '#06102a'],
-          [1, '#1c3560'],
-        ])
-      : vgrad(g, 0, this.skyTop, [
-          [0, '#0a0716'],
-          [1, '#2a1f42'],
-        ]);
-    g.fillRect(0, 0, w, this.skyTop + 2);
+    g.drawImage(this.skyBase, 0, 0);
+    g.globalCompositeOperation = 'lighter';
+    g.drawImage(this.moonGlow, this.moon.x - this.moon.r * 4, this.moon.y - this.moon.r * 4, this.moon.r * 8, this.moon.r * 8);
+    g.globalCompositeOperation = 'source-over';
+    g.drawImage(this.crescent, this.moon.x - this.moon.r, this.moon.y - this.moon.r, this.moon.r * 2, this.moon.r * 2);
     for (const s of this.stars) {
       const a = s.a * (0.6 + 0.4 * Math.sin(t * 0.9 + s.ph)) * (xmas ? 1 : 0.35);
       g.fillStyle = `rgba(235,240,255,${a})`;
@@ -5972,15 +6109,22 @@ class GreatHall extends Painting {
         g.drawImage(this.jack, x - js / 2, y - js / 2, js, js);
         continue;
       }
-      const bh = s * 0.045;
-      const bw = Math.max(1, s * 0.0075);
+      const bh = s * 0.07;
+      const bw = Math.max(1, s * 0.009);
       g.fillStyle = '#eadcbf';
       g.fillRect(x - bw / 2, y - bh * 0.25, bw, bh);
       g.fillStyle = 'rgba(120,90,60,0.35)';
       g.fillRect(x, y - bh * 0.25, bw / 2, bh);
-      const fh = s * 0.02 * (0.9 + 0.1 * Math.sin(t * 11 + c.fl));
+      const fh = s * 0.024 * (0.9 + 0.1 * Math.sin(t * 11 + c.fl));
       g.drawImage(this.flame, x - fh * 0.25, y - bh * 0.25 - fh, fh * 0.5, fh);
     }
+
+    // the hall's glow up among the candles
+    const haze = g.createRadialGradient(this.vx, this.vy - h * 0.2, 0, this.vx, this.vy - h * 0.2, h * 0.55);
+    haze.addColorStop(0, xmas ? 'rgba(255,200,120,0.07)' : 'rgba(255,120,110,0.08)');
+    haze.addColorStop(1, 'rgba(255,140,120,0)');
+    g.fillStyle = haze;
+    g.fillRect(0, 0, w, h);
 
     // bats under the roof
     for (const b of this.bats) {
