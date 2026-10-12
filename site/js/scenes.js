@@ -423,7 +423,7 @@ export function buildScenes(pools) {
     id: 'kitchens',
     name: 'By the Kitchens',
     kicker: 'A common room',
-    what: 'A round room of honey-coloured wood, plants in copper pots, the kettle on, two cats by the fire, and rain (or sun and dandelions) at the windows.',
+    what: 'A round room of honey-coloured wood, plants in copper pots, the kettle on, a pile of cats by the fire, and rain (or sun and dandelions) at the windows.',
     requires: ['common/kettle'],
     gain: 3.05,
     reverb: { type: 'room', level: 0.3 },
