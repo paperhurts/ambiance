@@ -343,30 +343,32 @@ export function buildScenes(pools) {
   // the feast, its bells and its owls) are shared; the weather, the music and the dressing change.
   const hallBits = (feast) => [
     { id: 'hall', type: 'bed', label: 'The hall', icon: 'castle', files: files('castle/hall'), level: 0.5, gain: 0.8 },
-    { id: 'feast', type: 'bed', label: 'The feast', icon: 'goblet', files: files('castle/feast'), level: feast, gain: 0.7, muffle: 6000 },
+    { id: 'feast', type: 'bed', label: 'The feast', icon: 'goblet', files: files('castle/feast'), level: feast, gain: 1.2, muffle: 6000 },
     { id: 'cutlery', type: 'shots', label: 'Plates and goblets', icon: 'goblet', pool: items('castle/cutlery'), every: [3, 12], level: feast ? 0.3 : 0, gain: 0.45, reverb: 0.5, space: { dist: [5, 18], el: [-15, 0] } },
     { id: 'fire', type: 'bed', label: 'Fires in the hearths', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.45, gain: 0.75, pan: 0.3 },
     { id: 'castle', type: 'shots', label: 'The old castle', icon: 'creak', pool: items('mansion/creak', 'mansion/door', 'mansion/steps'), every: [45, 160], level: 0.25, gain: 0.7, reverb: 0.7, muffle: 3500, space: { dist: [12, 35], el: [-5, 30] } },
-    { id: 'toll', type: 'shots', label: 'The clock tower', icon: 'bell', pool: items('castle/toll'), burst: [3, 12], burstGap: [2.5, 2.9], every: [600, 1500], first: [60, 240], level: 0.35, gain: 0.7, reverb: 0.4, muffle: 4000, space: { dist: [60, 120], el: [20, 50] } },
-    { id: 'owls', type: 'shots', label: 'Owls in the grounds', icon: 'owl', group: 'Birds', pool: items('castle/tawny-owl'), every: [40, 160], level: 0.4, gain: 0.8, reverb: 0.3, muffle: 4500, space: { dist: [30, 90], el: [0, 30] } },
+    { id: 'toll', type: 'shots', label: 'The clock tower', icon: 'bell', pool: items('castle/toll'), burst: [3, 12], burstGap: [2.5, 2.9], every: [600, 1500], first: [60, 240], level: 0.35, gain: 1.1, reverb: 0.4, muffle: 4000, space: { dist: [60, 120], el: [20, 50] } },
   ];
+  // last in the list, so the mix sheet's Birds heading comes last too
+  const castleOwls = { id: 'owls', type: 'shots', label: 'Owls in the grounds', icon: 'owl', group: 'Birds', pool: items('castle/tawny-owl'), every: [40, 160], level: 0.4, gain: 1.4, reverb: 0.3, muffle: 4500, space: { dist: [30, 90], el: [0, 30] } };
   const halloween = {
     id: 'halloween',
     name: 'Halloween Feast',
     kicker: 'The Great Hall',
     what: 'A storm on the enchanted ceiling, candles and jack-o’-lanterns floating, the feast in full swing.',
     requires: ['castle/hall'],
-    gain: 2.2,
+    gain: 2.95,
     reverb: { type: 'great', level: 0.5 },
     drivers: { storm: { range: [0.35, 1], every: [90, 240], tau: 30 } },
     layers: [
-      ...hallBits(0.35),
+      ...hallBits(0.4),
       // the castle stands in a storm off the Isle of Mull: the real one, heard from indoors
-      { id: 'wind', type: 'bed', label: 'Storm round the towers', icon: 'wind', files: files('mansion/wind'), level: 0.5, gain: 0.8, drive: { by: 'storm', gain: [0.55, 1] }, wander: [0.5, 1], wanderEvery: [4, 14], wanderTau: [2, 6] },
-      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0.35, gain: 0.75, drive: { by: 'storm', gain: [0.4, 1] } },
+      { id: 'wind', type: 'bed', label: 'Storm round the towers', icon: 'wind', files: files('mansion/wind'), level: 0.5, gain: 1.0, drive: { by: 'storm', gain: [0.55, 1] }, wander: [0.5, 1], wanderEvery: [4, 14], wanderTau: [2, 6] },
+      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0.5, gain: 0.9, drive: { by: 'storm', gain: [0.4, 1] } },
       { id: 'thunder', type: 'storm', label: 'Thunder', icon: 'bolt', pool: items('storm/thunder'), lazy: true, keep: 2, every: [50, 180], first: [15, 45], level: 0.45, gain: 1.4, muffle: 1800, drive: { by: 'storm', rate: [0.4, 1.4] } },
-      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/halloween-music'), stream: true, keep: 1, every: [300, 900], first: [90, 300], level: 0.3, gain: 0.55, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
+      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/halloween-music'), stream: true, keep: 1, every: [300, 900], first: [90, 300], level: 0.3, gain: 0.45, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
       { id: 'forest', type: 'shots', label: 'The Forbidden Forest', icon: 'ghost', pool: items('mansion/wolf'), every: [120, 420], level: 0, gain: 0.7, reverb: 0.3, muffle: 3000, space: { dist: [150, 300], el: [0, 5] } },
+      castleOwls,
     ],
   };
   const christmas = {
@@ -375,18 +377,19 @@ export function buildScenes(pools) {
     kicker: 'The Great Hall',
     what: 'Snow falling from the enchanted ceiling, twelve trees, roaring fires, and carols somewhere in the castle.',
     requires: ['castle/hall'],
-    gain: 2.2,
+    gain: 2.8,
     reverb: { type: 'great', level: 0.5 },
     layers: [
       ...hallBits(0),
-      { id: 'snowstorm', type: 'bed', label: 'Snow on the wind outside', icon: 'snow', files: files('snow/blizzard'), level: 0.3, gain: 0.7, muffle: 1600, wander: [0.5, 1], wanderEvery: [5, 16], wanderTau: [3, 8] },
-      { id: 'peal', type: 'bed', label: 'Bells from the village', icon: 'bell', files: files('castle/peal'), level: 0.2, gain: 0.6, muffle: 5000, wander: [0.3, 1], wanderEvery: [20, 60], wanderTau: [6, 15] },
-      { id: 'carols', type: 'shots', label: 'Carols, somewhere in the castle', icon: 'note', pool: items('castle/carols'), stream: true, keep: 1, every: [240, 720], first: [40, 180], level: 0.35, gain: 0.6, reverb: 0.8, muffle: 4500, space: { dist: [18, 30], el: [5, 25] } },
-      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/christmas-music'), stream: true, keep: 1, every: [300, 900], first: [200, 500], level: 0.3, gain: 0.55, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
+      { id: 'snowstorm', type: 'bed', label: 'Snow on the wind outside', icon: 'snow', files: files('snow/blizzard'), level: 0.4, gain: 0.85, muffle: 1600, wander: [0.5, 1], wanderEvery: [5, 16], wanderTau: [3, 8] },
+      { id: 'peal', type: 'bed', label: 'Bells from the village', icon: 'bell', files: files('castle/peal'), level: 0.35, gain: 1.0, muffle: 5000, wander: [0.3, 1], wanderEvery: [20, 60], wanderTau: [6, 15] },
+      { id: 'carols', type: 'shots', label: 'Carols, somewhere in the castle', icon: 'note', pool: items('castle/carols'), stream: true, keep: 1, every: [240, 720], first: [40, 180], level: 0.35, gain: 0.5, reverb: 0.8, muffle: 4500, space: { dist: [18, 30], el: [5, 25] } },
+      { id: 'music', type: 'shots', label: 'Music, far off', icon: 'piano', pool: items('castle/christmas-music'), stream: true, keep: 1, every: [300, 900], first: [200, 500], level: 0.3, gain: 0.45, reverb: 0.8, muffle: 3500, space: { dist: [20, 35], el: [10, 30] } },
+      castleOwls,
     ],
   };
   // Christmas in the fire's glow: a bigger, cosier hearth, louder than at Halloween
-  christmas.layers.find((l) => l.id === 'fire').level = 0.6;
+  christmas.layers.find((l) => l.id === 'fire').level = 0.55;
 
   const mixer = {
     id: 'mixer',
@@ -410,6 +413,10 @@ export function buildScenes(pools) {
       { ...pick(waterfall, 'leaves'), id: 'leaves' },
       { ...pick(mansion, 'fire'), id: 'fire', label: 'Crackling fire', pan: 0, group: 'Warmth' },
       { ...pick(mansion, 'clock'), id: 'clock', label: 'Grandfather clock', pan: 0 },
+      { ...pick(halloween, 'hall'), id: 'great-hall', label: 'A great stone hall', group: 'The castle' },
+      { ...pick(halloween, 'feast'), id: 'feast', label: 'A feast in the hall' },
+      { ...pick(christmas, 'peal'), id: 'peal', label: 'Church bells, far off' },
+      { ...pick(christmas, 'carols'), id: 'carols', label: 'Carols, somewhere' },
       { ...pick(butterfly, 'morning'), id: 'fl-morning', group: 'Outdoors' },
       { ...pick(butterfly, 'palms'), id: 'palms' },
       { ...pick(butterfly, 'cicadas'), id: 'cicadas' },

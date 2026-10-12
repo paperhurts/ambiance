@@ -222,7 +222,7 @@ function place(layer, at, dur, spec, pos) {
   }
   nodes.input = input;
   nodes.head = head;
-  nodes.pos = posUsed && { az: posUsed.az, dist: posUsed.dist };
+  nodes.pos = posUsed && { az: posUsed.az, el: posUsed.el, dist: posUsed.dist };
   return nodes;
 }
 
