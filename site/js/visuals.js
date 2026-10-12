@@ -6240,203 +6240,203 @@ function glowSprite(stops) {
 // pass, and now and then the giant squid drifts by. A fire burns under a hooded stone mantel; on
 // the rug a little green snake sleeps, pointedly ignoring the black-and-white cat curled up beside it.
 
-// a black-and-white cat curled up asleep, facing right, tail wrapped round the front: a tuxedo with a
-// white bib and paws, a white muzzle with a black nose patch and chin spot, and a thin white streak
-// up his forehead. Black fur needs light to read in a dark room: a cool sheen on top, the fire on
-// his right side.
+// a black-and-white cat curled up asleep, facing right, drawn smooth and clean: a tuxedo with a white
+// bib and paws, white whisker pads under a black nose patch, a black spot on his chin and a thin
+// white streak up his forehead. Black needs light to read in a dark room: a soft sheen along his
+// back and a warm rim from the fire on his right.
 function catSprite(S) {
   const c = layer(Math.ceil(S * 1.6), Math.ceil(S * 1.05));
   const g = c.getContext('2d');
-  let seed = 7;
-  const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
   const cx = S * 0.7;
   const cy = S * 0.66;
-  const BLACK = '#17171b';
-  const WHITE = '#efebe3';
-  // an ellipse with little puffs all round its edge, so it reads soft rather than drawn
-  const puff = (x, y, rx, ry, rot, col, p) => {
+  const BLACK = '#1c1c22';
+  const WHITE = '#f2efe8';
+  const rim = (path, x0, x1, a) => {
+    const rg = g.createLinearGradient(x0, 0, x1, 0);
+    rg.addColorStop(0, 'rgba(255,165,85,0)');
+    rg.addColorStop(1, `rgba(255,165,85,${a})`);
+    g.strokeStyle = rg;
+    g.lineWidth = S * 0.026;
+    g.stroke(path);
+  };
+  // a shape with the fire's light along its outer edge (the rim drawn first, so only its outside shows)
+  const lit = (path, col, x0, x1, a) => {
+    rim(path, x0, x1, a);
     g.fillStyle = col;
-    g.beginPath();
-    g.ellipse(x, y, rx, ry, rot, 0, TAU);
-    g.fill();
-    const n = Math.round((rx + ry) / (S * 0.02));
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU + r() * 0.2;
-      const ex = Math.cos(a) * rx;
-      const ey = Math.sin(a) * ry;
-      g.beginPath();
-      g.arc(x + ex * Math.cos(rot) - ey * Math.sin(rot), y + ex * Math.sin(rot) + ey * Math.cos(rot), S * p * (0.7 + r() * 0.6), 0, TAU);
-      g.fill();
-    }
-  };
-  const shade = (fill) => {
-    g.globalCompositeOperation = 'source-atop';
-    g.fillStyle = fill;
-    g.fillRect(0, 0, c.width, c.height);
-    g.globalCompositeOperation = 'source-over';
-  };
-  // light on black fur: a cool sheen on top, the fire warm on his right, shadow underneath
-  const light = (clip, heat = 0.42) => {
-    g.save();
-    if (clip) g.clip(clip);
-    const sheen = g.createLinearGradient(0, cy - S * 0.32, 0, cy + S * 0.05);
-    sheen.addColorStop(0, 'rgba(140,150,175,0.32)');
-    sheen.addColorStop(1, 'rgba(140,150,175,0)');
-    shade(sheen);
-    const warm = g.createRadialGradient(cx + S * 0.6, cy - S * 0.2, 0, cx + S * 0.6, cy - S * 0.2, S * 0.75);
-    warm.addColorStop(0, `rgba(255,170,90,${heat})`);
-    warm.addColorStop(1, 'rgba(255,170,90,0)');
-    shade(warm);
-    const under = g.createLinearGradient(0, cy - S * 0.1, 0, cy + S * 0.4);
-    under.addColorStop(0, 'rgba(0,0,0,0)');
-    under.addColorStop(1, 'rgba(0,0,0,0.35)');
-    shade(under);
-    g.restore();
+    g.fill(path);
   };
   // shadow on the rug
   g.fillStyle = 'rgba(0,0,0,0.35)';
   g.beginPath();
-  g.ellipse(cx, cy + S * 0.27, S * 0.62, S * 0.09, 0, 0, TAU);
+  g.ellipse(cx, cy + S * 0.27, S * 0.6, S * 0.08, 0, 0, TAU);
   g.fill();
-  // the body, a round loaf, and his black tail round the front to under his chin
-  puff(cx, cy, S * 0.5, S * 0.3, 0, BLACK, 0.03);
-  const tail = (u) => {
-    const a = [cx - S * 0.46, cy + S * 0.08];
-    const b = [cx - S * 0.2, cy + S * 0.36];
+  // the body: a round loaf, his haunch a little higher at the back
+  const body = new Path2D();
+  body.ellipse(cx, cy + S * 0.02, S * 0.5, S * 0.28, 0, 0, TAU);
+  body.moveTo(cx - S * 0.2 + S * 0.27, cy - S * 0.02);
+  body.ellipse(cx - S * 0.2, cy - S * 0.02, S * 0.27, S * 0.27, 0, 0, TAU);
+  lit(body, BLACK, cx, cx + S * 0.5, 0.55);
+  // a soft sheen along his back
+  g.save();
+  g.clip(body);
+  const sheen = g.createLinearGradient(0, cy - S * 0.3, 0, cy + S * 0.05);
+  sheen.addColorStop(0, 'rgba(150,158,185,0.3)');
+  sheen.addColorStop(1, 'rgba(150,158,185,0)');
+  g.fillStyle = sheen;
+  g.fillRect(0, 0, c.width, c.height);
+  const under = g.createLinearGradient(0, cy, 0, cy + S * 0.3);
+  under.addColorStop(0, 'rgba(0,0,0,0)');
+  under.addColorStop(1, 'rgba(0,0,0,0.3)');
+  g.fillStyle = under;
+  g.fillRect(0, 0, c.width, c.height);
+  g.restore();
+  // his tail, tapering, round the front to under his chin
+  const tp = (u) => {
+    const a = [cx - S * 0.3, cy + S * 0.17];
+    const b = [cx - S * 0.12, cy + S * 0.36];
     const e = [cx + S * 0.2, cy + S * 0.24];
     return [(1 - u) ** 2 * a[0] + 2 * (1 - u) * u * b[0] + u * u * e[0], (1 - u) ** 2 * a[1] + 2 * (1 - u) * u * b[1] + u * u * e[1]];
   };
-  g.fillStyle = '#1b1b20';
-  for (let i = 0; i <= 90; i++) {
-    const [x, y] = tail(i / 90);
-    g.beginPath();
-    g.arc(x, y + (r() - 0.5) * S * 0.006, S * (0.075 - 0.02 * (i / 90)) * (0.96 + r() * 0.08), 0, TAU);
-    g.fill();
+  const side = [];
+  const other = [];
+  for (let i = 0; i <= 30; i++) {
+    const u = i / 30;
+    const [x, y] = tp(u);
+    const [x2, y2] = tp(Math.min(1, u + 0.01));
+    const [x1, y1] = tp(Math.max(0, u - 0.01));
+    const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+    const nx = -(y2 - y1) / len;
+    const ny = (x2 - x1) / len;
+    const wd = S * (0.07 - 0.03 * u);
+    side.push([x + nx * wd, y + ny * wd]);
+    other.push([x - nx * wd, y - ny * wd]);
   }
-  light();
-  // his white bib, peeking out under his chin, and his white front paws tucked in
+  const tail = new Path2D();
+  tail.moveTo(...side[0]);
+  for (const p of side.slice(1)) tail.lineTo(...p);
+  const [ex, ey] = tp(1);
+  tail.arc(ex, ey, S * 0.04, Math.atan2(side[30][1] - ey, side[30][0] - ex), Math.atan2(other[30][1] - ey, other[30][0] - ex));
+  for (const p of other.reverse()) tail.lineTo(...p);
+  tail.closePath();
+  lit(tail, '#202027', cx - S * 0.1, cx + S * 0.25, 0.35);
+  // his white bib under his chin, and his white front paws tucked in
   const hx = cx + S * 0.34;
   const hy = cy - S * 0.02;
-  puff(hx - S * 0.06, hy + S * 0.15, S * 0.11, S * 0.075, -0.2, WHITE, 0.014);
+  g.fillStyle = WHITE;
+  g.beginPath();
+  g.ellipse(hx - S * 0.05, hy + S * 0.15, S * 0.11, S * 0.075, -0.25, 0, TAU);
+  g.fill();
   for (const [dx, dy] of [
     [-0.01, 0.215],
     [0.11, 0.2],
   ]) {
-    puff(hx + S * dx, hy + S * dy, S * 0.065, S * 0.036, 0.05, WHITE, 0.01);
-    g.strokeStyle = 'rgba(120,110,100,0.5)';
-    g.lineWidth = Math.max(1, S * 0.006);
+    g.fillStyle = WHITE;
     g.beginPath();
-    for (const t of [-0.3, 0.05, 0.4]) {
-      g.moveTo(hx + S * (dx + 0.03 + t * 0.06), hy + S * (dy - 0.01));
-      g.lineTo(hx + S * (dx + 0.035 + t * 0.06), hy + S * (dy + 0.025));
+    g.ellipse(hx + S * dx, hy + S * dy, S * 0.062, S * 0.034, 0.05, 0, TAU);
+    g.fill();
+    g.strokeStyle = 'rgba(110,105,100,0.55)';
+    g.lineWidth = Math.max(1, S * 0.006);
+    g.lineCap = 'round';
+    g.beginPath();
+    for (const t of [-0.25, 0.25]) {
+      g.moveTo(hx + S * (dx + 0.035 + t * 0.06), hy + S * (dy + 0.004));
+      g.lineTo(hx + S * (dx + 0.037 + t * 0.06), hy + S * (dy + 0.026));
     }
     g.stroke();
   }
-  // ears up, then his head, lit like the rest of him
+  // ears, then his head
   const head = new Path2D();
+  head.ellipse(hx, hy, S * 0.2, S * 0.16, 0.12, 0, TAU);
   for (const [b0, tip, b1] of [
     [
-      [-0.15, -0.06],
+      [-0.15, -0.07],
       [-0.12, -0.27],
-      [-0.02, -0.13],
+      [-0.02, -0.14],
     ],
     [
-      [0.04, -0.13],
+      [0.04, -0.14],
       [0.15, -0.26],
-      [0.17, -0.04],
+      [0.17, -0.05],
     ],
   ]) {
-    g.fillStyle = BLACK;
-    g.beginPath();
-    g.moveTo(hx + b0[0] * S, hy + b0[1] * S);
-    g.quadraticCurveTo(hx + (tip[0] - 0.02) * S, hy + (tip[1] + 0.02) * S, hx + tip[0] * S, hy + tip[1] * S);
-    g.quadraticCurveTo(hx + (tip[0] + 0.03) * S, hy + (tip[1] + 0.06) * S, hx + b1[0] * S, hy + b1[1] * S);
-    g.fill();
-    head.moveTo(hx + b0[0] * S, hy + b0[1] * S);
-    head.lineTo(hx + tip[0] * S, hy + tip[1] * S);
-    head.lineTo(hx + b1[0] * S, hy + b1[1] * S);
-    head.closePath();
-    g.fillStyle = 'rgba(110,70,75,0.6)';
+    const ear = new Path2D();
+    ear.moveTo(hx + b0[0] * S, hy + b0[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] - 0.015) * S, hy + (tip[1] + 0.03) * S, hx + tip[0] * S, hy + tip[1] * S);
+    ear.quadraticCurveTo(hx + (tip[0] + 0.025) * S, hy + (tip[1] + 0.06) * S, hx + b1[0] * S, hy + b1[1] * S);
+    ear.closePath();
+    lit(ear, BLACK, hx, hx + S * 0.2, 0.45);
     const m = [(b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2];
+    g.fillStyle = 'rgba(120,80,88,0.55)';
     g.beginPath();
-    g.moveTo(hx + (m[0] * 0.6 + b0[0] * 0.4) * S, hy + (m[1] * 0.6 + b0[1] * 0.4) * S);
-    g.lineTo(hx + (tip[0] * 0.8 + m[0] * 0.2) * S, hy + (tip[1] * 0.8 + m[1] * 0.2) * S);
-    g.lineTo(hx + (m[0] * 0.6 + b1[0] * 0.4) * S, hy + (m[1] * 0.6 + b1[1] * 0.4) * S);
+    g.moveTo(hx + (m[0] * 0.55 + b0[0] * 0.45) * S, hy + (m[1] * 0.55 + b0[1] * 0.45) * S);
+    g.lineTo(hx + (tip[0] * 0.78 + m[0] * 0.22) * S, hy + (tip[1] * 0.78 + m[1] * 0.22) * S);
+    g.lineTo(hx + (m[0] * 0.55 + b1[0] * 0.45) * S, hy + (m[1] * 0.55 + b1[1] * 0.45) * S);
     g.fill();
   }
-  puff(hx, hy, S * 0.19, S * 0.15, 0.12, BLACK, 0.02);
-  head.moveTo(hx + S * 0.23, hy);
-  head.ellipse(hx, hy, S * 0.23, S * 0.19, 0.12, 0, TAU);
-  light(head, 0.16);
-  // the white of his muzzle and chin, at the lower front of his face; firelight warms it a little
-  puff(hx + S * 0.115, hy + S * 0.075, S * 0.072, S * 0.045, 0.15, WHITE, 0.01);
-  const warmWhite = g.createRadialGradient(hx + S * 0.25, hy + S * 0.1, 0, hx + S * 0.25, hy + S * 0.1, S * 0.3);
-  warmWhite.addColorStop(0, 'rgba(255,190,130,0.16)');
-  warmWhite.addColorStop(1, 'rgba(255,190,130,0)');
-  shade(warmWhite);
-  // fur: a few short light strokes over the back
-  g.strokeStyle = 'rgba(150,155,175,0.18)';
-  g.lineWidth = Math.max(1, S * 0.008);
-  g.lineCap = 'round';
-  for (let i = 0; i < 40; i++) {
-    const a = Math.PI * (1.08 + r() * 0.84);
-    const rr = 0.8 + r() * 0.18;
-    const x = cx + Math.cos(a) * S * 0.5 * rr;
-    const y = cy + Math.sin(a) * S * 0.3 * rr;
-    g.beginPath();
-    g.moveTo(x, y);
-    g.lineTo(x + S * 0.03, y + S * 0.012);
-    g.stroke();
-  }
-  // the black nose patch over his top lip, the black spot on his chin
+  lit(head, BLACK, hx, hx + S * 0.2, 0.5);
+  g.save();
+  g.clip(head);
+  const hs = g.createLinearGradient(0, hy - S * 0.16, 0, hy + S * 0.05);
+  hs.addColorStop(0, 'rgba(150,158,185,0.25)');
+  hs.addColorStop(1, 'rgba(150,158,185,0)');
+  g.fillStyle = hs;
+  g.fillRect(0, 0, c.width, c.height);
+  g.restore();
+  // his face: white whisker pads and chin, the black nose patch over his lip, the spot on his chin
+  g.fillStyle = WHITE;
+  g.beginPath();
+  g.ellipse(hx + S * 0.085, hy + S * 0.085, S * 0.055, S * 0.045, 0, 0, TAU);
+  g.ellipse(hx + S * 0.165, hy + S * 0.07, S * 0.04, S * 0.036, 0, 0, TAU);
+  g.ellipse(hx + S * 0.12, hy + S * 0.11, S * 0.05, S * 0.03, 0, 0, TAU);
+  g.fill();
   g.fillStyle = BLACK;
   g.beginPath();
-  g.ellipse(hx + S * 0.145, hy + S * 0.045, S * 0.042, S * 0.03, 0.2, 0, TAU);
+  g.ellipse(hx + S * 0.135, hy + S * 0.05, S * 0.045, S * 0.032, 0.15, 0, TAU);
   g.fill();
   g.beginPath();
-  g.ellipse(hx + S * 0.1, hy + S * 0.11, S * 0.032, S * 0.016, 0.15, 0, TAU);
+  g.ellipse(hx + S * 0.115, hy + S * 0.125, S * 0.026, S * 0.014, 0.1, 0, TAU);
   g.fill();
-  g.fillStyle = '#0a0a0c';
+  g.fillStyle = '#0c0c10';
   g.beginPath();
-  g.moveTo(hx + S * 0.15, hy + S * 0.022);
-  g.lineTo(hx + S * 0.185, hy + S * 0.028);
-  g.lineTo(hx + S * 0.168, hy + S * 0.05);
+  g.moveTo(hx + S * 0.15, hy + S * 0.03);
+  g.quadraticCurveTo(hx + S * 0.175, hy + S * 0.028, hx + S * 0.185, hy + S * 0.036);
+  g.quadraticCurveTo(hx + S * 0.172, hy + S * 0.056, hx + S * 0.163, hy + S * 0.058);
+  g.closePath();
   g.fill();
-  // the thin white streak up his forehead
-  g.strokeStyle = 'rgba(239,235,227,0.7)';
-  g.lineCap = 'round';
-  for (const [w0, a0, a1] of [
-    [0.014, 0, 0.45],
-    [0.008, 0.4, 0.85],
-  ]) {
-    g.lineWidth = S * w0;
-    g.beginPath();
-    g.moveTo(hx + S * lerp(0.07, 0.025, a0), hy + S * lerp(-0.01, -0.11, a0));
-    g.lineTo(hx + S * lerp(0.07, 0.025, a1), hy + S * lerp(-0.01, -0.11, a1));
-    g.stroke();
-  }
+  // the thin white streak up his forehead, narrowing to a point
+  g.fillStyle = 'rgba(242,239,232,0.9)';
+  g.beginPath();
+  g.moveTo(hx + S * 0.062, hy + S * 0.0);
+  g.quadraticCurveTo(hx + S * 0.05, hy - S * 0.06, hx + S * 0.03, hy - S * 0.115);
+  g.quadraticCurveTo(hx + S * 0.06, hy - S * 0.06, hx + S * 0.08, hy - S * 0.004);
+  g.closePath();
+  g.fill();
   // eyes shut
-  g.strokeStyle = 'rgba(150,150,160,0.8)';
-  g.lineWidth = Math.max(1, S * 0.01);
-  for (const [ex, ey] of [
-    [-0.025, -0.01],
-    [0.105, -0.03],
+  g.strokeStyle = '#8c8c98';
+  g.lineWidth = Math.max(1, S * 0.011);
+  g.lineCap = 'round';
+  for (const [ex2, ey2] of [
+    [-0.02, -0.01],
+    [0.12, -0.025],
   ]) {
     g.beginPath();
-    g.arc(hx + ex * S, hy + ey * S, S * 0.03, 0.25, Math.PI - 0.25);
+    g.arc(hx + ex2 * S, hy + ey2 * S, S * 0.028, 0.3, Math.PI - 0.3);
     g.stroke();
   }
-  // long white whiskers
-  g.strokeStyle = 'rgba(255,252,245,0.7)';
-  g.lineWidth = Math.max(1, S * 0.004);
-  for (const [dy, len, bend] of [
-    [0.06, 0.24, -0.01],
-    [0.075, 0.22, 0.02],
-    [0.09, 0.19, 0.05],
+  // whiskers on both sides of his muzzle
+  g.strokeStyle = 'rgba(255,252,245,0.8)';
+  g.lineWidth = Math.max(1, S * 0.0045);
+  for (const [x0, y0, x1, y1, bx, by] of [
+    [0.18, 0.06, 0.4, 0.04, 0.3, 0.035],
+    [0.18, 0.075, 0.39, 0.1, 0.3, 0.08],
+    [0.175, 0.088, 0.36, 0.15, 0.28, 0.11],
+    [0.06, 0.07, -0.12, 0.03, -0.03, 0.04],
+    [0.06, 0.085, -0.12, 0.09, -0.03, 0.08],
+    [0.065, 0.098, -0.1, 0.14, -0.02, 0.115],
   ]) {
     g.beginPath();
-    g.moveTo(hx + S * 0.15, hy + S * dy);
-    g.quadraticCurveTo(hx + S * (0.15 + len * 0.6), hy + S * (dy + bend - 0.015), hx + S * (0.15 + len), hy + S * (dy + bend * 2));
+    g.moveTo(hx + S * x0, hy + S * y0);
+    g.quadraticCurveTo(hx + S * bx, hy + S * by, hx + S * x1, hy + S * y1);
     g.stroke();
   }
   return c;
