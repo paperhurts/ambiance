@@ -1536,6 +1536,114 @@
     "dur": 90.0
    }
   ],
+  "tower/clockwork": [
+   {
+    "file": "audio/tower/clockwork-1.f4e11534.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/tower/clockwork-2.14d773d3.mp3",
+    "dur": 90.0
+   }
+  ],
+  "tower/feathers": [
+   {
+    "file": "audio/tower/feathers-1.63ebc454.mp3",
+    "dur": 1.95
+   },
+   {
+    "file": "audio/tower/feathers-2.0e62eaca.mp3",
+    "dur": 5.0
+   },
+   {
+    "file": "audio/tower/feathers-3.1cc19da2.mp3",
+    "dur": 2.3
+   }
+  ],
+  "tower/hearth": [
+   {
+    "file": "audio/tower/hearth-1.efa9b541.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/tower/hearth-2.21c44f42.mp3",
+    "dur": 79.0
+   }
+  ],
+  "tower/phoenix": [
+   {
+    "file": "audio/tower/phoenix-1.1335cb52.mp3",
+    "dur": 25.1
+   },
+   {
+    "file": "audio/tower/phoenix-2.f9d80f9d.mp3",
+    "dur": 25.8
+   },
+   {
+    "file": "audio/tower/phoenix-3.4e8f7216.mp3",
+    "dur": 31.1
+   },
+   {
+    "file": "audio/tower/phoenix-4.90b69548.mp3",
+    "dur": 23.3
+   },
+   {
+    "file": "audio/tower/phoenix-5.3cff7d45.mp3",
+    "dur": 26.2
+   },
+   {
+    "file": "audio/tower/phoenix-6.ed98d874.mp3",
+    "dur": 29.5
+   }
+  ],
+  "tower/snore": [
+   {
+    "file": "audio/tower/snore-1.d26ca96e.mp3",
+    "dur": 8.7
+   },
+   {
+    "file": "audio/tower/snore-2.7a6e0477.mp3",
+    "dur": 8.5
+   },
+   {
+    "file": "audio/tower/snore-3.666f0c07.mp3",
+    "dur": 7.6
+   },
+   {
+    "file": "audio/tower/snore-4.e144933c.mp3",
+    "dur": 7.5
+   },
+   {
+    "file": "audio/tower/snore-5.ee8f5675.mp3",
+    "dur": 6.0
+   },
+   {
+    "file": "audio/tower/snore-6.5a2522c2.mp3",
+    "dur": 4.7
+   }
+  ],
+  "tower/whirr": [
+   {
+    "file": "audio/tower/whirr-1.c1cfc150.mp3",
+    "dur": 5.7
+   },
+   {
+    "file": "audio/tower/whirr-2.caeb8f2e.mp3",
+    "dur": 6.9
+   },
+   {
+    "file": "audio/tower/whirr-3.d0569a06.mp3",
+    "dur": 6.4
+   },
+   {
+    "file": "audio/tower/whirr-4.366c189c.mp3",
+    "dur": 11.7
+   },
+   {
+    "file": "audio/tower/whirr-5.f2624365.mp3",
+    "dur": 6.6
+   }
+  ],
   "waterfall/american-crow": [
    {
     "file": "audio/waterfall/american-crow-1.3b738557.mp3",
@@ -2087,6 +2195,30 @@
   "audio/storm/thunder-9.91b88cae.mp3",
   "audio/storm/wind-1.d64df258.mp3",
   "audio/storm/wind-2.a39f8fe0.mp3",
+  "audio/tower/clockwork-1.f4e11534.mp3",
+  "audio/tower/clockwork-2.14d773d3.mp3",
+  "audio/tower/feathers-1.63ebc454.mp3",
+  "audio/tower/feathers-2.0e62eaca.mp3",
+  "audio/tower/feathers-3.1cc19da2.mp3",
+  "audio/tower/hearth-1.efa9b541.mp3",
+  "audio/tower/hearth-2.21c44f42.mp3",
+  "audio/tower/phoenix-1.1335cb52.mp3",
+  "audio/tower/phoenix-2.f9d80f9d.mp3",
+  "audio/tower/phoenix-3.4e8f7216.mp3",
+  "audio/tower/phoenix-4.90b69548.mp3",
+  "audio/tower/phoenix-5.3cff7d45.mp3",
+  "audio/tower/phoenix-6.ed98d874.mp3",
+  "audio/tower/snore-1.d26ca96e.mp3",
+  "audio/tower/snore-2.7a6e0477.mp3",
+  "audio/tower/snore-3.666f0c07.mp3",
+  "audio/tower/snore-4.e144933c.mp3",
+  "audio/tower/snore-5.ee8f5675.mp3",
+  "audio/tower/snore-6.5a2522c2.mp3",
+  "audio/tower/whirr-1.c1cfc150.mp3",
+  "audio/tower/whirr-2.caeb8f2e.mp3",
+  "audio/tower/whirr-3.d0569a06.mp3",
+  "audio/tower/whirr-4.366c189c.mp3",
+  "audio/tower/whirr-5.f2624365.mp3",
   "audio/waterfall/american-crow-1.3b738557.mp3",
   "audio/waterfall/american-crow-2.1b3f3154.mp3",
   "audio/waterfall/american-crow-3.cc9f9138.mp3",
@@ -3590,6 +3722,134 @@
    "title": "Tangara, Rio Acima, Brazil - Rain and thunder during the night, in Brazil",
    "author": "Felix Blume",
    "page": "https://archive.org/details/aporee_42979_49032",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Clockwork ticking",
+   "title": "Luttons, UK - a ticking pocket watch ...",
+   "author": "david m",
+   "page": "https://archive.org/details/aporee_34767_54228",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Clockwork ticking",
+   "title": "clockmaker, gosposka ulica 26, maribor - chronos synchronicity",
+   "author": "OR poiesis",
+   "page": "https://archive.org/details/aporee_22380_26121",
+   "license": "CC BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  {
+   "what": "Clockwork whirring",
+   "title": "Unnamed Road, Malton YO17 8TJ, UK - windup clockwork christmas gonks ...",
+   "author": "david m",
+   "page": "https://archive.org/details/aporee_41405_71914",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Clockwork whirring",
+   "title": "Unnamed Road, Malton YO17 8TJ, UK - windup clockwork xmas gonks ...",
+   "author": "david m",
+   "page": "https://archive.org/details/aporee_41405_71916",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Clockwork whirring",
+   "title": "bonifazius, b\u00fcrknerstr. - mechanical toy",
+   "author": "udo noll",
+   "page": "https://archive.org/details/aporee_2880_4360",
+   "license": "CC BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  {
+   "what": "A puff of steam",
+   "title": "Poznan, Mateckiego Street, bathroom - steam cleaner",
+   "author": "maciej janasik",
+   "page": "https://archive.org/details/aporee_14265_31503",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Snoring",
+   "title": "R\u00f3\u017cana 4, 58-351 R\u00f3\u017cana, Poland - snoring gently",
+   "author": "zvukac",
+   "page": "https://archive.org/details/aporee_41749_47600",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Snoring",
+   "title": "Ulup\u0131nar Mahallesi, \u00c7\u0131ral\u0131 Yolu, 07980 Kemer/Antalya, Turkey - Snoring",
+   "author": "akile nazli kaya",
+   "page": "https://archive.org/details/aporee_37487_42947",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Snoring",
+   "title": "Snoring Person Recording D. D. Teoli Jr.",
+   "author": "D. D. Teoli Jr.",
+   "page": "https://archive.org/details/snoring-person-d.-d.-teoli-jr.",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Snoring",
+   "title": "Pedernales Falls State Park, TX, USA - Friend Snoring in Tent after Vino",
+   "author": "Sylvia Shale",
+   "page": "https://archive.org/details/aporee_30106_34621",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Hermit thrush (the phoenix)",
+   "title": "XC1015003 Hermit Thrush (Catharus guttatus)",
+   "author": "Stanislas Wroza",
+   "page": "https://xeno-canto.org/1015003",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Hermit thrush (the phoenix)",
+   "title": "XC601488 Hermit Thrush (Catharus guttatus)",
+   "author": "Christopher McPherson",
+   "page": "https://xeno-canto.org/601488",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Hermit thrush (the phoenix)",
+   "title": "XC691469 Hermit Thrush (Catharus guttatus)",
+   "author": "Christopher McPherson",
+   "page": "https://xeno-canto.org/691469",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Wings rustling",
+   "title": "GOLD TAPE: 21 Birds - G21-05 Wing Flutter",
+   "author": "USC Cinema / Sunset Editorial sound effects collection",
+   "page": "https://archive.org/details/GOLD_TAPE_21_Birds",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Wings rustling",
+   "title": "Red Library: Animals Birds - R21-40b Bird Wings Flapping",
+   "author": "USC Cinema / Sunset Editorial sound effects collection",
+   "page": "https://archive.org/details/Red_Library_Animals_Birds",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  {
+   "what": "Fire",
+   "title": "Kolonia Mazurska, Mierki, Poland - (853 AB) Fireplace in the woods",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_54707_62564",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
   },

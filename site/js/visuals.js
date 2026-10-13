@@ -8448,14 +8448,7 @@ class Sett extends Painting {
     g.restore();
     // the book lies open; its pages are drawn live so one can turn
     this.book = { x: tb.x + tb.rx * 0.15, y: tb.y + tb.ry * 0.15, pw: 0.065 * k, pd: 0.03 * k };
-    const bk = this.book;
-    g.fillStyle = '#6a2a22';
-    g.beginPath();
-    g.moveTo(bk.x - bk.pw * 1.04, bk.y + bk.pd * 0.12);
-    g.lineTo(bk.x + bk.pw * 1.04, bk.y + bk.pd * 0.12);
-    g.lineTo(bk.x + bk.pw * 0.98, bk.y - bk.pd * 1.02);
-    g.lineTo(bk.x - bk.pw * 0.98, bk.y - bk.pd * 1.02);
-    g.fill();
+    bookCover(g, this.book, '#6a2a22');
 
     printGrain(this.room, this.grain, 0.14);
     printGrain(this.front, this.grain, 0.14);
@@ -8543,14 +8536,8 @@ class Sett extends Painting {
     this.lightning = null;
     this.flip = null;
     this.tea = -99;
-    // the cat pile: a tuxedo asleep facing the fire, a bicolour curled up against him, a black cat
-    // awake behind them
-    const cs = 0.105 * k;
-    this.tux = catSprite(cs);
-    this.bicolour = bicolourCatSprite(cs * 0.95);
-    this.blackOpen = blackCatSprite(cs, true);
-    this.blackShut = blackCatSprite(cs, false);
-    this.blink = R(4, 10);
+    // the cat pile (see catPile)
+    this.cats = catPileSprites(0.105 * k);
   }
 
   // it's raining in the picture if either rain is up: on the windows, or the steady rain on the hill
@@ -8777,32 +8764,7 @@ class Sett extends Painting {
     }
     hearthFire(g, mo, this.mouthPath, this.glow, t, lvl, flick);
 
-    // the cat pile on the rug: the black cat awake at the back, now and then closing his eyes in a
-    // slow blink; the tuxedo asleep facing the fire; the bicolour curled up in front of him, face
-    // tucked in against his chest
-    {
-      const rug = this.rug;
-      const tw = this.tux.width;
-      const th = this.tux.height;
-      const tb = 1 + 0.025 * Math.sin(t * 1.6);
-      const tx = rug.x - tw * 0.42;
-      const bw = this.blackOpen.width;
-      const bh = this.blackOpen.height;
-      const bb = 1 + 0.018 * Math.sin(t * 1.3 + 2);
-      this.blink -= dt;
-      if (this.blink < -0.9) this.blink = rand(6, 14);
-      const eyes = this.blink < 0 ? this.blackShut : this.blackOpen;
-      g.drawImage(eyes, tx + tw * 0.3, rug.y - bh * 0.88 - bh * (bb - 1) - th * 0.05, bw, bh * bb);
-      g.save();
-      g.translate(tx + tw, rug.y - th * 0.84 - th * (tb - 1));
-      g.scale(-1, 1);
-      g.drawImage(this.tux, 0, 0, tw, th * tb);
-      g.restore();
-      const cw = this.bicolour.width;
-      const ch = this.bicolour.height;
-      const cb = 1 + 0.022 * Math.sin(t * 1.45 + 4);
-      g.drawImage(this.bicolour, tx - cw * 0.62, rug.y - ch * 0.8 - ch * (cb - 1) + th * 0.04, cw, ch * cb);
-    }
+    catPile(g, this.cats, this.rug, t, dt);
     g.drawImage(this.front, 0, 0);
 
     // steam: a little always off the tea, more when a fresh cup's poured, and the kettle's as it simmers
@@ -8832,44 +8794,9 @@ class Sett extends Painting {
     }
 
     // the open book, and a page turning when one is heard
-    const bk = this.book;
-    const page = (side, lift = 0, ang = 0) => {
-      const ox = bk.x + side * Math.cos(ang) * bk.pw;
-      const oy = -Math.sin(ang) * bk.pw * 0.55;
-      g.beginPath();
-      g.moveTo(bk.x, bk.y);
-      g.quadraticCurveTo(bk.x + side * bk.pw * 0.5 * Math.cos(ang), bk.y - bk.pd * 0.08 + oy * 0.6 - lift, ox, bk.y + bk.pd * 0.06 + oy);
-      g.lineTo(ox - side * bk.pw * 0.04 * Math.cos(ang), bk.y - bk.pd * 0.94 + oy);
-      g.quadraticCurveTo(bk.x + side * bk.pw * 0.5 * Math.cos(ang), bk.y - bk.pd * 1.06 + oy * 0.6 - lift, bk.x, bk.y - bk.pd);
-      g.closePath();
-    };
-    for (const side of [-1, 1]) {
-      page(side, bk.pd * 0.15);
-      g.fillStyle = side < 0 ? '#efe4cc' : '#f6ecd6';
-      g.fill();
-      g.strokeStyle = 'rgba(90,80,60,0.28)';
-      g.lineWidth = Math.max(1, bk.pd * 0.04);
-      g.beginPath();
-      for (let i = 1; i < 9; i++) {
-        const f = i / 9.5;
-        g.moveTo(bk.x + side * bk.pw * 0.12, bk.y - bk.pd * f);
-        g.lineTo(bk.x + side * bk.pw * 0.86, bk.y - bk.pd * f + bk.pd * 0.04);
-      }
-      g.stroke();
-    }
-    g.fillStyle = 'rgba(80,60,40,0.25)';
-    g.fillRect(bk.x - 1, bk.y - bk.pd, 2, bk.pd);
-    if (this.flip) {
-      const p = (t - this.flip.t0) / 0.9;
-      if (p >= 1) this.flip = null;
-      else {
-        const e = p * p * (3 - 2 * p);
-        const ang = e * Math.PI;
-        page(1, 0, ang);
-        g.fillStyle = mix('#f6ecd6', '#d8ccb0', Math.sin(ang) * 0.6);
-        g.fill();
-      }
-    }
+    const turn = this.flip ? t - this.flip.t0 : null;
+    if (turn != null && turn > 0.9) this.flip = null;
+    openBook(g, this.book, turn);
 
     // plants hanging on their chains
     for (const pl of this.hanging) {
@@ -8880,6 +8807,2663 @@ class Sett extends Painting {
       g.drawImage(pl.spr, -pl.S, 0);
       g.restore();
     }
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Three rooms at the tops of towers, at night: a common room in scarlet and gold round a roaring
+// fire, an airy one in blue and bronze under a dome painted with stars, and the headmaster's study,
+// where silver instruments whirr on spindly tables, old portraits doze in their frames and a phoenix
+// keeps watch from a golden perch. They're built the same way: a round stone room whose far wall
+// curves away, tall arched windows onto the night, a fire near us on the left with the cats on the
+// rug in front of it, and a table near us on the right.
+
+// the cat pile from the room by the kitchens: a tuxedo asleep facing the fire, a bicolour curled up
+// against him and a black cat awake behind them, who now and then closes his eyes in a slow blink
+function catPileSprites(cs) {
+  return { tux: catSprite(cs), bicolour: bicolourCatSprite(cs * 0.95), blackOpen: blackCatSprite(cs, true), blackShut: blackCatSprite(cs, false), blink: rand(4, 10) };
+}
+function catPile(g, P, rug, t, dt) {
+  const tw = P.tux.width;
+  const th = P.tux.height;
+  const tb = 1 + 0.025 * Math.sin(t * 1.6);
+  const tx = rug.x - tw * 0.42;
+  const bw = P.blackOpen.width;
+  const bh = P.blackOpen.height;
+  const bb = 1 + 0.018 * Math.sin(t * 1.3 + 2);
+  P.blink -= dt;
+  if (P.blink < -0.9) P.blink = rand(6, 14);
+  const eyes = P.blink < 0 ? P.blackShut : P.blackOpen;
+  g.drawImage(eyes, tx + tw * 0.3, rug.y - bh * 0.88 - bh * (bb - 1) - th * 0.05, bw, bh * bb);
+  g.save();
+  g.translate(tx + tw, rug.y - th * 0.84 - th * (tb - 1));
+  g.scale(-1, 1);
+  g.drawImage(P.tux, 0, 0, tw, th * tb);
+  g.restore();
+  const cw = P.bicolour.width;
+  const ch = P.bicolour.height;
+  const cb = 1 + 0.022 * Math.sin(t * 1.45 + 4);
+  g.drawImage(P.bicolour, tx - cw * 0.62, rug.y - ch * 0.8 - ch * (cb - 1) + th * 0.04, cw, ch * cb);
+}
+
+// an open book lying on a table, its pages drawn live so one can turn (flip: seconds into a turn,
+// or null). bk: the spine's foot (x, y), a page's width (pw) and depth (pd).
+function openBook(g, bk, flip) {
+  const page = (side, lift = 0, ang = 0) => {
+    const ox = bk.x + side * Math.cos(ang) * bk.pw;
+    const oy = -Math.sin(ang) * bk.pw * 0.55;
+    g.beginPath();
+    g.moveTo(bk.x, bk.y);
+    g.quadraticCurveTo(bk.x + side * bk.pw * 0.5 * Math.cos(ang), bk.y - bk.pd * 0.08 + oy * 0.6 - lift, ox, bk.y + bk.pd * 0.06 + oy);
+    g.lineTo(ox - side * bk.pw * 0.04 * Math.cos(ang), bk.y - bk.pd * 0.94 + oy);
+    g.quadraticCurveTo(bk.x + side * bk.pw * 0.5 * Math.cos(ang), bk.y - bk.pd * 1.06 + oy * 0.6 - lift, bk.x, bk.y - bk.pd);
+    g.closePath();
+  };
+  for (const side of [-1, 1]) {
+    page(side, bk.pd * 0.15);
+    g.fillStyle = side < 0 ? '#efe4cc' : '#f6ecd6';
+    g.fill();
+    g.strokeStyle = 'rgba(90,80,60,0.28)';
+    g.lineWidth = Math.max(1, bk.pd * 0.04);
+    g.beginPath();
+    for (let i = 1; i < 9; i++) {
+      const f = i / 9.5;
+      g.moveTo(bk.x + side * bk.pw * 0.12, bk.y - bk.pd * f);
+      g.lineTo(bk.x + side * bk.pw * 0.86, bk.y - bk.pd * f + bk.pd * 0.04);
+    }
+    g.stroke();
+  }
+  g.fillStyle = 'rgba(80,60,40,0.25)';
+  g.fillRect(bk.x - 1, bk.y - bk.pd, 2, bk.pd);
+  if (flip != null && flip < 0.9) {
+    const p = flip / 0.9;
+    const e = p * p * (3 - 2 * p);
+    const ang = e * Math.PI;
+    page(1, 0, ang);
+    g.fillStyle = mix('#f6ecd6', '#d8ccb0', Math.sin(ang) * 0.6);
+    g.fill();
+  }
+}
+// the cover under an open book
+function bookCover(g, bk, col) {
+  g.fillStyle = col;
+  g.beginPath();
+  g.moveTo(bk.x - bk.pw * 1.04, bk.y + bk.pd * 0.12);
+  g.lineTo(bk.x + bk.pw * 1.04, bk.y + bk.pd * 0.12);
+  g.lineTo(bk.x + bk.pw * 0.98, bk.y - bk.pd * 1.02);
+  g.lineTo(bk.x - bk.pw * 0.98, bk.y - bk.pd * 1.02);
+  g.fill();
+}
+
+// an inkpot with a quill standing in it, its foot at (x, y)
+function inkAndQuill(g, x, y, k) {
+  g.fillStyle = '#1a1a26';
+  g.beginPath();
+  g.roundRect(x - 0.014 * k, y - 0.024 * k, 0.028 * k, 0.026 * k, 0.006 * k);
+  g.fill();
+  g.fillStyle = 'rgba(200,210,255,0.3)';
+  g.fillRect(x - 0.009 * k, y - 0.02 * k, 0.003 * k, 0.014 * k);
+  g.save();
+  g.translate(x, y - 0.022 * k);
+  g.rotate(-0.42);
+  g.fillStyle = '#f4eee0';
+  g.beginPath();
+  g.moveTo(0, -0.01 * k);
+  g.quadraticCurveTo(-0.016 * k, -0.06 * k, -0.002 * k, -0.12 * k);
+  g.quadraticCurveTo(0.012 * k, -0.07 * k, 0.003 * k, -0.01 * k);
+  g.fill();
+  g.strokeStyle = 'rgba(120,110,90,0.7)';
+  g.lineWidth = Math.max(1, 0.0025 * k);
+  g.beginPath();
+  g.moveTo(0, 0.005 * k);
+  g.quadraticCurveTo(-0.003 * k, -0.06 * k, -0.002 * k, -0.118 * k);
+  g.stroke();
+  g.restore();
+}
+
+// a stack of closed books lying flat, bottom centre at (x, y): [width, colour] from the bottom up
+function bookStack(g, x, y, k, books) {
+  let yy = y;
+  for (const [bw, col] of books) {
+    const bh = 0.014 * k;
+    g.fillStyle = col;
+    g.fillRect(x - (bw * k) / 2, yy - bh, bw * k, bh);
+    g.fillStyle = 'rgba(240,225,190,0.75)';
+    g.fillRect(x - (bw * k) / 2 + 0.003 * k, yy - bh * 0.72, bw * k - 0.006 * k, bh * 0.44);
+    g.fillStyle = 'rgba(0,0,0,0.25)';
+    g.fillRect(x - (bw * k) / 2, yy - bh * 0.12, bw * k, bh * 0.12);
+    yy -= bh;
+  }
+  return yy;
+}
+
+// a rack of books standing on a shelf from x0 to x1 with their feet at y
+function bookRow(g, x0, x1, y, k, cols, r) {
+  let x = x0;
+  while (x < x1 - 0.012 * k) {
+    const bw = (0.01 + r() * 0.012) * k;
+    const bh = (0.045 + r() * 0.03) * k;
+    if (r() < 0.08) {
+      x += bw;
+      continue;
+    }
+    const lean = r() < 0.1 ? 0.12 : 0;
+    g.save();
+    g.translate(x, y);
+    g.rotate(lean);
+    g.fillStyle = cols[Math.floor(r() * cols.length)];
+    g.fillRect(0, -bh, Math.min(bw, x1 - x), bh);
+    g.fillStyle = 'rgba(255,220,150,0.35)';
+    g.fillRect(0, -bh * 0.82, Math.min(bw, x1 - x), 0.003 * k);
+    g.fillRect(0, -bh * 0.22, Math.min(bw, x1 - x), 0.003 * k);
+    g.fillStyle = 'rgba(0,0,0,0.25)';
+    g.fillRect(Math.min(bw, x1 - x) - 0.002 * k, -bh, 0.002 * k, bh);
+    g.restore();
+    x += bw + 0.001 * k;
+  }
+}
+
+// an overstuffed armchair facing us, its feet on the floor at by: c holds its colours
+function armchair(g, cx, by, cw, ch, c, k) {
+  g.fillStyle = c.legs;
+  g.fillRect(cx - cw * 0.42, by - ch * 0.06, cw * 0.07, ch * 0.08);
+  g.fillRect(cx + cw * 0.35, by - ch * 0.06, cw * 0.07, ch * 0.08);
+  const back = new Path2D();
+  back.moveTo(cx - cw * 0.5, by - ch * 0.05);
+  back.lineTo(cx - cw * 0.56, by - ch * 0.5);
+  back.quadraticCurveTo(cx - cw * 0.66, by - ch * 0.78, cx - cw * 0.42, by - ch * 0.84);
+  back.quadraticCurveTo(cx - cw * 0.3, by - ch * 1.04, cx, by - ch);
+  back.quadraticCurveTo(cx + cw * 0.3, by - ch * 1.04, cx + cw * 0.42, by - ch * 0.84);
+  back.quadraticCurveTo(cx + cw * 0.66, by - ch * 0.78, cx + cw * 0.56, by - ch * 0.5);
+  back.lineTo(cx + cw * 0.5, by - ch * 0.05);
+  back.closePath();
+  const ag = g.createLinearGradient(cx - cw * 0.6, 0, cx + cw * 0.6, 0);
+  ag.addColorStop(0, c.lit);
+  ag.addColorStop(0.6, c.mid);
+  ag.addColorStop(1, c.dark);
+  g.fillStyle = ag;
+  g.fill(back);
+  g.strokeStyle = c.line;
+  g.lineWidth = Math.max(1.5, 0.004 * k);
+  g.stroke(back);
+  // the squashy seat cushion and the arms
+  g.fillStyle = c.mid;
+  g.beginPath();
+  g.roundRect(cx - cw * 0.36, by - ch * 0.42, cw * 0.72, ch * 0.2, ch * 0.08);
+  g.fill();
+  g.stroke();
+  for (const s of [-1, 1]) {
+    g.fillStyle = s < 0 ? c.lit : c.dark;
+    g.beginPath();
+    g.roundRect(cx + s * cw * 0.5 - cw * 0.14, by - ch * 0.56, cw * 0.28, ch * 0.52, cw * 0.12);
+    g.fill();
+    g.stroke();
+  }
+  if (c.trim) {
+    g.strokeStyle = c.trim;
+    g.lineWidth = Math.max(1, 0.003 * k);
+    g.beginPath();
+    g.moveTo(cx - cw * 0.3, by - ch * 0.86);
+    g.quadraticCurveTo(cx, by - ch * 0.95, cx + cw * 0.3, by - ch * 0.86);
+    g.stroke();
+  }
+}
+
+class TowerRoom extends Painting {
+  // the shape of the room: the wall's top line at the middle (top) and how far it lifts at the
+  // sides (lift); its foot at the middle (foot) and how far it drops at the sides (drop)
+  shape(top, lift, foot, drop) {
+    const { w, h } = this;
+    const vx = (this.vx = w * 0.5);
+    const d = (x) => (x - vx) / (w * 0.5);
+    this.ceilY = (x) => h * (top - lift * d(x) ** 2);
+    this.floorY = (x) => h * (foot + drop * d(x) ** 2);
+    const Rw = w * 0.55;
+    this.X = (th) => vx + Rw * Math.sin(th);
+    this.TH = (x) => Math.asin(clamp((x - vx) / Rw, -1, 1));
+  }
+  // trace a curve y = fn(x) from x0 to x1 (after a moveTo or lineTo)
+  curve(g, fn, x0, x1) {
+    if (x1 >= x0) for (let x = x0; x <= x1; x += 4) g.lineTo(x, fn(x));
+    else for (let x = x0; x >= x1; x -= 4) g.lineTo(x, fn(x));
+    g.lineTo(x1, fn(x1));
+  }
+  wallPath() {
+    const { w } = this;
+    const p = new Path2D();
+    p.moveTo(0, this.ceilY(0));
+    this.curve(p, this.ceilY, 0, w);
+    this.curve(p, this.floorY, w, 0);
+    p.closePath();
+    return p;
+  }
+  // coursed stone on the far wall, the courses following its curve: pal = [mortar, stone, light,
+  // dark], rowH and stoneW the size of a stone (in k)
+  stones(g, pal, rowH, stoneW) {
+    const { w, k } = this;
+    const wall = this.wallPath();
+    g.fillStyle = pal[0];
+    g.fill(wall);
+    g.save();
+    g.clip(wall);
+    const rows = Math.max(6, Math.round((this.floorY(this.vx) - this.ceilY(this.vx)) / (rowH * k)));
+    const yAt = (x, f) => lerp(this.ceilY(x), this.floorY(x), f);
+    const gap = Math.max(1, 0.0014 * k);
+    for (let i = 0; i < rows; i++) {
+      const f0 = i / rows;
+      const f1 = (i + 1) / rows;
+      let x = -this.r() * stoneW * k;
+      while (x < w) {
+        const narrow = 0.6 + 0.4 * Math.cos(this.TH(x));
+        const x1 = x + stoneW * k * (0.7 + this.r() * 0.6) * narrow;
+        const v = this.R(-1, 1);
+        g.fillStyle = mix(pal[1], v > 0 ? pal[2] : pal[3], Math.abs(v) * 0.6);
+        g.beginPath();
+        g.moveTo(x + gap, yAt(x + gap, f0) + gap);
+        g.lineTo(x1 - gap, yAt(x1 - gap, f0) + gap);
+        g.lineTo(x1 - gap, yAt(x1 - gap, f1) - gap);
+        g.lineTo(x + gap, yAt(x + gap, f1) - gap);
+        g.closePath();
+        g.fill();
+        x = x1;
+      }
+    }
+    g.restore();
+  }
+  // clip to everything but the glass, for washes of light and shade over the room
+  noGlass(g) {
+    const p = new Path2D();
+    p.rect(0, 0, this.w, this.h);
+    p.addPath(this.glass);
+    g.save();
+    g.clip(p, 'evenodd');
+  }
+  // a floor of wide boards running out from the wall
+  boards(g, c0, c1, line) {
+    const { w, h } = this;
+    g.beginPath();
+    g.moveTo(0, this.floorY(0));
+    this.curve(g, this.floorY, 0, w);
+    g.lineTo(w, h);
+    g.lineTo(0, h);
+    g.closePath();
+    g.fillStyle = vgrad(g, h * 0.6, h, [
+      [0, c0],
+      [1, c1],
+    ]);
+    g.fill();
+    g.strokeStyle = line;
+    g.lineWidth = Math.max(1, 0.003 * this.k);
+    for (let i = -14; i <= 14; i++) {
+      const bx = this.vx + i * w * 0.045;
+      g.beginPath();
+      g.moveTo(bx, this.floorY(bx));
+      g.lineTo(this.vx + (bx - this.vx) * 3.2, h);
+      g.stroke();
+    }
+  }
+  // dark beams running out across the ceiling from over the middle of the room
+  beams(g, c0, c1, beam, sheen) {
+    const { w, h, k } = this;
+    const top = Math.max(this.ceilY(0), this.ceilY(this.vx)) + 2;
+    g.fillStyle = vgrad(g, 0, top, [
+      [0, c0],
+      [1, c1],
+    ]);
+    g.fillRect(0, 0, w, top);
+    for (let th = -1.4; th <= 1.41; th += 0.28) {
+      const x = this.X(th);
+      g.strokeStyle = beam;
+      g.lineWidth = 0.022 * k * Math.cos(th);
+      g.beginPath();
+      g.moveTo(this.vx + (x - this.vx) * 2.6, -2);
+      g.lineTo(x, this.ceilY(x));
+      g.stroke();
+      g.strokeStyle = sheen;
+      g.lineWidth = Math.max(1, 0.004 * k);
+      g.beginPath();
+      g.moveTo(this.vx + (x - this.vx) * 2.6 - 0.008 * k, -2);
+      g.lineTo(x - 0.008 * k * Math.cos(th), this.ceilY(x));
+      g.stroke();
+    }
+    void h;
+  }
+
+  // tall pointed windows in the far wall at the angles ths, from a little below its top to a
+  // little above its foot; the glass is cut out of the room layer so the night shows through
+  lancets(g, ths, o) {
+    const { k } = this;
+    this.wins = ths.map((th) => {
+      const x = this.X(th);
+      const hw = o.hw * Math.cos(th);
+      const y0 = this.ceilY(x) + o.top;
+      const y1 = this.floorY(x) - o.foot;
+      return { x, th, hw, y0, y1, ys: y0 + Math.min(hw * 2.2, (y1 - y0) * 0.4) };
+    });
+    const arch = (p, W, e = 0) => {
+      const a = W.ys - W.y0;
+      p.moveTo(W.x - W.hw - e, W.y1 + e);
+      p.lineTo(W.x - W.hw - e, W.ys);
+      p.bezierCurveTo(W.x - W.hw - e, W.ys - a * 0.55, W.x - (W.hw + e) * 0.4, W.y0 - e + a * 0.12, W.x, W.y0 - e);
+      p.bezierCurveTo(W.x + (W.hw + e) * 0.4, W.y0 - e + a * 0.12, W.x + W.hw + e, W.ys - a * 0.55, W.x + W.hw + e, W.ys);
+      p.lineTo(W.x + W.hw + e, W.y1 + e);
+      p.closePath();
+    };
+    this.arch = arch;
+    this.glass = new Path2D();
+    const rev = o.reveal * k;
+    for (const W of this.wins) {
+      // the deep reveal of a thick tower wall, lit on the side away from us
+      const outer = new Path2D();
+      arch(outer, W, rev * Math.cos(W.th) + rev * 0.4);
+      g.fillStyle = o.surround;
+      g.fill(outer);
+      const inner = new Path2D();
+      arch(inner, W, rev * 0.55);
+      const rg = g.createLinearGradient(W.x - W.hw - rev, 0, W.x + W.hw + rev, 0);
+      rg.addColorStop(0, W.th > 0 ? o.revealLit : o.revealDark);
+      rg.addColorStop(1, W.th > 0 ? o.revealDark : o.revealLit);
+      g.fillStyle = rg;
+      g.fill(inner);
+      // the sill
+      g.fillStyle = o.sill;
+      g.fillRect(W.x - W.hw - rev * 1.2, W.y1 + rev * 0.3, (W.hw + rev * 1.2) * 2, 0.014 * k);
+      g.fillStyle = 'rgba(0,0,0,0.3)';
+      g.fillRect(W.x - W.hw - rev * 1.2, W.y1 + rev * 0.3 + 0.014 * k, (W.hw + rev * 1.2) * 2, 0.006 * k);
+      arch(this.glass, W);
+    }
+    g.save();
+    g.globalCompositeOperation = 'destination-out';
+    g.fillStyle = '#000';
+    g.fill(this.glass);
+    g.restore();
+    // leading: a mullion, a transom, and small diamond panes
+    for (const W of this.wins) {
+      g.save();
+      const gp = new Path2D();
+      arch(gp, W);
+      g.clip(gp);
+      g.strokeStyle = o.lead;
+      g.lineWidth = Math.max(1, 0.0013 * k);
+      g.beginPath();
+      const pane = Math.max(W.hw * 0.55, 0.022 * k);
+      for (let x = W.x - W.hw * 3; x < W.x + W.hw * 3; x += pane) {
+        g.moveTo(x, W.y0);
+        g.lineTo(x + (W.y1 - W.y0) * 0.6, W.y1);
+        g.moveTo(x, W.y0);
+        g.lineTo(x - (W.y1 - W.y0) * 0.6, W.y1);
+      }
+      g.stroke();
+      g.restore();
+      g.strokeStyle = o.bar;
+      g.lineWidth = Math.max(2, 0.006 * k * Math.cos(W.th));
+      g.beginPath();
+      g.moveTo(W.x, W.y0);
+      g.lineTo(W.x, W.y1);
+      const ty = lerp(W.ys, W.y1, 0.42);
+      g.moveTo(W.x - W.hw, ty);
+      g.lineTo(W.x + W.hw, ty);
+      g.stroke();
+    }
+  }
+
+  // the night outside, as one layer as big as the screen: a deep sky full of stars, the moon, and
+  // the land far below (the castle grounds, or mountains)
+  nightView(land) {
+    const { w, h, k } = this;
+    const c = layer(w, h);
+    const q = c.getContext('2d');
+    const top = Math.min(...this.wins.map((W) => W.y0));
+    const bot = Math.max(...this.wins.map((W) => W.y1));
+    const hy = lerp(top, bot, land === 'mountains' ? 0.64 : 0.74);
+    this.horizon = hy;
+    q.fillStyle = vgrad(q, top, hy, [
+      [0, '#070c22'],
+      [0.6, '#13204a'],
+      [1, '#2c3f72'],
+    ]);
+    q.fillRect(0, 0, w, h);
+    let s = 7;
+    const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    // the milky way, a faint band across the sky
+    q.save();
+    q.translate(w * 0.5, (top + hy) / 2);
+    q.rotate(-0.5);
+    for (let i = 0; i < 60; i++) {
+      q.fillStyle = `rgba(190,200,255,${0.006 + r() * 0.012})`;
+      q.beginPath();
+      q.ellipse((r() - 0.5) * w * 1.6, (r() - 0.5) * 0.06 * k, (0.04 + r() * 0.08) * k, (0.012 + r() * 0.02) * k, 0, 0, TAU);
+      q.fill();
+    }
+    q.restore();
+    const n = Math.round((w * (hy - top)) / (0.0009 * k * k));
+    for (let i = 0; i < n; i++) {
+      const x = r() * w;
+      const y = top + Math.pow(r(), 1.3) * (hy - top);
+      const sz = Math.max(0.6, (0.4 + Math.pow(r(), 3) * 1.6) * this.dpr);
+      q.fillStyle = `rgba(${r() < 0.2 ? '255,230,200' : '225,232,255'},${0.35 + r() * 0.6})`;
+      q.fillRect(x, y, sz, sz);
+    }
+    // bright stars that twinkle (drawn live)
+    this.stars = Array.from({ length: Math.round(n / 12) }, () => ({ x: r() * w, y: top + Math.pow(r(), 1.2) * (hy - top) * 0.92, s: (0.8 + r() * 1.2) * this.dpr, ph: r() * TAU, f: 0.6 + r() * 2 }));
+    // the moon, in the window nearest the middle, high up
+    const mid = this.wins.reduce((a, b) => (Math.abs(b.th - 0.15) < Math.abs(a.th - 0.15) ? b : a));
+    const mr = Math.min(mid.hw * 0.42, 0.03 * k);
+    this.moon = { x: mid.x + mid.hw * 0.35, y: lerp(mid.ys, hy, 0.2), r: mr };
+    const M = this.moon;
+    const halo = q.createRadialGradient(M.x, M.y, mr, M.x, M.y, mr * 6);
+    halo.addColorStop(0, 'rgba(200,215,255,0.25)');
+    halo.addColorStop(1, 'rgba(200,215,255,0)');
+    q.fillStyle = halo;
+    q.fillRect(M.x - mr * 6, M.y - mr * 6, mr * 12, mr * 12);
+    q.fillStyle = '#f2eedc';
+    q.beginPath();
+    q.arc(M.x, M.y, mr, 0, TAU);
+    q.fill();
+    q.fillStyle = 'rgba(160,160,150,0.25)';
+    for (const [dx, dy, rr] of [
+      [-0.3, -0.2, 0.22],
+      [0.25, 0.1, 0.16],
+      [-0.05, 0.35, 0.12],
+    ]) {
+      q.beginPath();
+      q.arc(M.x + dx * mr, M.y + dy * mr, rr * mr, 0, TAU);
+      q.fill();
+    }
+    if (land === 'mountains') {
+      // jagged peaks, snow on their shoulders catching the moon, a dark ridge in front
+      const peaks = (base, amp, col, snow, seed, n2) => {
+        let s2 = seed;
+        const r2 = () => (s2 = (s2 * 9301 + 49297) % 233280) / 233280;
+        const pts = [];
+        for (let x = -w * 0.05, i = 0; x < w * 1.05; i++) {
+          pts.push([x, base - amp * (0.35 + r2() * 0.65)]);
+          x += (w / n2) * (0.5 + r2() * 0.5);
+          pts.push([x, base - amp * (0.05 + r2() * 0.25)]);
+          x += (w / n2) * (0.3 + r2() * 0.4);
+        }
+        q.fillStyle = col;
+        q.beginPath();
+        q.moveTo(-10, h);
+        for (const p of pts) q.lineTo(...p);
+        q.lineTo(w + 10, h);
+        q.closePath();
+        q.fill();
+        if (snow) {
+          for (let i = 0; i < pts.length - 1; i++) {
+            const [x, y] = pts[i];
+            if (y > base - amp * 0.45) continue;
+            const depth = (base - y) * 0.3;
+            const [xl, yl] = pts[i - 1] || [x - 10, y + 10];
+            const [xr, yr] = pts[i + 1];
+            const fl = depth / Math.max(1, yl - y);
+            const fr = depth / Math.max(1, yr - y);
+            q.fillStyle = snow;
+            q.beginPath();
+            q.moveTo(x, y);
+            q.lineTo(x + (xr - x) * fr, y + depth);
+            q.lineTo(x + (xr - x) * fr * 0.55, y + depth * 0.7);
+            q.lineTo(x, y + depth * 0.95);
+            q.lineTo(x + (xl - x) * fl * 0.5, y + depth * 0.8);
+            q.lineTo(x + (xl - x) * fl, y + depth);
+            q.closePath();
+            q.fill();
+          }
+        }
+      };
+      peaks(hy - 0.02 * k, 0.16 * k, '#34436e', 'rgba(205,218,245,0.85)', 3, 5);
+      peaks(hy + 0.02 * k, 0.1 * k, '#202b4e', 'rgba(170,185,225,0.55)', 9, 7);
+      treeline(q, w, hy + 0.04 * k, 0.03 * k, '#0d1428', 'pine', 5);
+      q.fillStyle = '#0d1428';
+      q.fillRect(0, hy + 0.06 * k, w, h);
+    } else {
+      // far hills and the forest, the lake in front with the moon on it, the dark lawns
+      hills(q, w, hy - 0.005 * k, 0.05 * k, '#1d2850', 3, 0.7);
+      treeline(q, w, hy - 0.01 * k, 0.035 * k, '#0b1226', 'pine', 3);
+      q.fillStyle = '#0b1226';
+      q.fillRect(0, hy + 0.02 * k, w, 0.01 * k);
+      q.fillStyle = vgrad(q, hy + 0.025 * k, hy + 0.055 * k, [
+        [0, '#2c3c70'],
+        [1, '#1a2550'],
+      ]);
+      q.fillRect(0, hy + 0.025 * k, w, 0.03 * k);
+      q.fillStyle = 'rgba(240,235,210,0.4)';
+      for (let i = 0; i < 9; i++) {
+        const yy = hy + 0.027 * k + i * 0.003 * k;
+        const ww = M.r * (1.8 - i * 0.12) * (0.6 + r() * 0.6);
+        q.fillRect(M.x - ww / 2 + (r() - 0.5) * M.r * 0.4, yy, ww, Math.max(1, 0.0012 * k));
+      }
+      hills(q, w, hy + 0.06 * k, 0.012 * k, '#101830', 2, 2.1);
+      q.fillStyle = '#101830';
+      q.fillRect(0, hy + 0.06 * k, w, h);
+      // a hut at the forest's edge, its window lit
+      const hx = this.wins[0].x - this.wins[0].hw * 0.3;
+      const hY = hy + 0.022 * k;
+      q.fillStyle = '#0b1226';
+      q.beginPath();
+      q.moveTo(hx - 0.012 * k, hY);
+      q.lineTo(hx - 0.012 * k, hY - 0.01 * k);
+      q.lineTo(hx, hY - 0.02 * k);
+      q.lineTo(hx + 0.012 * k, hY - 0.01 * k);
+      q.lineTo(hx + 0.012 * k, hY);
+      q.fill();
+      this.hut = { x: hx + 0.004 * k, y: hY - 0.007 * k };
+    }
+    return c;
+  }
+
+  // rain on the windows if the rain's up (it never is to start with): the stars go, the sky greys
+  rainTarget() {
+    const lv = this.engine.scene?.layers?.get('rain')?.level ?? 0;
+    return clamp(lv / 0.4, 0, 1);
+  }
+
+  // the night through the glass: the view, twinkling stars, the hut's window, rain if it's raining
+  drawView(g, dt) {
+    const { t, k, w } = this;
+    this.rk += (this.rainTarget() - this.rk) * Math.min(1, dt * 0.6);
+    const rk = this.rk;
+    g.save();
+    g.clip(this.glass);
+    g.drawImage(this.view, 0, 0);
+    if (rk < 0.99) {
+      for (const s of this.stars) {
+        const a = (0.55 + 0.45 * Math.sin(t * s.f + s.ph)) * (1 - rk);
+        g.fillStyle = `rgba(240,244,255,${a})`;
+        g.fillRect(s.x - s.s / 2, s.y - s.s / 2, s.s, s.s);
+        if (s.s > 1.6 * this.dpr) {
+          g.fillStyle = `rgba(220,230,255,${a * 0.25})`;
+          g.fillRect(s.x - s.s * 1.5, s.y - s.s * 0.15, s.s * 3, s.s * 0.3);
+          g.fillRect(s.x - s.s * 0.15, s.y - s.s * 1.5, s.s * 0.3, s.s * 3);
+        }
+      }
+    }
+    if (this.hut) {
+      const a = 0.75 + 0.15 * Math.sin(t * 0.9) + 0.1 * Math.sin(t * 2.3);
+      g.fillStyle = `rgba(255,190,90,${a})`;
+      g.fillRect(this.hut.x - 0.002 * k, this.hut.y - 0.002 * k, 0.004 * k, 0.004 * k);
+    }
+    // a shooting star now and then
+    if (!this.meteor && rk < 0.3 && Math.random() < dt / 70) {
+      const W = this.wins[Math.floor(Math.random() * this.wins.length)];
+      this.meteor = { x: W.x + rand(-1, 1) * W.hw, y: lerp(W.y0, this.horizon, rand(0.1, 0.4)), t0: t, dx: rand(0.5, 1) * (Math.random() < 0.5 ? -1 : 1), len: rand(0.05, 0.1) * k };
+    }
+    const m = this.meteor;
+    if (m) {
+      const p = (t - m.t0) / 0.9;
+      if (p >= 1) this.meteor = null;
+      else {
+        const hx = m.x + m.dx * m.len * 2 * p;
+        const hyy = m.y + m.len * p;
+        const gr = g.createLinearGradient(hx, hyy, hx - m.dx * m.len, hyy - m.len * 0.5);
+        gr.addColorStop(0, `rgba(255,255,240,${0.9 * Math.sin(p * Math.PI)})`);
+        gr.addColorStop(1, 'rgba(255,255,240,0)');
+        g.strokeStyle = gr;
+        g.lineWidth = Math.max(1, 0.0016 * k);
+        g.beginPath();
+        g.moveTo(hx, hyy);
+        g.lineTo(hx - m.dx * m.len, hyy - m.len * 0.5);
+        g.stroke();
+      }
+    }
+    if (rk > 0.01) {
+      g.fillStyle = `rgba(40,46,60,${0.75 * rk})`;
+      g.fillRect(0, 0, w, this.h);
+      g.strokeStyle = `rgba(200,210,230,${0.3 * rk})`;
+      g.lineWidth = Math.max(1, this.dpr * 0.8);
+      g.beginPath();
+      for (const W of this.wins) {
+        const n = Math.round(30 * rk);
+        for (let i = 0; i < n; i++) {
+          const fx = ((i * 0.618 + t * 0.05 * (1 + (i % 3))) % 1) * 2 - 1;
+          const fy = (i * 0.37 + t * (1.2 + (i % 5) * 0.15)) % 1;
+          const x = W.x + fx * W.hw;
+          const y = W.y0 + fy * (W.y1 - W.y0);
+          g.moveTo(x, y);
+          g.lineTo(x - W.hw * 0.03, y + 0.025 * k);
+        }
+      }
+      g.stroke();
+      // drops on the glass, some running down
+      if (this.drops.length < 50 * rk && Math.random() < dt * 10 * rk) {
+        const W = this.wins[Math.floor(Math.random() * this.wins.length)];
+        this.drops.push({ x: W.x + rand(-1, 1) * W.hw, y: rand(W.y0, W.y1), r: rand(0.002, 0.005) * k, v: Math.random() < 0.3 ? rand(0.01, 0.04) * k : 0, life: rand(6, 16), age: 0 });
+      }
+    }
+    this.drops = this.drops.filter((d) => (d.age += dt) < d.life);
+    for (const d of this.drops) {
+      d.y += d.v * dt;
+      const a = Math.min(1, d.age * 2, (d.life - d.age) * 0.5) * Math.max(rk, 0.2);
+      g.fillStyle = `rgba(20,24,34,${0.3 * a})`;
+      g.beginPath();
+      g.ellipse(d.x, d.y + d.r * 0.15, d.r, d.r * 1.15, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = `rgba(220,230,250,${0.45 * a})`;
+      g.beginPath();
+      g.arc(d.x - d.r * 0.3, d.y - d.r * 0.35, d.r * 0.35, 0, TAU);
+      g.fill();
+    }
+    g.restore();
+  }
+
+  // a stone fireplace near us on the left: F = { x0, x1, mantel } (the surround and the top of
+  // the mantel shelf), mo = the opening; c holds its colours. The chimney breast goes up into the
+  // dark, narrowing; things for the shelf are drawn by the caller on top.
+  fireplace(g, F, mo, c) {
+    const { k, h } = this;
+    const hb = mo.y1;
+    // the chimney breast
+    const cb = { x0: F.x0 + (F.x1 - F.x0) * 0.08, x1: F.x1 - (F.x1 - F.x0) * 0.08 };
+    const sg = g.createLinearGradient(cb.x0, 0, cb.x1, 0);
+    sg.addColorStop(0, c.dark);
+    sg.addColorStop(0.55, c.stone);
+    sg.addColorStop(1, c.dark);
+    // it goes up into the dark, or (top) ends at the cornice
+    const top = c.top ?? -2;
+    g.fillStyle = sg;
+    g.fillRect(cb.x0, top, cb.x1 - cb.x0, F.mantel - top + 4);
+    g.save();
+    g.beginPath();
+    g.rect(cb.x0, top, cb.x1 - cb.x0, F.mantel - top + 4);
+    g.clip();
+    const bh = 0.04 * k;
+    g.strokeStyle = c.joint;
+    g.lineWidth = Math.max(1, 0.002 * k);
+    for (let y = F.mantel, row = 0; y > -bh; y -= bh, row++) {
+      g.beginPath();
+      g.moveTo(cb.x0, y);
+      g.lineTo(cb.x1, y);
+      for (let x = cb.x0 + (row % 2 ? 0.05 : 0.02) * k; x < cb.x1; x += 0.07 * k) {
+        g.moveTo(x, y);
+        g.lineTo(x, y - bh);
+      }
+      g.stroke();
+    }
+    g.fillStyle = vgrad(g, top, top + h * 0.25, [
+      [0, 'rgba(0,0,0,0.55)'],
+      [1, 'rgba(0,0,0,0)'],
+    ]);
+    g.fillRect(cb.x0, top, cb.x1 - cb.x0, h * 0.25);
+    g.restore();
+    if (c.top != null) {
+      g.fillStyle = c.edge;
+      g.fillRect(cb.x0 - 0.01 * k, top - 0.012 * k, cb.x1 - cb.x0 + 0.02 * k, 0.014 * k);
+      g.fillStyle = c.dark;
+      g.fillRect(cb.x0 - 0.01 * k, top + 0.002 * k, cb.x1 - cb.x0 + 0.02 * k, 0.004 * k);
+    }
+    // the surround: big dressed stones round the opening
+    g.fillStyle = c.stone;
+    g.fillRect(F.x0, F.mantel, F.x1 - F.x0, hb - F.mantel);
+    g.strokeStyle = c.joint;
+    g.lineWidth = Math.max(1, 0.002 * k);
+    g.beginPath();
+    for (let y = F.mantel + 0.045 * k; y < hb; y += 0.045 * k) {
+      g.moveTo(F.x0, y);
+      g.lineTo(mo.x0, y);
+      g.moveTo(mo.x1, y);
+      g.lineTo(F.x1, y);
+    }
+    g.stroke();
+    // the opening: a low four-centred arch with a keystone, dark inside
+    this.mouth = mo;
+    const mp = new Path2D();
+    const mw = mo.x1 - mo.x0;
+    mp.moveTo(mo.x0, mo.y1);
+    mp.lineTo(mo.x0, mo.y0 + mw * 0.16);
+    mp.quadraticCurveTo(mo.x0, mo.y0, mo.x0 + mw * 0.25, mo.y0 - mw * 0.02);
+    mp.lineTo(mo.x1 - mw * 0.25, mo.y0 - mw * 0.02);
+    mp.quadraticCurveTo(mo.x1, mo.y0, mo.x1, mo.y0 + mw * 0.16);
+    mp.lineTo(mo.x1, mo.y1);
+    mp.closePath();
+    this.mouthPath = mp;
+    g.strokeStyle = c.lit;
+    g.lineWidth = 0.02 * k;
+    g.stroke(mp);
+    const mg = g.createLinearGradient(0, mo.y0, 0, mo.y1);
+    mg.addColorStop(0, '#080403');
+    mg.addColorStop(1, '#26100a');
+    g.fillStyle = mg;
+    g.fill(mp);
+    // soot up the back, a grate
+    g.fillStyle = 'rgba(0,0,0,0.35)';
+    g.fillRect(mo.x0 + mw * 0.15, mo.y0, mw * 0.7, (mo.y1 - mo.y0) * 0.5);
+    g.strokeStyle = '#1a1210';
+    g.lineWidth = Math.max(2, 0.006 * k);
+    g.beginPath();
+    g.moveTo(mo.x0 + mw * 0.12, hb - 0.012 * k);
+    g.lineTo(mo.x1 - mw * 0.12, hb - 0.012 * k);
+    for (let i = 0; i <= 6; i++) {
+      const x = lerp(mo.x0 + mw * 0.14, mo.x1 - mw * 0.14, i / 6);
+      g.moveTo(x, hb - 0.012 * k);
+      g.lineTo(x, hb - 0.03 * k);
+    }
+    g.stroke();
+    // the mantel shelf, a moulded beam of stone on corbels
+    g.fillStyle = c.lit;
+    g.fillRect(F.x0 - 0.02 * k, F.mantel - 0.03 * k, F.x1 - F.x0 + 0.04 * k, 0.03 * k);
+    g.fillStyle = c.edge;
+    g.fillRect(F.x0 - 0.02 * k, F.mantel - 0.03 * k, F.x1 - F.x0 + 0.04 * k, 0.004 * k);
+    g.fillStyle = c.dark;
+    g.fillRect(F.x0 - 0.02 * k, F.mantel - 0.005 * k, F.x1 - F.x0 + 0.04 * k, 0.005 * k);
+    for (const x of [F.x0 + 0.01 * k, F.x1 - 0.04 * k]) {
+      g.fillStyle = c.lit;
+      g.beginPath();
+      g.moveTo(x, F.mantel);
+      g.lineTo(x + 0.03 * k, F.mantel);
+      g.lineTo(x + 0.024 * k, F.mantel + 0.035 * k);
+      g.lineTo(x + 0.006 * k, F.mantel + 0.035 * k);
+      g.fill();
+    }
+    // the hearthstone
+    g.fillStyle = c.hearth;
+    g.fillRect(F.x0 - 0.02 * k, hb, F.x1 - F.x0 + 0.06 * k, 0.022 * k);
+    g.fillStyle = 'rgba(255,220,170,0.15)';
+    g.fillRect(F.x0 - 0.02 * k, hb, F.x1 - F.x0 + 0.06 * k, 0.003 * k);
+    this.shelf = F.mantel - 0.03 * k;
+  }
+
+  // a candle standing at (x, y), ch tall; its flame is drawn live
+  candle(g, x, y, ch, col = '#efe4c8') {
+    const { k } = this;
+    g.fillStyle = col;
+    g.fillRect(x - 0.0055 * k, y - ch, 0.011 * k, ch);
+    g.fillStyle = 'rgba(255,255,255,0.25)';
+    g.fillRect(x - 0.0045 * k, y - ch, 0.003 * k, ch);
+    (this.candles ||= []).push([x, y - ch]);
+  }
+  // a brass candlestick with its candle
+  candlestick(g, x, y, ch, brass = '#c89a40') {
+    const { k } = this;
+    g.fillStyle = brass;
+    g.beginPath();
+    g.ellipse(x, y - 0.003 * k, 0.014 * k, 0.004 * k, 0, 0, TAU);
+    g.fill();
+    g.fillRect(x - 0.003 * k, y - 0.03 * k, 0.006 * k, 0.028 * k);
+    g.beginPath();
+    g.ellipse(x, y - 0.03 * k, 0.009 * k, 0.003 * k, 0, 0, TAU);
+    g.fill();
+    this.candle(g, x, y - 0.03 * k, ch);
+  }
+
+  // a round rug: rings of colour from the outside in
+  rugAt(g, rug, rings) {
+    rings.forEach((col, i) => {
+      const f = 1 - i / rings.length;
+      g.fillStyle = col;
+      g.beginPath();
+      g.ellipse(rug.x, rug.y, rug.rx * f, rug.ry * f, 0, 0, TAU);
+      g.fill();
+    });
+  }
+
+  // how bright the fire is, from its slider, with a flicker
+  fireLevel() {
+    const fireOn = this.engine.scene?.layers?.get('fire')?.level ?? 0.6;
+    const lvl = clamp(fireOn * 1.6, 0.25, 1);
+    const t = this.t;
+    return { lvl, flick: (0.78 + 0.12 * Math.sin(t * 7.3) * Math.sin(t * 3.1) + 0.1 * Math.sin(t * 13.7)) * lvl };
+  }
+  // firelight on the room, candle glows, the flames and the candle flames
+  lights(g, warmth = 0.5) {
+    const { t } = this;
+    const { lvl, flick } = this.fireLevel();
+    const mo = this.mouth;
+    const mw = mo.x1 - mo.x0;
+    const mh = mo.y1 - mo.y0;
+    const fx = (mo.x0 + mo.x1) / 2;
+    g.globalCompositeOperation = 'lighter';
+    g.globalAlpha = warmth * flick;
+    g.drawImage(this.fireGlow, fx - mw * 2, mo.y1 - mh * 2, mw * 4, mh * 3.2);
+    for (const [cx, cy] of this.candles || []) {
+      g.globalAlpha = 0.35 + 0.05 * Math.sin(t * 9 + cx);
+      g.drawImage(this.glow, cx - mw * 0.15, cy - mw * 0.17, mw * 0.3, mw * 0.3);
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    for (const [cx, cy] of this.candles || []) {
+      g.fillStyle = 'rgba(255,220,150,0.95)';
+      g.beginPath();
+      g.ellipse(cx, cy - mw * 0.02, mw * 0.008, mw * 0.022 * (1 + 0.1 * Math.sin(t * 11 + cx)), 0, 0, TAU);
+      g.fill();
+    }
+    hearthFire(g, mo, this.mouthPath, this.glow, t, lvl, flick);
+  }
+
+  // the sprites every tower room uses
+  sprites() {
+    this.glow = glowSprite([
+      [0, 'rgba(255,200,130,0.85)'],
+      [0.3, 'rgba(255,150,70,0.3)'],
+      [1, 'rgba(255,120,50,0)'],
+    ]);
+    this.fireGlow = glowSprite([
+      [0, 'rgba(255,140,50,0.75)'],
+      [0.35, 'rgba(230,90,30,0.25)'],
+      [1, 'rgba(200,60,20,0)'],
+    ]);
+    this.cats = catPileSprites(0.105 * this.k);
+    this.rk = this.rainTarget();
+    this.drops = [];
+    this.meteor = null;
+    this.flip = null;
+  }
+  event(e) {
+    if (e.type === 'shot' && e.layer === 'pages') this.at(e.at, () => (this.flip = { t0: this.t }));
+  }
+  // set up the room's size and its random numbers
+  begin(seed) {
+    const { w, h } = this;
+    this.k = Math.min(w * 2, h);
+    let s = seed;
+    this.r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    this.R = (a, b) => a + this.r() * (b - a);
+    this.grain = grainLayer(w, h);
+    this.room = layer(w, h);
+    this.front = layer(w, h);
+    this.hb = h * 0.8; // the controls cover the bottom of the screen
+    this.candles = [];
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// A common room at the top of a tower, in scarlet and gold: a great stone fireplace roaring away,
+// scarlet hangings on the walls, squashy armchairs, tall windows onto the grounds at night (the
+// forest, the lake with the moon on it, a light in a hut at the forest's edge), the cats asleep on
+// the hearthrug, and a game of chess left going on a low table, whose pieces move by themselves.
+
+// a scarlet hanging with a gold border and a gold device, hung from a rod at (x, y0) to y1
+function hanging(g, x, y0, y1, hw, k, c) {
+  const p = new Path2D();
+  p.moveTo(x - hw, y0);
+  p.lineTo(x + hw, y0);
+  p.lineTo(x + hw, y1);
+  p.lineTo(x, y1 + hw * 0.5);
+  p.lineTo(x - hw, y1);
+  p.closePath();
+  const fg = g.createLinearGradient(x - hw, 0, x + hw, 0);
+  for (let i = 0; i <= 6; i++) fg.addColorStop(i / 6, i % 2 ? c.cloth : c.fold);
+  g.fillStyle = fg;
+  g.fill(p);
+  // the border
+  g.save();
+  g.clip(p);
+  g.strokeStyle = c.gold;
+  g.lineWidth = hw * 0.1;
+  g.stroke(p);
+  g.restore();
+  g.strokeStyle = c.gold;
+  g.lineWidth = Math.max(1, hw * 0.025);
+  g.beginPath();
+  g.moveTo(x - hw * 0.72, y0 + hw * 0.25);
+  g.lineTo(x + hw * 0.72, y0 + hw * 0.25);
+  g.lineTo(x + hw * 0.72, y1 - hw * 0.05);
+  g.lineTo(x, y1 + hw * 0.3);
+  g.lineTo(x - hw * 0.72, y1 - hw * 0.05);
+  g.closePath();
+  g.stroke();
+  // a gold shield with a band across it, and a star over it
+  const sy = lerp(y0, y1, 0.45);
+  const sw = hw * 0.55;
+  const sh = sw * 1.25;
+  const sp = new Path2D();
+  sp.moveTo(x - sw, sy - sh * 0.5);
+  sp.lineTo(x + sw, sy - sh * 0.5);
+  sp.lineTo(x + sw, sy);
+  sp.quadraticCurveTo(x + sw, sy + sh * 0.45, x, sy + sh * 0.7);
+  sp.quadraticCurveTo(x - sw, sy + sh * 0.45, x - sw, sy);
+  sp.closePath();
+  g.fillStyle = c.gold;
+  g.fill(sp);
+  g.save();
+  g.clip(sp);
+  g.fillStyle = c.cloth;
+  g.beginPath();
+  g.moveTo(x - sw * 1.2, sy - sh * 0.1);
+  g.lineTo(x - sw * 1.2, sy + sh * 0.25);
+  g.lineTo(x + sw * 1.2, sy - sh * 0.45);
+  g.lineTo(x + sw * 1.2, sy - sh * 0.8);
+  g.fill();
+  g.restore();
+  g.fillStyle = c.gold;
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const rr = (i % 2 ? 0.42 : 1) * hw * 0.22;
+    g.lineTo(x + Math.cos(a) * rr, sy - sh * 0.95 + Math.sin(a) * rr);
+  }
+  g.fill();
+  // the rod, its finials, and tassels at the point
+  g.fillStyle = c.gold;
+  g.fillRect(x - hw * 1.2, y0 - hw * 0.06, hw * 2.4, hw * 0.12);
+  for (const s of [-1, 1]) {
+    g.beginPath();
+    g.arc(x + s * hw * 1.25, y0, hw * 0.1, 0, TAU);
+    g.fill();
+  }
+  g.strokeStyle = c.gold;
+  g.lineWidth = Math.max(1, hw * 0.03);
+  g.beginPath();
+  g.moveTo(x, y1 + hw * 0.5);
+  g.lineTo(x, y1 + hw * 0.75);
+  g.stroke();
+  g.beginPath();
+  g.ellipse(x, y1 + hw * 0.85, hw * 0.06, hw * 0.13, 0, 0, TAU);
+  g.fill();
+}
+
+// a chess piece standing at (x, y), s tall: kind is p, r, n, b, q or k
+function chessPiece(g, x, y, s, kind, col, rim) {
+  g.fillStyle = col;
+  g.strokeStyle = rim;
+  g.lineWidth = Math.max(1, s * 0.05);
+  g.beginPath();
+  g.ellipse(x, y - s * 0.06, s * 0.3, s * 0.08, 0, 0, TAU);
+  g.fill();
+  g.stroke();
+  const body = new Path2D();
+  const top = kind === 'p' ? 0.62 : kind === 'k' || kind === 'q' ? 1 : 0.85;
+  body.moveTo(x - s * 0.22, y - s * 0.1);
+  body.quadraticCurveTo(x - s * 0.08, y - s * 0.35, x - s * 0.1, y - s * top * 0.75);
+  body.lineTo(x + s * 0.1, y - s * top * 0.75);
+  body.quadraticCurveTo(x + s * 0.08, y - s * 0.35, x + s * 0.22, y - s * 0.1);
+  body.closePath();
+  g.fill(body);
+  g.stroke(body);
+  const hy = y - s * top * 0.8;
+  g.beginPath();
+  if (kind === 'p') g.arc(x, hy, s * 0.14, 0, TAU);
+  else if (kind === 'r') g.rect(x - s * 0.16, hy - s * 0.18, s * 0.32, s * 0.2);
+  else if (kind === 'n') {
+    g.moveTo(x - s * 0.12, hy + s * 0.04);
+    g.lineTo(x - s * 0.1, hy - s * 0.2);
+    g.lineTo(x + s * 0.18, hy - s * 0.1);
+    g.lineTo(x + s * 0.06, hy - s * 0.03);
+    g.lineTo(x + s * 0.12, hy + s * 0.04);
+  } else if (kind === 'b') g.ellipse(x, hy - s * 0.06, s * 0.1, s * 0.16, 0, 0, TAU);
+  else {
+    g.arc(x, hy - s * 0.04, s * 0.15, 0, TAU);
+    if (kind === 'k') {
+      g.rect(x - s * 0.025, hy - s * 0.32, s * 0.05, s * 0.16);
+      g.rect(x - s * 0.08, hy - s * 0.27, s * 0.16, s * 0.045);
+    }
+  }
+  g.fill();
+  g.stroke();
+}
+
+class Den extends TowerRoom {
+  build() {
+    this.begin(17);
+    const { w, h, k, hb } = this;
+    this.shape(0.1, 0.06, 0.6, 0.08);
+    const C = { cloth: '#9a1c1c', fold: '#6e1014', gold: '#d9a23a', pale: '#f2c766' };
+    let g = this.room.getContext('2d');
+    this.beams(g, '#0a0605', '#20140c', '#120a06', 'rgba(255,170,100,0.07)');
+    this.stones(g, ['#2a1f18', '#4e3e30', '#6a5442', '#34281e'], 0.034, 0.075);
+
+    // where the fireplace goes, so the windows can keep clear of its chimney
+    const F = { x0: -0.03 * k, x1: 0.34 * k, mantel: hb - 0.27 * k };
+    const mo = { x0: 0.045 * k, x1: 0.265 * k, y0: hb - 0.2 * k, y1: hb };
+    const xmin = F.x1 + 0.07 * k;
+    const xmax = w - 0.09 * k;
+    const N = clamp(Math.round((xmax - xmin) / (0.34 * k)) || 1, 1, 3);
+    const xs = N === 1 ? [Math.max(xmin, (xmin + xmax) / 2)] : Array.from({ length: N }, (_, i) => lerp(xmin, xmax, i / (N - 1)));
+    this.lancets(g, xs.map(this.TH), { hw: 0.06 * k, top: 0.07 * k, foot: 0.09 * k, reveal: 0.014, surround: '#33261c', revealLit: '#6e5844', revealDark: '#22180f', sill: '#7a6450', lead: 'rgba(30,20,12,0.4)', bar: '#1c130c' });
+    this.view = this.nightView('grounds');
+
+    // scarlet hangings between the windows and on either side of them
+    const gaps = [];
+    for (let i = 0; i < N - 1; i++) gaps.push((this.wins[i].x + this.wins[i + 1].x) / 2);
+    if (N > 1 && this.wins[N - 1].x + 0.2 * k < w) gaps.push(this.wins[N - 1].x + (this.wins[N - 1].x - gaps[gaps.length - 1]));
+    for (const x of gaps) {
+      const th = this.TH(x);
+      const y0 = this.ceilY(x) + 0.05 * k;
+      hanging(g, x, y0, y0 + 0.3 * k, 0.045 * k * Math.cos(th), k, C);
+    }
+
+    // the night in the room: dark away from the fire, deepest up in the corners
+    this.noGlass(g);
+    const dk = g.createRadialGradient(F.x1 * 0.5, hb, 0.1 * k, F.x1 * 0.5, hb, Math.max(w, h) * 0.95);
+    dk.addColorStop(0, 'rgba(8,4,10,0)');
+    dk.addColorStop(1, 'rgba(8,4,10,0.55)');
+    g.fillStyle = dk;
+    g.fillRect(0, 0, w, h);
+    // moonlight falling from each window onto the floor
+    for (const W of this.wins) {
+      const mg = g.createLinearGradient(0, W.y1, 0, W.y1 + 0.3 * k);
+      mg.addColorStop(0, 'rgba(150,170,230,0.08)');
+      mg.addColorStop(1, 'rgba(150,170,230,0)');
+      g.fillStyle = mg;
+      g.beginPath();
+      g.moveTo(W.x - W.hw, W.y1);
+      g.lineTo(W.x + W.hw, W.y1);
+      g.lineTo(W.x + W.hw * 2.2, W.y1 + 0.3 * k);
+      g.lineTo(W.x - W.hw * 0.2, W.y1 + 0.3 * k);
+      g.fill();
+    }
+    g.restore();
+
+    this.boards(g, '#2a1a10', '#4a2e1a', 'rgba(10,5,2,0.4)');
+    this.fireplace(g, F, mo, { stone: '#6a5848', lit: '#8a7660', edge: '#b09a80', dark: '#3a2e24', joint: 'rgba(20,12,8,0.45)', hearth: '#4e3e32' });
+    // a hanging over the fire, and on the shelf: candlesticks, a gold cup, books, a clock
+    {
+      const cx = (F.x0 + F.x1) / 2;
+      const y0 = Math.max(this.ceilY(cx) + 0.05 * k, F.mantel - 0.62 * k);
+      hanging(g, cx, y0, Math.min(y0 + 0.3 * k, F.mantel - 0.13 * k), 0.06 * k, k, C);
+      const top = this.shelf;
+      this.candlestick(g, F.x0 + 0.04 * k, top, 0.05 * k);
+      this.candlestick(g, F.x1 - 0.03 * k, top, 0.04 * k);
+      // the cup, two handles
+      const ux = F.x0 + 0.24 * k;
+      const ug = g.createLinearGradient(ux - 0.022 * k, 0, ux + 0.022 * k, 0);
+      ug.addColorStop(0, '#8a5e18');
+      ug.addColorStop(0.35, '#f6d478');
+      ug.addColorStop(1, '#9a6a1c');
+      g.fillStyle = ug;
+      g.beginPath();
+      g.moveTo(ux - 0.012 * k, top);
+      g.lineTo(ux + 0.012 * k, top);
+      g.lineTo(ux + 0.004 * k, top - 0.012 * k);
+      g.lineTo(ux + 0.004 * k, top - 0.022 * k);
+      g.quadraticCurveTo(ux + 0.022 * k, top - 0.03 * k, ux + 0.02 * k, top - 0.055 * k);
+      g.lineTo(ux - 0.02 * k, top - 0.055 * k);
+      g.quadraticCurveTo(ux - 0.022 * k, top - 0.03 * k, ux - 0.004 * k, top - 0.022 * k);
+      g.lineTo(ux - 0.004 * k, top - 0.012 * k);
+      g.closePath();
+      g.fill();
+      g.strokeStyle = '#d9a23a';
+      g.lineWidth = Math.max(1.5, 0.004 * k);
+      for (const s of [-1, 1]) {
+        g.beginPath();
+        g.ellipse(ux + s * 0.024 * k, top - 0.042 * k, 0.008 * k, 0.01 * k, 0, s < 0 ? Math.PI * 0.5 : -Math.PI * 0.5, s < 0 ? Math.PI * 1.5 : Math.PI * 0.5);
+        g.stroke();
+      }
+      bookStack(g, F.x0 + 0.14 * k, top, k, [
+        [0.06, '#5a1a14'],
+        [0.052, '#2a3a5a'],
+        [0.056, '#7a5a20'],
+      ]);
+    }
+
+    // the hearthrug, scarlet and gold
+    const rug = { x: Math.min(F.x1 + 0.06 * k, w * 0.4), y: hb + 0.065 * k, rx: 0.21 * k, ry: 0.047 * k };
+    this.rug = rug;
+    this.rugAt(g, rug, ['#3a0a0c', '#d9a23a', '#8e1b1b', '#f0d27a', '#8e1b1b', '#d9a23a', '#6a1214']);
+
+    // the table near us on the right: an open book, a mug of cocoa, ink and a quill
+    const tb = { x: w - 0.12 * k, y: Math.min(h - 0.07 * k, h * 0.85), rx: 0.13 * k, ry: 0.032 * k };
+    // on a wide screen, a squashy scarlet armchair turned to the fire, and the chess game on a stool
+    const free = tb.x - tb.rx - (rug.x + rug.rx);
+    if (free > 0.2 * k) {
+      const cx = rug.x + rug.rx + free * 0.45;
+      armchair(g, cx, hb + 0.035 * k, 0.16 * k, 0.2 * k, { lit: '#a82420', mid: '#7a1618', dark: '#420a0c', line: '#220606', legs: '#2a1810', trim: '#b88a30' }, k);
+    }
+    this.chess = null;
+    if (free > 0.45 * k) {
+      // a low table with the board on it, between the rug and the armchair
+      const cx = rug.x + rug.rx + free * 0.06 + 0.1 * k;
+      const cy = hb + 0.03 * k;
+      g.fillStyle = '#2a1810';
+      g.fillRect(cx - 0.08 * k, cy, 0.01 * k, 0.09 * k);
+      g.fillRect(cx + 0.07 * k, cy, 0.01 * k, 0.09 * k);
+      g.fillStyle = '#5a3a20';
+      g.fillRect(cx - 0.1 * k, cy - 0.008 * k, 0.2 * k, 0.016 * k);
+      g.fillStyle = '#3a2414';
+      g.fillRect(cx - 0.1 * k, cy + 0.008 * k, 0.2 * k, 0.006 * k);
+      this.chess = { x: cx, y: cy - 0.006 * k, bw: 0.17 * k, bd: 0.045 * k };
+      const B = this.chess;
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const [a, b] = [this.square(i, j, 0, 0), this.square(i, j, 1, 1)];
+          g.fillStyle = (i + j) % 2 ? '#e8d4a8' : '#3a2416';
+          g.beginPath();
+          g.moveTo(...this.square(i, j, 0, 0));
+          g.lineTo(...this.square(i, j, 1, 0));
+          g.lineTo(...b);
+          g.lineTo(...this.square(i, j, 0, 1));
+          g.fill();
+          void a;
+        }
+      }
+      void B;
+      // a game in the middle of play: [file, rank, kind, white?]
+      this.pieces = [
+        [0, 0, 'r', 1], [4, 0, 'k', 1], [5, 1, 'p', 1], [6, 1, 'p', 1], [3, 2, 'n', 1], [2, 3, 'b', 1], [4, 3, 'p', 1], [7, 0, 'r', 1], [3, 0, 'q', 1],
+        [0, 7, 'r', 0], [6, 7, 'k', 0], [5, 6, 'p', 0], [6, 6, 'p', 0], [7, 5, 'p', 0], [2, 5, 'n', 0], [4, 4, 'p', 0], [3, 6, 'b', 0], [3, 7, 'q', 0],
+      ].map(([f, rk, kind, white]) => ({ f, r: rk, kind, white }));
+      this.move = null;
+      this.nextMove = rand(20, 50);
+    }
+
+    g = this.front.getContext('2d');
+    g.fillStyle = '#3a2414';
+    g.fillRect(tb.x - 0.018 * k, tb.y, 0.036 * k, h - tb.y);
+    g.fillStyle = '#5a3818';
+    g.beginPath();
+    g.ellipse(tb.x, tb.y + 0.012 * k, tb.rx, tb.ry, 0, 0, TAU);
+    g.fill();
+    g.fillStyle = '#8a5a2c';
+    g.beginPath();
+    g.ellipse(tb.x, tb.y, tb.rx, tb.ry, 0, 0, TAU);
+    g.fill();
+    // a scarlet mug with a gold band
+    const mug = { x: tb.x - tb.rx * 0.55, y: tb.y - tb.ry * 0.15 };
+    g.fillStyle = 'rgba(20,10,5,0.35)';
+    g.beginPath();
+    g.ellipse(mug.x + 0.004 * k, mug.y + 0.002 * k, 0.03 * k, 0.008 * k, 0, 0, TAU);
+    g.fill();
+    g.strokeStyle = '#8e1b1b';
+    g.lineWidth = Math.max(2, 0.006 * k);
+    g.beginPath();
+    g.ellipse(mug.x + 0.026 * k, mug.y - 0.025 * k, 0.011 * k, 0.014 * k, 0, -1.6, 1.6);
+    g.stroke();
+    const mgr = g.createLinearGradient(mug.x - 0.026 * k, 0, mug.x + 0.026 * k, 0);
+    mgr.addColorStop(0, '#6a1214');
+    mgr.addColorStop(0.35, '#c42a24');
+    mgr.addColorStop(1, '#5a0f12');
+    g.fillStyle = mgr;
+    g.fillRect(mug.x - 0.024 * k, mug.y - 0.05 * k, 0.048 * k, 0.05 * k);
+    g.beginPath();
+    g.ellipse(mug.x, mug.y, 0.024 * k, 0.006 * k, 0, 0, Math.PI);
+    g.fill();
+    g.fillStyle = '#d9a23a';
+    g.fillRect(mug.x - 0.024 * k, mug.y - 0.016 * k, 0.048 * k, 0.005 * k);
+    g.fillStyle = '#a8442a';
+    g.beginPath();
+    g.ellipse(mug.x, mug.y - 0.05 * k, 0.024 * k, 0.006 * k, 0, 0, TAU);
+    g.fill();
+    g.fillStyle = '#4a2410';
+    g.beginPath();
+    g.ellipse(mug.x, mug.y - 0.049 * k, 0.02 * k, 0.0045 * k, 0, 0, TAU);
+    g.fill();
+    this.cup = { x: mug.x, y: mug.y - 0.05 * k };
+    inkAndQuill(g, tb.x + tb.rx * 0.72, tb.y - tb.ry * 0.3, k);
+    this.book = { x: tb.x + tb.rx * 0.12, y: tb.y + tb.ry * 0.15, pw: 0.065 * k, pd: 0.03 * k };
+    bookCover(g, this.book, '#7a1a16');
+
+    printGrain(this.room, this.grain, 0.14);
+    printGrain(this.front, this.grain, 0.14);
+    this.sprites();
+  }
+
+  // a corner of square (i, j) of the chess board, u and v across it: the board is seen from the
+  // front and above, its far rank narrower
+  square(i, j, u, v) {
+    const B = this.chess;
+    const fy = (j + v) / 8;
+    const y = B.y - B.bd * (1 - fy);
+    const half = (B.bw / 2) * (0.82 + 0.18 * fy);
+    return [B.x - half + ((i + u) / 8) * half * 2, y];
+  }
+
+  event(e) {
+    super.event(e);
+  }
+
+  frame(dt) {
+    const { g, t, k } = this;
+    this.drawView(g, dt);
+    g.drawImage(this.room, 0, 0);
+    this.lights(g, 0.6);
+    catPile(g, this.cats, this.rug, t, dt);
+
+    // the chess pieces, now and then one sliding to a new square by itself
+    if (this.chess) {
+      if (!this.move && (this.nextMove -= dt) < 0) {
+        const pc = this.pieces[Math.floor(Math.random() * this.pieces.length)];
+        const dir = pc.white ? 1 : -1;
+        const opts = [];
+        for (const [df, dr] of [[0, 1], [1, 1], [-1, 1], [0, 2], [2, 1], [-2, 1], [1, 2], [-1, 2]]) {
+          const f = pc.f + df;
+          const r = pc.r + dr * dir;
+          if (f < 0 || f > 7 || r < 0 || r > 7) continue;
+          if (this.pieces.some((q) => q.f === f && q.r === r)) continue;
+          opts.push([f, r]);
+        }
+        if (opts.length) {
+          const [f, r] = opts[Math.floor(Math.random() * opts.length)];
+          this.move = { pc, f0: pc.f, r0: pc.r, f, r, t0: t };
+        }
+        this.nextMove = rand(25, 70);
+      }
+      const s = this.chess.bw / 8;
+      const at = (f, r) => this.square(f, r, 0.5, 0.5);
+      const list = this.pieces.map((p) => {
+        let [x, y] = at(p.f, p.r);
+        const m = this.move;
+        if (m && m.pc === p) {
+          const q = clamp((t - m.t0) / 1.6, 0, 1);
+          const e = q * q * (3 - 2 * q);
+          const [x0, y0] = at(m.f0, m.r0);
+          const [x1, y1] = at(m.f, m.r);
+          x = lerp(x0, x1, e);
+          y = lerp(y0, y1, e);
+          if (q >= 1) {
+            p.f = m.f;
+            p.r = m.r;
+            this.move = null;
+          }
+        }
+        return { p, x, y };
+      });
+      list.sort((a, b) => a.y - b.y);
+      for (const { p, x, y } of list) {
+        const sc = 0.8 + 0.2 * ((y - (this.chess.y - this.chess.bd)) / this.chess.bd);
+        chessPiece(g, x, y, s * 1.7 * sc, p.kind, p.white ? '#efe2c4' : '#2a1a14', p.white ? 'rgba(120,90,50,0.6)' : 'rgba(200,150,90,0.45)');
+      }
+    }
+
+    g.drawImage(this.front, 0, 0);
+    // steam off the cocoa
+    const c = this.cup;
+    const mw = 0.21 * k;
+    g.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      const ph = t * 0.5 + i * 2.1;
+      const hgt = mw * (0.4 + 0.1 * Math.sin(ph * 0.7));
+      g.strokeStyle = `rgba(255,250,240,${0.1 + 0.05 * Math.sin(ph)})`;
+      g.lineWidth = Math.max(1.5, mw * 0.025);
+      g.beginPath();
+      g.moveTo(c.x + (i - 1) * mw * 0.04, c.y);
+      g.bezierCurveTo(c.x + Math.sin(ph) * mw * 0.08, c.y - hgt * 0.35, c.x - Math.sin(ph + 1) * mw * 0.1, c.y - hgt * 0.7, c.x + Math.sin(ph + 2) * mw * 0.06, c.y - hgt);
+      g.stroke();
+    }
+    const fl = this.flip ? t - this.flip.t0 : null;
+    if (fl != null && fl > 0.9) this.flip = null;
+    openBook(g, this.book, fl);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// A common room high in a tower, airy and round, in blue and bronze: a domed ceiling painted with
+// stars, tall arched windows onto the mountains under the moon, blue silk at the windows stirring
+// in the night air, books everywhere, a fire with a star chart over it, and the cats asleep on the
+// rug. On a wide screen there are bookcases between the windows and a telescope at one of them.
+
+// a five-pointed star, flat, centred at (x, y)
+function star5(g, x, y, r) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const rr = i % 2 ? r * 0.42 : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath();
+  g.fill();
+}
+
+class Eyrie extends TowerRoom {
+  build() {
+    this.begin(29);
+    const { w, h, k, hb } = this;
+    this.shape(0.24, 0.1, 0.62, 0.07);
+    const C = { silk: '#2a4a9a', fold: '#18306a', lit: '#4a6cc0', bronze: '#b07a3a', pale: '#e0a868' };
+    this.C = C;
+    let g = this.room.getContext('2d');
+
+    // the dome: midnight blue painted with gold stars, bronze ribs rising to a boss above us
+    {
+      const dome = new Path2D();
+      dome.moveTo(0, -2);
+      dome.lineTo(w, -2);
+      dome.lineTo(w, this.ceilY(w));
+      this.curve(dome, this.ceilY, w, 0);
+      dome.closePath();
+      const dg = g.createRadialGradient(this.vx, -h * 0.25, h * 0.05, this.vx, -h * 0.25, h * 0.6);
+      dg.addColorStop(0, '#2a3c7a');
+      dg.addColorStop(1, '#0c1434');
+      g.fillStyle = dg;
+      g.fill(dome);
+      g.save();
+      g.clip(dome);
+      // constellations, faintly joined, and stars scattered over the rest
+      this.painted = [];
+      const nC = Math.round(w / (0.25 * k)) + 2;
+      for (let c = 0; c < nC; c++) {
+        const cx = this.R(0, w);
+        const cy = this.R(0.1, 0.8) * this.ceilY(cx);
+        const pts = Array.from({ length: 4 + Math.floor(this.r() * 3) }, () => [cx + this.R(-0.08, 0.08) * k, cy + this.R(-0.05, 0.05) * k]);
+        g.strokeStyle = 'rgba(224,180,110,0.28)';
+        g.lineWidth = Math.max(1, 0.0012 * k);
+        g.beginPath();
+        pts.forEach((p, i) => (i ? g.lineTo(...p) : g.moveTo(...p)));
+        g.stroke();
+        for (const [x, y] of pts) this.painted.push({ x, y, r: this.R(0.005, 0.009) * k, ph: this.R(0, TAU) });
+      }
+      for (let i = 0; i < w / (0.012 * k); i++) {
+        const x = this.R(0, w);
+        const y = this.R(0, 1) * this.ceilY(x);
+        const big = this.r() < 0.25;
+        g.fillStyle = big ? '#e8c27a' : `rgba(240,220,170,${this.R(0.4, 0.9)})`;
+        if (big) this.painted.push({ x, y, r: this.R(0.004, 0.008) * k, ph: this.R(0, TAU) });
+        else g.fillRect(x, y, Math.max(1, 0.002 * k), Math.max(1, 0.002 * k));
+      }
+      g.fillStyle = '#e8c27a';
+      for (const s of this.painted) star5(g, s.x, s.y, s.r);
+      // the ribs
+      for (let th = -1.35; th <= 1.36; th += 0.3) {
+        const x = this.X(th);
+        const y = this.ceilY(x);
+        const tx = this.vx + (x - this.vx) * 0.18;
+        const ty = -h * 0.12;
+        for (const [col, lw, dx] of [
+          ['#5a3c1a', 0.012, 0],
+          ['#c08a48', 0.003, -0.003],
+        ]) {
+          g.strokeStyle = col;
+          g.lineWidth = lw * k * Math.cos(th);
+          g.beginPath();
+          g.moveTo(x + dx * k, y);
+          g.quadraticCurveTo(x + (tx - x) * 0.15 + dx * k, (y + ty) * 0.45, tx + dx * k, ty);
+          g.stroke();
+        }
+      }
+      g.restore();
+    }
+
+    // the wall: pale stone in the blue of the night, a bronze cornice along its top
+    this.stones(g, ['#3a3e52', '#5c6078', '#727892', '#4a4e64'], 0.032, 0.08);
+    g.strokeStyle = C.bronze;
+    g.lineWidth = 0.012 * k;
+    g.beginPath();
+    g.moveTo(0, this.ceilY(0));
+    this.curve(g, this.ceilY, 0, w);
+    g.stroke();
+    g.strokeStyle = C.pale;
+    g.lineWidth = Math.max(1, 0.002 * k);
+    g.beginPath();
+    g.moveTo(0, this.ceilY(0) - 0.004 * k);
+    this.curve(g, (x) => this.ceilY(x) - 0.004 * k, 0, w);
+    g.stroke();
+
+    // the fireplace and the windows
+    const F = { x0: -0.03 * k, x1: 0.32 * k, mantel: hb - 0.25 * k };
+    const mo = { x0: 0.045 * k, x1: 0.245 * k, y0: hb - 0.18 * k, y1: hb };
+    const xmin = F.x1 + 0.08 * k;
+    const xmax = w - 0.09 * k;
+    const N = clamp(Math.round((xmax - xmin) / (0.3 * k)) + 1, 1, 4);
+    const xs = N === 1 ? [Math.max(xmin, (xmin + xmax) / 2)] : Array.from({ length: N }, (_, i) => lerp(xmin, xmax, i / (N - 1)));
+    this.lancets(g, xs.map(this.TH), { hw: 0.07 * k, top: 0.05 * k, foot: 0.08 * k, reveal: 0.012, surround: '#2e3246', revealLit: '#7a809c', revealDark: '#262a3c', sill: '#8a90aa', lead: 'rgba(20,24,40,0.3)', bar: '#1a1e30' });
+    this.view = this.nightView('mountains');
+
+    // bookcases between the windows, where there's room
+    for (let i = 0; i < N - 1; i++) {
+      const a = this.wins[i];
+      const b = this.wins[i + 1];
+      const gapW = b.x - b.hw * 1.9 - (a.x + a.hw * 1.9);
+      if (gapW < 0.1 * k) continue;
+      const cx = (a.x + a.hw * 1.9 + b.x - b.hw * 1.9) / 2;
+      const bw = Math.min(gapW * 0.45, 0.1 * k);
+      const y1 = this.floorY(cx) + 0.01 * k;
+      const y0 = y1 - 0.26 * k;
+      g.fillStyle = '#2a1c10';
+      g.fillRect(cx - bw, y0, bw * 2, y1 - y0);
+      g.fillStyle = '#4a321c';
+      g.fillRect(cx - bw - 0.006 * k, y0 - 0.012 * k, bw * 2 + 0.012 * k, 0.014 * k);
+      for (let s = 0; s < 5; s++) {
+        const sy = y0 + ((s + 1) * (y1 - y0 - 0.01 * k)) / 5;
+        g.fillStyle = '#1a1008';
+        g.fillRect(cx - bw + 0.008 * k, sy - (y1 - y0) / 5 + 0.006 * k, bw * 2 - 0.016 * k, (y1 - y0) / 5 - 0.006 * k);
+        bookRow(g, cx - bw + 0.01 * k, cx + bw - 0.01 * k, sy, k, ['#2a4a9a', '#7a5a2a', '#1e2e5a', '#8a6a3a', '#3a3a4a', '#5a2a1e', '#b07a3a'], this.r);
+        g.fillStyle = '#4a321c';
+        g.fillRect(cx - bw, sy, bw * 2, 0.008 * k);
+      }
+    }
+
+    // the night in the room, and moonlight pooling under each window
+    this.noGlass(g);
+    const dk = g.createRadialGradient(F.x1 * 0.5, hb, 0.1 * k, F.x1 * 0.5, hb, Math.max(w, h) * 0.95);
+    dk.addColorStop(0, 'rgba(6,8,20,0)');
+    dk.addColorStop(1, 'rgba(6,8,20,0.5)');
+    g.fillStyle = dk;
+    g.fillRect(0, 0, w, h);
+    g.restore();
+
+    // the floor: a midnight-blue carpet scattered with little stars
+    g.beginPath();
+    g.moveTo(0, this.floorY(0));
+    this.curve(g, this.floorY, 0, w);
+    g.lineTo(w, h);
+    g.lineTo(0, h);
+    g.closePath();
+    g.fillStyle = vgrad(g, h * 0.6, h, [
+      [0, '#0e1430'],
+      [1, '#1c2752'],
+    ]);
+    g.fill();
+    g.save();
+    g.clip();
+    for (let i = 0; i < (w * h) / (0.003 * k * k); i++) {
+      const x = this.R(0, w);
+      const y = this.R(h * 0.58, h);
+      const f = (y - h * 0.6) / (h * 0.4);
+      g.fillStyle = `rgba(224,190,120,${0.18 + this.r() * 0.25})`;
+      star5(g, x, y, (0.002 + f * 0.004) * k);
+    }
+    for (const W of this.wins) {
+      const mg = g.createLinearGradient(0, W.y1, 0, W.y1 + 0.32 * k);
+      mg.addColorStop(0, 'rgba(170,190,250,0.12)');
+      mg.addColorStop(1, 'rgba(170,190,250,0)');
+      g.fillStyle = mg;
+      g.beginPath();
+      g.moveTo(W.x - W.hw, W.y1);
+      g.lineTo(W.x + W.hw, W.y1);
+      g.lineTo(W.x + W.hw * 2.4, W.y1 + 0.32 * k);
+      g.lineTo(W.x - W.hw * 0.1, W.y1 + 0.32 * k);
+      g.fill();
+    }
+    g.restore();
+
+    // a telescope on its tripod at one of the windows, on a wide screen
+    if (N > 2) {
+      const W = this.wins[N - 2];
+      const tx = W.x + W.hw * 0.2;
+      const ty = this.floorY(tx) + 0.05 * k;
+      g.strokeStyle = '#5a3c1a';
+      g.lineWidth = Math.max(2, 0.005 * k);
+      g.beginPath();
+      for (const dx of [-0.04, 0, 0.04]) {
+        g.moveTo(tx, ty - 0.13 * k);
+        g.lineTo(tx + dx * k, ty);
+      }
+      g.stroke();
+      g.save();
+      g.translate(tx, ty - 0.135 * k);
+      g.rotate(-0.55);
+      const tg = g.createLinearGradient(0, -0.016 * k, 0, 0.016 * k);
+      tg.addColorStop(0, '#e0a868');
+      tg.addColorStop(0.5, '#b07a3a');
+      tg.addColorStop(1, '#5a3c1a');
+      g.fillStyle = tg;
+      g.beginPath();
+      g.moveTo(-0.06 * k, -0.009 * k);
+      g.lineTo(0.09 * k, -0.016 * k);
+      g.lineTo(0.09 * k, 0.016 * k);
+      g.lineTo(-0.06 * k, 0.009 * k);
+      g.closePath();
+      g.fill();
+      g.fillStyle = '#5a3c1a';
+      g.fillRect(0.085 * k, -0.018 * k, 0.012 * k, 0.036 * k);
+      g.fillRect(-0.02 * k, -0.013 * k, 0.008 * k, 0.026 * k);
+      g.restore();
+    }
+
+    // the fireplace, pale stone, and a round bronze star chart over it
+    this.fireplace(g, F, mo, { top: this.ceilY((F.x0 + F.x1) / 2) + 0.012 * k, stone: '#7a7e92', lit: '#9aa0b6', edge: '#c8cee0', dark: '#4a4e62', joint: 'rgba(20,24,40,0.35)', hearth: '#4a4e62' });
+    {
+      const cx = (F.x0 + F.x1) / 2;
+      const cr = Math.min(0.1 * k, (F.mantel - 0.06 * k - (this.ceilY(cx) + 0.03 * k)) / 2);
+      const cy = F.mantel - 0.1 * k - cr;
+      g.fillStyle = '#5a3c1a';
+      g.beginPath();
+      g.arc(cx, cy, cr * 1.08, 0, TAU);
+      g.fill();
+      const sg = g.createRadialGradient(cx, cy, 0, cx, cy, cr);
+      sg.addColorStop(0, '#22346e');
+      sg.addColorStop(1, '#101a40');
+      g.fillStyle = sg;
+      g.beginPath();
+      g.arc(cx, cy, cr, 0, TAU);
+      g.fill();
+      g.strokeStyle = C.pale;
+      g.lineWidth = Math.max(1, 0.0025 * k);
+      g.beginPath();
+      g.arc(cx, cy, cr * 0.95, 0, TAU);
+      g.moveTo(cx + cr * 0.62, cy);
+      g.arc(cx, cy, cr * 0.62, 0, TAU);
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * TAU;
+        g.moveTo(cx + Math.cos(a) * cr * 0.62, cy + Math.sin(a) * cr * 0.62);
+        g.lineTo(cx + Math.cos(a) * cr * 0.95, cy + Math.sin(a) * cr * 0.95);
+      }
+      g.stroke();
+      g.strokeStyle = 'rgba(224,168,104,0.6)';
+      g.beginPath();
+      g.ellipse(cx, cy, cr * 0.95, cr * 0.35, -0.4, 0, TAU);
+      g.stroke();
+      g.fillStyle = '#e8c27a';
+      for (let i = 0; i < 14; i++) {
+        const a = this.R(0, TAU);
+        const rr = this.R(0.08, 0.58) * cr;
+        star5(g, cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, this.R(0.02, 0.05) * cr);
+      }
+      this.chart = { x: cx, y: cy, r: cr };
+      // on the shelf: bronze candlesticks, books, a little globe
+      const top = this.shelf;
+      this.candlestick(g, F.x0 + 0.04 * k, top, 0.045 * k, C.bronze);
+      this.candlestick(g, F.x1 - 0.03 * k, top, 0.05 * k, C.bronze);
+      bookStack(g, F.x0 + 0.13 * k, top, k, [
+        [0.06, '#1e2e5a'],
+        [0.05, '#8a6a3a'],
+      ]);
+      const gx = F.x0 + 0.23 * k;
+      g.fillStyle = '#5a3c1a';
+      g.fillRect(gx - 0.012 * k, top - 0.006 * k, 0.024 * k, 0.006 * k);
+      g.fillRect(gx - 0.002 * k, top - 0.016 * k, 0.004 * k, 0.012 * k);
+      const gg = g.createRadialGradient(gx - 0.008 * k, top - 0.04 * k, 0.002 * k, gx, top - 0.034 * k, 0.022 * k);
+      gg.addColorStop(0, '#9ab8e0');
+      gg.addColorStop(1, '#2a4a7a');
+      g.fillStyle = gg;
+      g.beginPath();
+      g.arc(gx, top - 0.034 * k, 0.02 * k, 0, TAU);
+      g.fill();
+      g.strokeStyle = C.bronze;
+      g.lineWidth = Math.max(1.5, 0.003 * k);
+      g.beginPath();
+      g.arc(gx, top - 0.034 * k, 0.024 * k, Math.PI * 0.6, Math.PI * 2.4);
+      g.stroke();
+    }
+
+    // the rug, blue and bronze
+    const rug = { x: Math.min(F.x1 + 0.05 * k, w * 0.4), y: hb + 0.065 * k, rx: 0.21 * k, ry: 0.047 * k };
+    this.rug = rug;
+    this.rugAt(g, rug, ['#0c1430', '#b07a3a', '#24407e', '#e0c08a', '#24407e', '#b07a3a', '#1a2c5c']);
+
+    // a blue armchair on a wide screen
+    const tb = { x: w - 0.12 * k, y: Math.min(h - 0.07 * k, h * 0.85), rx: 0.13 * k, ry: 0.032 * k };
+    const free = tb.x - tb.rx - (rug.x + rug.rx);
+    if (free > 0.22 * k) armchair(g, rug.x + rug.rx + free * 0.45, hb + 0.035 * k, 0.15 * k, 0.21 * k, { lit: '#3a5aa8', mid: '#24407e', dark: '#142650', line: '#0a1228', legs: '#2a1c10', trim: '#c08a48' }, k);
+
+    // the table near us: an open book, books piled up, ink and a quill, an hourglass
+    g = this.front.getContext('2d');
+    g.fillStyle = '#2a1c10';
+    g.fillRect(tb.x - 0.018 * k, tb.y, 0.036 * k, h - tb.y);
+    g.fillStyle = '#4a321c';
+    g.beginPath();
+    g.ellipse(tb.x, tb.y + 0.012 * k, tb.rx, tb.ry, 0, 0, TAU);
+    g.fill();
+    g.fillStyle = '#7a5630';
+    g.beginPath();
+    g.ellipse(tb.x, tb.y, tb.rx, tb.ry, 0, 0, TAU);
+    g.fill();
+    bookStack(g, tb.x - tb.rx * 0.6, tb.y - tb.ry * 0.25, k, [
+      [0.07, '#1e2e5a'],
+      [0.064, '#7a5a2a'],
+      [0.068, '#2a4a9a'],
+    ]);
+    inkAndQuill(g, tb.x + tb.rx * 0.74, tb.y - tb.ry * 0.3, k);
+    this.book = { x: tb.x + tb.rx * 0.08, y: tb.y + tb.ry * 0.2, pw: 0.065 * k, pd: 0.03 * k };
+    bookCover(g, this.book, '#1e2e5a');
+    this.glassH = { x: tb.x - tb.rx * 0.6, y: tb.y - tb.ry * 0.25 - 0.042 * k, s: 0.03 * k };
+
+    printGrain(this.room, this.grain, 0.12);
+    printGrain(this.front, this.grain, 0.12);
+    this.sprites();
+    this.sand = rand(0, 1);
+  }
+
+  // blue silk at a window: a panel each side from a bronze rod over the arch, caught back with a
+  // bronze tieback, the hem stirring in the air from the open window
+  silk(g, W, t, ph) {
+    const { k } = this;
+    const C = this.C;
+    const ry = W.y0 - 0.02 * k;
+    const hem = W.y1 + 0.03 * k;
+    const tie = lerp(W.ys, W.y1, 0.45);
+    for (const s of [-1, 1]) {
+      const sway = (Math.sin(t * 0.5 + ph + s) * 0.6 + Math.sin(t * 1.3 + ph * 2) * 0.4) * 0.012 * k;
+      const outer = W.x + s * W.hw * 1.75;
+      const inner = W.x + s * W.hw * 0.75;
+      const tx = W.x + s * W.hw * 1.12;
+      const p = new Path2D();
+      p.moveTo(outer, ry);
+      p.lineTo(inner, ry);
+      p.quadraticCurveTo(inner, lerp(ry, tie, 0.6), tx, tie);
+      p.quadraticCurveTo(tx + s * 0.004 * k, lerp(tie, hem, 0.5), inner + s * W.hw * 0.05 + sway, hem);
+      p.lineTo(outer + s * W.hw * 0.08 + sway * 0.6, hem + 0.004 * k);
+      p.quadraticCurveTo(outer + s * 0.004 * k, lerp(tie, hem, 0.5), outer + s * 0.002 * k, tie);
+      p.closePath();
+      const gr = g.createLinearGradient(outer, 0, inner, 0);
+      gr.addColorStop(0, C.fold);
+      gr.addColorStop(0.3, C.silk);
+      gr.addColorStop(0.5, C.fold);
+      gr.addColorStop(0.75, C.lit);
+      gr.addColorStop(1, C.silk);
+      g.fillStyle = gr;
+      g.fill(p);
+      g.strokeStyle = 'rgba(10,16,40,0.5)';
+      g.lineWidth = Math.max(1, 0.0015 * k);
+      g.stroke(p);
+      // a bronze fringe along the hem, and the tieback
+      g.strokeStyle = C.bronze;
+      g.lineWidth = Math.max(1.5, 0.004 * k);
+      g.beginPath();
+      g.moveTo(inner + s * W.hw * 0.05 + sway, hem);
+      g.lineTo(outer + s * W.hw * 0.08 + sway * 0.6, hem + 0.004 * k);
+      g.stroke();
+      g.fillStyle = C.pale;
+      g.beginPath();
+      g.ellipse(tx + s * 0.004 * k, tie, 0.01 * k, 0.006 * k, 0, 0, TAU);
+      g.fill();
+    }
+    // the rod and its finials
+    g.fillStyle = C.bronze;
+    g.fillRect(W.x - W.hw * 1.85, ry - 0.004 * k, W.hw * 3.7, 0.008 * k);
+    g.fillStyle = C.pale;
+    for (const s of [-1, 1]) {
+      g.beginPath();
+      g.arc(W.x + s * W.hw * 1.9, ry, 0.008 * k, 0, TAU);
+      g.fill();
+    }
+  }
+
+  frame(dt) {
+    const { g, t, k } = this;
+    this.drawView(g, dt);
+    g.drawImage(this.room, 0, 0);
+    // the painted stars on the dome catch the light now and then
+    g.globalCompositeOperation = 'lighter';
+    for (const s of this.painted) {
+      const a = Math.max(0, Math.sin(t * 0.4 + s.ph)) ** 6 * 0.5;
+      if (a < 0.02) continue;
+      g.globalAlpha = a;
+      g.drawImage(this.glow, s.x - s.r * 3, s.y - s.r * 3, s.r * 6, s.r * 6);
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    this.wins.forEach((W, i) => this.silk(g, W, t, i * 1.7));
+    this.lights(g, 0.55);
+    catPile(g, this.cats, this.rug, t, dt);
+    g.drawImage(this.front, 0, 0);
+
+    // the hourglass on the table: sand running down, turned over when it's run out
+    {
+      const H = this.glassH;
+      const s = H.s;
+      this.sand += dt / 90;
+      if (this.sand > 1.08) this.sand = 0;
+      const f = clamp(this.sand, 0, 1);
+      const x = H.x;
+      const y = H.y;
+      g.fillStyle = '#5a3c1a';
+      g.fillRect(x - s * 0.5, y - s * 0.06, s, s * 0.06);
+      g.fillRect(x - s * 0.5, y - s * 1.36, s, s * 0.06);
+      g.fillRect(x - s * 0.44, y - s * 1.3, s * 0.05, s * 1.24);
+      g.fillRect(x + s * 0.39, y - s * 1.3, s * 0.05, s * 1.24);
+      const bulb = (up) => {
+        const yb = up ? y - s * 1.3 : y - s * 0.06;
+        const dir = up ? 1 : -1;
+        const p = new Path2D();
+        p.moveTo(x - s * 0.3, yb);
+        p.quadraticCurveTo(x - s * 0.34, yb + dir * s * 0.4, x - s * 0.03, yb + dir * s * 0.6);
+        p.lineTo(x + s * 0.03, yb + dir * s * 0.6);
+        p.quadraticCurveTo(x + s * 0.34, yb + dir * s * 0.4, x + s * 0.3, yb);
+        p.closePath();
+        return p;
+      };
+      const top = bulb(true);
+      const bot = bulb(false);
+      g.fillStyle = 'rgba(200,220,255,0.18)';
+      g.fill(top);
+      g.fill(bot);
+      g.fillStyle = '#e0c088';
+      g.save();
+      g.clip(top);
+      g.fillRect(x - s * 0.4, y - s * 1.3 + s * 0.6 * f, s * 0.8, s * 0.6);
+      g.restore();
+      g.save();
+      g.clip(bot);
+      g.fillRect(x - s * 0.4, y - s * 0.06 - s * 0.55 * f, s * 0.8, s * 0.6);
+      g.restore();
+      if (f < 1) g.fillRect(x - Math.max(0.5, s * 0.015), y - s * 0.7, Math.max(1, s * 0.03), s * 0.62 * (1 - f * 0.9));
+      g.strokeStyle = 'rgba(220,235,255,0.35)';
+      g.lineWidth = Math.max(1, s * 0.03);
+      g.stroke(top);
+      g.stroke(bot);
+    }
+    const fl = this.flip ? t - this.flip.t0 : null;
+    if (fl != null && fl > 0.9) this.flip = null;
+    openBook(g, this.book, fl);
+    void k;
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// The headmaster's study, at the top of a tower: a round room whose walls are hung to the ceiling
+// with portraits of old headmasters and headmistresses, all dozing in their frames (one now and
+// then gives a snore, and you can see which). Silver instruments whirr and puff on spindly tables,
+// a tattered old hat sits on the mantelpiece, and on a golden perch by the great claw-footed desk
+// sits the phoenix, scarlet and gold, its long tail hanging down; it shakes out its feathers now
+// and then, and when it sings it lifts its head and glows. The cats are asleep by the fire.
+
+// someone asleep in a portrait, as a sprite W by H: a, their looks
+function sitterSprite(W, H, a) {
+  const c = layer(Math.ceil(W), Math.ceil(H));
+  const g = c.getContext('2d');
+  const cx = W * 0.5;
+  const hy = H * 0.46;
+  const hr = Math.min(W * 0.2, H * 0.15);
+  // robes: shoulders slumped in a chair
+  g.fillStyle = a.robe;
+  g.beginPath();
+  g.moveTo(cx - W * 0.46, H);
+  g.quadraticCurveTo(cx - W * 0.42, hy + hr * 1.3, cx, hy + hr * 1.05);
+  g.quadraticCurveTo(cx + W * 0.42, hy + hr * 1.3, cx + W * 0.46, H);
+  g.closePath();
+  g.fill();
+  g.fillStyle = 'rgba(255,255,255,0.08)';
+  g.beginPath();
+  g.moveTo(cx - W * 0.05, hy + hr * 1.1);
+  g.lineTo(cx + W * 0.02, H);
+  g.lineTo(cx - W * 0.12, H);
+  g.fill();
+  // the head, leant a little to one side in sleep
+  g.save();
+  g.translate(cx, hy);
+  g.rotate(a.lean);
+  if (a.hair) {
+    g.fillStyle = a.hair;
+    g.beginPath();
+    g.ellipse(0, -hr * 0.1, hr * 1.18, hr * 1.12, 0, 0, TAU);
+    g.fill();
+    if (a.bun) {
+      g.beginPath();
+      g.arc(0, -hr * 1.1, hr * 0.42, 0, TAU);
+      g.fill();
+    }
+  }
+  g.fillStyle = a.skin;
+  g.beginPath();
+  g.ellipse(0, 0, hr * 0.92, hr, 0, 0, TAU);
+  g.fill();
+  // shut eyes, a nose, a mouth a little open
+  g.strokeStyle = 'rgba(60,35,25,0.8)';
+  g.lineWidth = Math.max(1, hr * 0.09);
+  g.lineCap = 'round';
+  for (const s of [-1, 1]) {
+    g.beginPath();
+    g.arc(s * hr * 0.36, -hr * 0.05, hr * 0.17, 0.2, Math.PI - 0.2);
+    g.stroke();
+  }
+  if (a.specs) {
+    g.strokeStyle = 'rgba(210,190,130,0.85)';
+    g.lineWidth = Math.max(1, hr * 0.06);
+    for (const s of [-1, 1]) {
+      g.beginPath();
+      g.arc(s * hr * 0.36, -hr * 0.02, hr * 0.24, 0, TAU);
+      g.stroke();
+    }
+  }
+  g.fillStyle = 'rgba(120,60,40,0.35)';
+  g.beginPath();
+  g.ellipse(0, hr * 0.22, hr * 0.12, hr * 0.18, 0, 0, TAU);
+  g.fill();
+  if (a.beard) {
+    g.fillStyle = a.beard;
+    g.beginPath();
+    g.moveTo(-hr * 0.85, hr * 0.15);
+    g.quadraticCurveTo(-hr * 0.9, hr * (1.2 + a.long), 0, hr * (1.6 + a.long * 1.5));
+    g.quadraticCurveTo(hr * 0.9, hr * (1.2 + a.long), hr * 0.85, hr * 0.15);
+    g.quadraticCurveTo(hr * 0.5, hr * 0.6, 0, hr * 0.42);
+    g.quadraticCurveTo(-hr * 0.5, hr * 0.6, -hr * 0.85, hr * 0.15);
+    g.fill();
+    g.fillStyle = a.beard;
+    g.beginPath();
+    g.ellipse(-hr * 0.25, hr * 0.42, hr * 0.32, hr * 0.12, 0.3, 0, TAU);
+    g.ellipse(hr * 0.25, hr * 0.42, hr * 0.32, hr * 0.12, -0.3, 0, TAU);
+    g.fill();
+  } else {
+    g.strokeStyle = 'rgba(110,50,40,0.6)';
+    g.beginPath();
+    g.ellipse(0, hr * 0.55, hr * 0.12, hr * 0.08, 0, 0, TAU);
+    g.stroke();
+  }
+  if (a.hat === 'pointed') {
+    g.fillStyle = a.hatCol;
+    g.beginPath();
+    g.ellipse(0, -hr * 0.7, hr * 1.35, hr * 0.28, 0, 0, TAU);
+    g.fill();
+    g.beginPath();
+    g.moveTo(-hr * 0.8, -hr * 0.75);
+    g.quadraticCurveTo(-hr * 0.2, -hr * 1.6, hr * 0.5, -hr * 2.6);
+    g.quadraticCurveTo(hr * 0.3, -hr * 1.5, hr * 0.8, -hr * 0.75);
+    g.closePath();
+    g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.12)';
+    g.fillRect(-hr * 0.8, -hr * 0.92, hr * 1.6, hr * 0.14);
+  } else if (a.hat === 'cap') {
+    g.fillStyle = a.hatCol;
+    g.beginPath();
+    g.ellipse(0, -hr * 0.62, hr * 0.95, hr * 0.5, 0, Math.PI, TAU);
+    g.fill();
+  }
+  g.restore();
+  return c;
+}
+
+const SITTERS = [
+  { robe: '#4a2a6a', skin: '#e8c8a8', hair: '#e8e4dc', beard: '#eeeae2', long: 0.6, hat: 'pointed', hatCol: '#3a2458', specs: true },
+  { robe: '#1e4a3a', skin: '#d8b090', hair: '#5a4030', hat: 'cap', hatCol: '#14302a' },
+  { robe: '#6a1e24', skin: '#f0d0b8', hair: '#b8b0a8', bun: true, specs: true },
+  { robe: '#2a3456', skin: '#c89878', hair: '#2a2420', beard: '#2a2420', long: 0.1, hat: 'pointed', hatCol: '#1a2240' },
+  { robe: '#5a4a1e', skin: '#e0b898', hair: '#d8d4cc', beard: '#d8d4cc', long: 0.3 },
+  { robe: '#3a1e3a', skin: '#a87858', hair: '#1a1410', bun: true, hat: 'pointed', hatCol: '#241024' },
+  { robe: '#1e3a5a', skin: '#ecc8a8', hair: '#a8a098', beard: '#c8c2b8', long: 0.9, hat: 'cap', hatCol: '#5a1e24' },
+  { robe: '#4a3a2a', skin: '#d8a888', hair: '#7a5a3a', specs: true },
+];
+const PORTRAIT_BG = ['#1e2a1e', '#2a1a16', '#1a1e2c', '#2c2418', '#22161e', '#182424'];
+
+// the phoenix, perched, facing left: body and folded wing as one sprite S wide; the head is drawn
+// on its own so it can lift and turn
+function phoenixBody(S) {
+  const c = layer(Math.ceil(S * 1.2), Math.ceil(S * 1.5));
+  const g = c.getContext('2d');
+  const cx = S * 0.6;
+  const cy = S * 0.62;
+  // the body: a teardrop, deep crimson to scarlet, breast catching the light
+  const bg = g.createRadialGradient(cx - S * 0.1, cy - S * 0.1, S * 0.05, cx, cy, S * 0.5);
+  bg.addColorStop(0, '#f05a2a');
+  bg.addColorStop(0.5, '#c8221c');
+  bg.addColorStop(1, '#7a0e12');
+  g.fillStyle = bg;
+  g.beginPath();
+  g.moveTo(cx - S * 0.12, cy - S * 0.42);
+  g.bezierCurveTo(cx - S * 0.4, cy - S * 0.3, cx - S * 0.36, cy + S * 0.3, cx - S * 0.02, cy + S * 0.5);
+  g.bezierCurveTo(cx + S * 0.18, cy + S * 0.62, cx + S * 0.3, cy + S * 0.7, cx + S * 0.36, cy + S * 0.78);
+  g.bezierCurveTo(cx + S * 0.34, cy + S * 0.4, cx + S * 0.3, cy - S * 0.2, cx + S * 0.08, cy - S * 0.42);
+  g.closePath();
+  g.fill();
+  // breast feathers: little gold scallops
+  g.strokeStyle = 'rgba(255,190,80,0.45)';
+  g.lineWidth = Math.max(1, S * 0.012);
+  for (let r = 0; r < 4; r++) {
+    for (let i = 0; i < 3; i++) {
+      const x = cx - S * 0.2 + i * S * 0.07 + (r % 2) * S * 0.035;
+      const y = cy - S * 0.15 + r * S * 0.1;
+      g.beginPath();
+      g.arc(x, y, S * 0.035, 0.2, Math.PI - 0.2);
+      g.stroke();
+    }
+  }
+  // the folded wing: layered feathers, scarlet to gold at the tips
+  const wg = g.createLinearGradient(cx, cy - S * 0.35, cx + S * 0.3, cy + S * 0.7);
+  wg.addColorStop(0, '#a8141a');
+  wg.addColorStop(0.55, '#e0401c');
+  wg.addColorStop(1, '#f6b030');
+  g.fillStyle = wg;
+  g.beginPath();
+  g.moveTo(cx - S * 0.04, cy - S * 0.36);
+  g.bezierCurveTo(cx + S * 0.24, cy - S * 0.3, cx + S * 0.34, cy + S * 0.2, cx + S * 0.44, cy + S * 0.86);
+  g.bezierCurveTo(cx + S * 0.24, cy + S * 0.5, cx - S * 0.04, cy + S * 0.3, cx - S * 0.12, cy - S * 0.05);
+  g.closePath();
+  g.fill();
+  g.strokeStyle = 'rgba(90,10,10,0.5)';
+  g.lineWidth = Math.max(1, S * 0.01);
+  for (let i = 0; i < 5; i++) {
+    const f = i / 5;
+    g.beginPath();
+    g.moveTo(cx + S * (0.02 + f * 0.1), cy - S * (0.2 - f * 0.35));
+    g.quadraticCurveTo(cx + S * (0.2 + f * 0.05), cy + S * (0.1 + f * 0.3), cx + S * (0.36 + f * 0.02), cy + S * (0.5 + f * 0.3));
+    g.stroke();
+  }
+  g.fillStyle = 'rgba(255,214,110,0.5)';
+  g.beginPath();
+  g.moveTo(cx + S * 0.2, cy + S * 0.3);
+  g.quadraticCurveTo(cx + S * 0.38, cy + S * 0.55, cx + S * 0.44, cy + S * 0.86);
+  g.quadraticCurveTo(cx + S * 0.28, cy + S * 0.62, cx + S * 0.18, cy + S * 0.42);
+  g.fill();
+  // golden talons gripping the perch, at the foot of the sprite
+  g.fillStyle = '#e8b040';
+  for (const dx of [-0.08, 0.06]) {
+    const x = cx + dx * S;
+    const y = S * 1.18;
+    g.fillRect(x - S * 0.015, y - S * 0.1, S * 0.03, S * 0.1);
+    for (const a of [-0.9, 0, 0.9]) {
+      g.beginPath();
+      g.ellipse(x + Math.sin(a) * S * 0.03, y + S * 0.01, S * 0.012, S * 0.03, a, 0, TAU);
+      g.fill();
+    }
+  }
+  return c;
+}
+// the phoenix's head, facing left, with a crest of gold-tipped feathers: open is how far its beak
+// is open (0 shut). Drawn round (0, 0), the base of the neck.
+function phoenixHead(g, S, open, blink) {
+  // neck
+  g.fillStyle = '#c8221c';
+  g.beginPath();
+  g.moveTo(-S * 0.12, S * 0.12);
+  g.quadraticCurveTo(-S * 0.16, -S * 0.1, -S * 0.08, -S * 0.2);
+  g.lineTo(S * 0.08, -S * 0.16);
+  g.quadraticCurveTo(S * 0.1, 0, S * 0.1, S * 0.14);
+  g.fill();
+  // crest
+  for (let i = 0; i < 5; i++) {
+    const a = -1.9 + i * 0.28;
+    const len = S * (0.2 - Math.abs(i - 1.5) * 0.02);
+    const bx = -S * 0.02 + i * S * 0.015;
+    const by = -S * 0.3;
+    const cg = g.createLinearGradient(bx, by, bx + Math.cos(a) * len, by + Math.sin(a) * len);
+    cg.addColorStop(0, '#d82a1c');
+    cg.addColorStop(1, '#ffd060');
+    g.strokeStyle = cg;
+    g.lineWidth = Math.max(1.5, S * 0.022);
+    g.lineCap = 'round';
+    g.beginPath();
+    g.moveTo(bx, by);
+    g.quadraticCurveTo(bx + Math.cos(a) * len * 0.5 + S * 0.03, by + Math.sin(a) * len * 0.5, bx + Math.cos(a) * len, by + Math.sin(a) * len);
+    g.stroke();
+  }
+  // the head
+  const hg = g.createRadialGradient(-S * 0.08, -S * 0.3, S * 0.01, -S * 0.04, -S * 0.26, S * 0.13);
+  hg.addColorStop(0, '#f86a30');
+  hg.addColorStop(1, '#b81a18');
+  g.fillStyle = hg;
+  g.beginPath();
+  g.ellipse(-S * 0.04, -S * 0.26, S * 0.1, S * 0.09, -0.2, 0, TAU);
+  g.fill();
+  // the beak: gold, hooked, opening when it sings
+  g.fillStyle = '#f0c048';
+  g.beginPath();
+  g.moveTo(-S * 0.11, -S * 0.3);
+  g.quadraticCurveTo(-S * 0.2, -S * 0.31, -S * 0.22, -S * 0.25 - open * S * 0.02);
+  g.quadraticCurveTo(-S * 0.17, -S * 0.27, -S * 0.12, -S * 0.25);
+  g.fill();
+  g.fillStyle = '#c89028';
+  g.beginPath();
+  g.moveTo(-S * 0.12, -S * 0.25 + open * S * 0.005);
+  g.quadraticCurveTo(-S * 0.17, -S * 0.24 + open * S * 0.03, -S * 0.19, -S * 0.23 + open * S * 0.045);
+  g.quadraticCurveTo(-S * 0.15, -S * 0.22 + open * S * 0.02, -S * 0.1, -S * 0.22);
+  g.fill();
+  // the eye: black and bright, a gold ring round it
+  g.fillStyle = '#ffd060';
+  g.beginPath();
+  g.arc(-S * 0.06, -S * 0.29, S * 0.022, 0, TAU);
+  g.fill();
+  if (blink) {
+    g.strokeStyle = '#3a0808';
+    g.lineWidth = Math.max(1, S * 0.008);
+    g.beginPath();
+    g.moveTo(-S * 0.08, -S * 0.29);
+    g.lineTo(-S * 0.04, -S * 0.29);
+    g.stroke();
+  } else {
+    g.fillStyle = '#120404';
+    g.beginPath();
+    g.arc(-S * 0.062, -S * 0.29, S * 0.014, 0, TAU);
+    g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.8)';
+    g.beginPath();
+    g.arc(-S * 0.067, -S * 0.295, S * 0.004, 0, TAU);
+    g.fill();
+  }
+}
+
+// the old hat: patched, frayed, its tip slumped over, a rip above the brim
+function oldHat(g, x, y, s) {
+  g.fillStyle = '#4a3624';
+  g.beginPath();
+  g.ellipse(x, y - s * 0.04, s * 0.62, s * 0.12, 0, 0, TAU);
+  g.fill();
+  const hg = g.createLinearGradient(x - s * 0.4, 0, x + s * 0.4, 0);
+  hg.addColorStop(0, '#3a2a1a');
+  hg.addColorStop(0.45, '#6a5034');
+  hg.addColorStop(1, '#2e2014');
+  g.fillStyle = hg;
+  g.beginPath();
+  g.moveTo(x - s * 0.4, y - s * 0.06);
+  g.quadraticCurveTo(x - s * 0.3, y - s * 0.5, x - s * 0.05, y - s * 0.78);
+  g.quadraticCurveTo(x + s * 0.2, y - s * 0.98, x + s * 0.42, y - s * 0.72);
+  g.quadraticCurveTo(x + s * 0.5, y - s * 0.58, x + s * 0.44, y - s * 0.52);
+  g.quadraticCurveTo(x + s * 0.32, y - s * 0.7, x + s * 0.14, y - s * 0.62);
+  g.quadraticCurveTo(x + s * 0.3, y - s * 0.4, x + s * 0.4, y - s * 0.06);
+  g.closePath();
+  g.fill();
+  // creases, a patch, and the rip
+  g.strokeStyle = 'rgba(20,12,6,0.6)';
+  g.lineWidth = Math.max(1, s * 0.02);
+  g.beginPath();
+  g.moveTo(x - s * 0.22, y - s * 0.3);
+  g.quadraticCurveTo(x, y - s * 0.36, x + s * 0.2, y - s * 0.28);
+  g.moveTo(x - s * 0.12, y - s * 0.55);
+  g.quadraticCurveTo(x + s * 0.02, y - s * 0.6, x + s * 0.12, y - s * 0.52);
+  g.stroke();
+  g.fillStyle = '#7a6040';
+  g.beginPath();
+  g.moveTo(x + s * 0.1, y - s * 0.46);
+  g.lineTo(x + s * 0.26, y - s * 0.42);
+  g.lineTo(x + s * 0.24, y - s * 0.3);
+  g.lineTo(x + s * 0.08, y - s * 0.33);
+  g.closePath();
+  g.fill();
+  g.strokeStyle = 'rgba(230,210,170,0.5)';
+  g.lineWidth = Math.max(1, s * 0.01);
+  g.setLineDash([s * 0.025, s * 0.02]);
+  g.stroke();
+  g.setLineDash([]);
+  g.strokeStyle = '#140c06';
+  g.lineWidth = Math.max(1.5, s * 0.03);
+  g.beginPath();
+  g.moveTo(x - s * 0.26, y - s * 0.16);
+  g.quadraticCurveTo(x - s * 0.1, y - s * 0.12, x + s * 0.06, y - s * 0.17);
+  g.stroke();
+}
+
+class Study extends TowerRoom {
+  build() {
+    this.begin(41);
+    const { w, h, k, hb } = this;
+    this.shape(0.1, 0.06, 0.6, 0.08);
+    let g = this.room.getContext('2d');
+    this.beams(g, '#08060a', '#1e1418', '#100a0c', 'rgba(255,180,120,0.07)');
+    // a warm, dark wall, panelled in wood below
+    this.stones(g, ['#24181a', '#3e2a28', '#523834', '#2e201e'], 0.04, 0.09);
+
+    const F = { x0: -0.03 * k, x1: 0.33 * k, mantel: hb - 0.26 * k };
+    const mo = { x0: 0.045 * k, x1: 0.255 * k, y0: hb - 0.19 * k, y1: hb };
+    const cbx = F.x1 - (F.x1 - F.x0) * 0.08;
+    this.fireX = F.x1 * 0.5;
+    // the phoenix's perch stands by the desk, to the right
+    const px = w - 0.11 * k - Math.max(0, w - 0.6 * k) * 0.3;
+    // a window in the middle of the wall on a wide screen
+    const xmin = cbx + 0.1 * k;
+    const xmax = px - 0.12 * k;
+    const xs = xmax - xmin > 0.3 * k ? [(xmin + xmax) / 2] : [];
+    if (xs.length) {
+      this.lancets(g, xs.map(this.TH), { hw: 0.065 * k, top: 0.06 * k, foot: 0.1 * k, reveal: 0.013, surround: '#24181a', revealLit: '#5a4440', revealDark: '#1a1012', sill: '#6a5048', lead: 'rgba(20,12,10,0.4)', bar: '#140c0a' });
+      this.view = this.nightView('grounds');
+    } else {
+      this.wins = [];
+      this.glass = new Path2D();
+    }
+    // wainscot: dark panels round the foot of the wall
+    const yAt = (x, f) => lerp(this.ceilY(x), this.floorY(x), f);
+    const wf = 0.74;
+    g.beginPath();
+    g.moveTo(0, yAt(0, wf));
+    this.curve(g, (x) => yAt(x, wf), 0, w);
+    this.curve(g, this.floorY, w, 0);
+    g.closePath();
+    g.fillStyle = '#2a1a12';
+    g.fill();
+    g.strokeStyle = 'rgba(200,140,80,0.18)';
+    g.lineWidth = Math.max(1, 0.003 * k);
+    g.beginPath();
+    g.moveTo(0, yAt(0, wf));
+    this.curve(g, (x) => yAt(x, wf), 0, w);
+    g.stroke();
+    g.strokeStyle = 'rgba(0,0,0,0.35)';
+    for (let th = -1.2; th <= 1.2; th += 0.12) {
+      const x = this.X(th);
+      g.beginPath();
+      g.moveTo(x, yAt(x, wf) + 0.008 * k);
+      g.lineTo(x, this.floorY(x) - 0.008 * k);
+      g.stroke();
+    }
+
+    // portraits, frame to frame, from the cornice down to the panelling
+    this.portraits = [];
+    const clear = (x0, x1, y0, y1) => {
+      if (x0 < cbx + 0.01 * k) return false;
+      for (const W of this.wins) if (x1 > W.x - W.hw - 0.03 * k && x0 < W.x + W.hw + 0.03 * k && y1 > W.y0 - 0.04 * k) return false;
+      return true;
+    };
+    const bands = [0.04, 0.27, 0.5, 0.71];
+    for (let b = 0; b < bands.length - 1; b++) {
+      let x = cbx + this.R(0.01, 0.04) * k;
+      while (x < w) {
+        const th = this.TH(x);
+        const fw = this.R(0.055, 0.085) * k * (0.55 + 0.45 * Math.cos(th));
+        const top = yAt(x + fw / 2, bands[b]) + this.R(0.005, 0.02) * k;
+        const bot = yAt(x + fw / 2, bands[b + 1]) - this.R(0.008, 0.025) * k;
+        if (bot - top > 0.05 * k && clear(x, x + fw, top, bot)) this.portraits.push({ x0: x, x1: x + fw, y0: top, y1: bot });
+        x += fw + this.R(0.012, 0.03) * k;
+      }
+    }
+    // a few of them breathe where you can see it (and they're the ones that snore); the rest are
+    // painted into the room
+    const live = new Set();
+    while (live.size < Math.min(8, this.portraits.length)) live.add(this.portraits[Math.floor(this.r() * this.portraits.length)]);
+    this.portraits.forEach((P, i) => this.portrait(g, P, i, live.has(P)));
+    this.portraits = this.portraits.filter((P) => P.live);
+
+    // the night in the room
+    this.noGlass(g);
+    const dk = g.createRadialGradient(F.x1 * 0.5, hb, 0.1 * k, F.x1 * 0.5, hb, Math.max(w, h) * 0.95);
+    dk.addColorStop(0, 'rgba(8,4,10,0)');
+    dk.addColorStop(1, 'rgba(8,4,10,0.5)');
+    g.fillStyle = dk;
+    g.fillRect(0, 0, w, h);
+    g.restore();
+
+    // a floor of dark boards, a deep red carpet
+    this.boards(g, '#24160e', '#3e2616', 'rgba(8,4,2,0.4)');
+
+    // spindly tables of silver instruments, where there's floor for them
+    this.instruments = [];
+    const room = px - 0.1 * k - (F.x1 + 0.04 * k);
+    const spots = room > 0.7 * k ? [0.2, 0.75] : room > 0.3 * k ? [0.5] : [];
+    for (const f of spots) {
+      const x = F.x1 + 0.04 * k + room * f;
+      const y = this.floorY(x) + 0.07 * k;
+      const tw = 0.06 * k;
+      const top = y - 0.16 * k;
+      g.strokeStyle = '#2a1a10';
+      g.lineWidth = Math.max(1.5, 0.004 * k);
+      g.beginPath();
+      for (const dx of [-1, 0, 1]) {
+        g.moveTo(x + dx * tw * 0.5, top);
+        g.quadraticCurveTo(x + dx * tw * 0.7, (top + y) / 2, x + dx * tw * 0.9, y);
+      }
+      g.stroke();
+      g.fillStyle = '#4a2e1a';
+      g.beginPath();
+      g.ellipse(x, top, tw, tw * 0.22, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = '#6a4428';
+      g.beginPath();
+      g.ellipse(x, top - 0.003 * k, tw, tw * 0.22, 0, 0, TAU);
+      g.fill();
+      this.instruments.push({ kind: f < 0.5 && spots.length > 1 ? 'puffer' : 'armillary', x, y: top - 0.003 * k, s: 0.065 * k, ph: this.R(0, TAU) });
+    }
+
+    // the fireplace, and on the mantelpiece the old hat, candles, and a little silver puffer
+    this.fireplace(g, F, mo, { stone: '#5a4642', lit: '#7a625a', edge: '#a08878', dark: '#2e2220', joint: 'rgba(16,8,6,0.45)', hearth: '#3e302c' });
+    {
+      const top = this.shelf;
+      this.candlestick(g, F.x0 + 0.035 * k, top, 0.045 * k);
+      this.candlestick(g, F.x1 - 0.025 * k, top, 0.035 * k);
+      oldHat(g, F.x0 + 0.13 * k, top, 0.1 * k);
+      // a big portrait over the mantelpiece
+      const cx = (F.x0 + F.x1) / 2;
+      const pw = 0.17 * k;
+      const y1 = F.mantel - 0.13 * k;
+      const y0 = Math.max(this.ceilY(cx) + 0.06 * k, y1 - 0.3 * k);
+      const P = { x0: cx - pw / 2, x1: cx + pw / 2, y0, y1, big: true };
+      this.portrait(g, P, 6, true);
+      if (P.live) this.portraits.push(P);
+      if (!this.instruments.some((i) => i.kind === 'puffer')) this.instruments.push({ kind: 'puffer', x: F.x0 + 0.255 * k, y: top, s: 0.055 * k, ph: 0 });
+    }
+
+    // the rug before the fire
+    const rug = { x: Math.min(F.x1 + 0.05 * k, w * 0.4), y: hb + 0.065 * k, rx: 0.21 * k, ry: 0.047 * k };
+    this.rug = rug;
+    this.rugAt(g, rug, ['#2a0c14', '#b8862e', '#5a1428', '#d8b060', '#5a1428', '#3a0c1a']);
+
+    // the golden perch: a stand on a round foot, a bar across the top
+    const by = this.floorY(px) + 0.03 * k;
+    const bar = by - 0.24 * k;
+    this.perch = { x: px, y: bar, w: 0.06 * k };
+    {
+      const gold = (x0, x1) => {
+        const gg = g.createLinearGradient(x0, 0, x1, 0);
+        gg.addColorStop(0, '#6a4410');
+        gg.addColorStop(0.4, '#f6d070');
+        gg.addColorStop(1, '#8a5a14');
+        return gg;
+      };
+      g.fillStyle = 'rgba(0,0,0,0.35)';
+      g.beginPath();
+      g.ellipse(px, by + 0.004 * k, 0.05 * k, 0.012 * k, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = gold(px - 0.04 * k, px + 0.04 * k);
+      g.beginPath();
+      g.ellipse(px, by, 0.04 * k, 0.01 * k, 0, 0, TAU);
+      g.fill();
+      g.fillRect(px - 0.004 * k, bar, 0.008 * k, by - bar);
+      g.beginPath();
+      g.ellipse(px, lerp(bar, by, 0.55), 0.01 * k, 0.007 * k, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = gold(px, px + 0.002 * k);
+      g.beginPath();
+      g.roundRect(px - 0.06 * k, bar - 0.005 * k, 0.12 * k, 0.01 * k, 0.005 * k);
+      g.fill();
+      g.fillStyle = '#f6d070';
+      for (const s of [-1, 1]) {
+        g.beginPath();
+        g.arc(px + s * 0.062 * k, bar, 0.008 * k, 0, TAU);
+        g.fill();
+      }
+    }
+
+    // the desk near us on the right: dark wood, claw feet, papers, the book, ink and a quill,
+    // a dish of sweets, and a little orrery
+    g = this.front.getContext('2d');
+    const D = { x0: w - 0.25 * k, x1: w + 0.05 * k, y: Math.min(h - 0.08 * k, h * 0.84), d: 0.05 * k };
+    const dg = g.createLinearGradient(0, D.y, 0, h);
+    dg.addColorStop(0, '#3a2014');
+    dg.addColorStop(1, '#1e100a');
+    g.fillStyle = dg;
+    g.fillRect(D.x0, D.y, D.x1 - D.x0, h - D.y);
+    g.strokeStyle = 'rgba(220,160,90,0.25)';
+    g.lineWidth = Math.max(1, 0.003 * k);
+    g.strokeRect(D.x0 + 0.02 * k, D.y + 0.025 * k, 0.1 * k, 0.05 * k);
+    g.strokeRect(D.x0 + 0.14 * k, D.y + 0.025 * k, 0.1 * k, 0.05 * k);
+    g.fillStyle = '#c89a40';
+    g.fillRect(D.x0 + 0.065 * k, D.y + 0.048 * k, 0.012 * k, 0.005 * k);
+    g.fillRect(D.x0 + 0.185 * k, D.y + 0.048 * k, 0.012 * k, 0.005 * k);
+    // a claw foot at the corner
+    {
+      const fx = D.x0 + 0.015 * k;
+      const fy = Math.min(h, D.y + 0.16 * k);
+      g.fillStyle = '#2a160c';
+      g.fillRect(D.x0, D.y, 0.03 * k, fy - D.y);
+      g.fillStyle = '#3a2214';
+      for (let i = 0; i < 3; i++) {
+        g.beginPath();
+        g.ellipse(fx - 0.012 * k + i * 0.012 * k, fy - 0.006 * k, 0.008 * k, 0.012 * k, (i - 1) * 0.3, 0, TAU);
+        g.fill();
+      }
+      g.fillStyle = 'rgba(220,170,90,0.4)';
+      for (let i = 0; i < 3; i++) {
+        g.beginPath();
+        g.arc(fx - 0.012 * k + i * 0.012 * k, fy + 0.004 * k, 0.003 * k, 0, TAU);
+        g.fill();
+      }
+    }
+    // the top
+    g.fillStyle = '#5a3420';
+    g.beginPath();
+    g.moveTo(D.x0 - 0.01 * k, D.y);
+    g.lineTo(D.x1, D.y);
+    g.lineTo(D.x1, D.y - D.d);
+    g.lineTo(D.x0 + 0.015 * k, D.y - D.d);
+    g.closePath();
+    g.fill();
+    g.fillStyle = '#7a4a2c';
+    g.fillRect(D.x0 - 0.01 * k, D.y - 0.004 * k, D.x1 - D.x0 + 0.01 * k, 0.008 * k);
+    // loose papers
+    for (const [dx, dy, rot] of [
+      [0.03, -0.03, -0.12],
+      [0.05, -0.022, 0.08],
+    ]) {
+      g.save();
+      g.translate(D.x0 + dx * k, D.y + dy * k);
+      g.transform(1, 0, -0.6, 0.35, 0, 0);
+      g.rotate(rot);
+      g.fillStyle = '#e8dcbc';
+      g.fillRect(-0.03 * k, -0.04 * k, 0.06 * k, 0.08 * k);
+      g.restore();
+    }
+    this.book = { x: D.x0 + 0.13 * k, y: D.y - 0.008 * k, pw: 0.06 * k, pd: 0.028 * k };
+    bookCover(g, this.book, '#3a1e4a');
+    inkAndQuill(g, D.x0 + 0.215 * k, D.y - 0.02 * k, k);
+    // a glass dish of lemon sweets, on a wide screen where the desk shows more
+    if (w > 0.9 * k) {
+      const sx = D.x0 + 0.04 * k;
+      const sy = D.y - 0.006 * k;
+      g.fillStyle = 'rgba(200,220,240,0.35)';
+      g.beginPath();
+      g.ellipse(sx, sy - 0.006 * k, 0.022 * k, 0.008 * k, 0, 0, Math.PI);
+      g.fill();
+      g.fillStyle = '#f0d040';
+      for (const [dx, dy] of [
+        [-0.01, -0.008],
+        [0, -0.01],
+        [0.01, -0.008],
+        [-0.005, -0.014],
+        [0.006, -0.015],
+      ]) {
+        g.beginPath();
+        g.ellipse(sx + dx * k, sy + dy * k, 0.006 * k, 0.004 * k, 0, 0, TAU);
+        g.fill();
+      }
+    }
+    this.instruments.push({ kind: 'orrery', x: D.x0 + 0.05 * k + (w > 0.9 * k ? 0.04 * k : 0), y: D.y - 0.03 * k, s: 0.05 * k, ph: 0, front: true });
+
+    printGrain(this.room, this.grain, 0.14);
+    printGrain(this.front, this.grain, 0.14);
+    this.sprites();
+    this.bird = phoenixBody(0.12 * k);
+    this.smoke = glowSprite([
+      [0, 'rgba(235,235,245,0.55)'],
+      [0.5, 'rgba(235,235,245,0.2)'],
+      [1, 'rgba(235,235,245,0)'],
+    ]);
+    this.phoenixGlow = glowSprite([
+      [0, 'rgba(255,190,90,0.6)'],
+      [0.4, 'rgba(255,120,40,0.2)'],
+      [1, 'rgba(255,90,30,0)'],
+    ]);
+    this.puffs = [];
+    this.snores = [];
+    this.song = null;
+    this.ruffle = null;
+    this.whirr = -99;
+    this.look = { a: 0, to: 0, next: rand(5, 12) };
+    this.pblink = rand(3, 8);
+  }
+
+  // a portrait in its gilt frame; a live one's sitter is drawn each frame, the rest painted in now
+  portrait(g, P, i, live) {
+    const { k, w, h } = this;
+    const bw = Math.max(3, (P.big ? 0.014 : 0.009) * k);
+    const ix = P.x0 + bw;
+    const iy = P.y0 + bw;
+    const iw = P.x1 - P.x0 - bw * 2;
+    const ih = P.y1 - P.y0 - bw * 2;
+    Object.assign(P, { ix, iy, iw, ih, live });
+    if (iw < 4 || ih < 4) {
+      P.live = false; // too small to paint (a screen not laid out yet)
+      return;
+    }
+    const oval = !P.big && this.r() < 0.25;
+    const fg = g.createLinearGradient(P.x0, P.y0, P.x1, P.y1);
+    fg.addColorStop(0, '#f0c870');
+    fg.addColorStop(0.5, '#a07428');
+    fg.addColorStop(1, '#5a3c14');
+    g.fillStyle = 'rgba(0,0,0,0.4)';
+    g.fillRect(P.x0 + bw * 0.4, P.y0 + bw * 0.6, P.x1 - P.x0, P.y1 - P.y0);
+    g.fillStyle = fg;
+    g.fillRect(P.x0, P.y0, P.x1 - P.x0, P.y1 - P.y0);
+    g.strokeStyle = 'rgba(60,35,10,0.6)';
+    g.lineWidth = Math.max(1, bw * 0.2);
+    g.strokeRect(P.x0 + bw * 0.5, P.y0 + bw * 0.5, P.x1 - P.x0 - bw, P.y1 - P.y0 - bw);
+    // the painted background, darkened with age, a little light behind the sitter
+    const bgc = PORTRAIT_BG[i % PORTRAIT_BG.length];
+    const pth = new Path2D();
+    if (oval) pth.ellipse(ix + iw / 2, iy + ih / 2, iw / 2, ih / 2, 0, 0, TAU);
+    else pth.rect(ix, iy, iw, ih);
+    g.fillStyle = bgc;
+    g.fill(pth);
+    g.save();
+    g.clip(pth);
+    const lg = g.createRadialGradient(ix + iw * 0.45, iy + ih * 0.35, 0, ix + iw * 0.45, iy + ih * 0.35, ih * 0.7);
+    lg.addColorStop(0, 'rgba(255,220,160,0.14)');
+    lg.addColorStop(1, 'rgba(255,220,160,0)');
+    g.fillStyle = lg;
+    g.fillRect(ix, iy, iw, ih);
+    const look = { ...SITTERS[(i * 5 + 3) % SITTERS.length], lean: this.R(-0.25, 0.25) };
+    const spr = sitterSprite(iw, ih, look);
+    if (!live) g.drawImage(spr, ix, iy);
+    g.restore();
+    if (!live) return;
+    // a live sitter is drawn over the room's shading, so it takes that shading now: clipped to its
+    // frame, and darkened as much as the room is darkened where it hangs
+    const q = spr.getContext('2d');
+    q.globalCompositeOperation = 'destination-in';
+    q.fillStyle = '#000';
+    q.translate(-ix, -iy);
+    q.fill(pth);
+    q.setTransform(1, 0, 0, 1, 0, 0);
+    if (!P.big) {
+      const fx = this.fireX;
+      const d = Math.hypot(ix + iw / 2 - fx, iy + ih / 2 - this.hb);
+      const R = Math.max(w, h) * 0.95;
+      q.globalCompositeOperation = 'source-atop';
+      q.fillStyle = `rgba(8,4,10,${0.5 * clamp((d - 0.1 * k) / (R - 0.1 * k), 0, 1)})`;
+      q.fillRect(0, 0, spr.width, spr.height);
+    }
+    q.globalCompositeOperation = 'source-over';
+    P.spr = spr;
+    P.ph = this.R(0, TAU);
+    P.f = this.R(0.18, 0.3);
+  }
+
+  event(e) {
+    super.event(e);
+    const layer = e.layer;
+    if (e.type !== 'shot') return;
+    if (layer === 'snore') {
+      this.at(e.at, () => {
+        const P = this.portraits[Math.floor(Math.random() * this.portraits.length)];
+        if (P) this.snores.push({ P, t0: this.t, dur: Math.max(3, e.dur || 4) });
+      });
+    }
+    if (layer === 'phoenix') this.at(e.at, () => (this.song = { t0: this.t, dur: Math.max(4, e.dur || 12) }));
+    if (layer === 'feathers') this.at(e.at, () => (this.ruffle = { t0: this.t }));
+    if (layer === 'whirr') {
+      this.at(e.at, () => {
+        this.whirr = this.t;
+        const I = this.instruments.filter((i) => i.kind === 'puffer');
+        for (const i of I) this.puff(i, 3);
+      });
+    }
+  }
+
+  puff(I, n) {
+    for (let j = 0; j < n; j++) this.puffs.push({ x: I.x + I.s * 0.28, y: I.y - I.s * 0.95, r: I.s * 0.08, age: -j * 0.25, vx: rand(-0.04, 0.08) * I.s, vy: -rand(0.5, 0.8) * I.s });
+  }
+
+  // a silver instrument on its table: spinning faster for a while after a whirr is heard
+  instrument(g, I, t, dt) {
+    const s = I.s;
+    const boost = clamp(1 - (t - this.whirr) / 6, 0, 1);
+    I.ph += dt * (0.25 + boost * 2.5);
+    const silver = (x0, x1) => {
+      const sg = g.createLinearGradient(x0, 0, x1, 0);
+      sg.addColorStop(0, '#6a7080');
+      sg.addColorStop(0.4, '#f0f4ff');
+      sg.addColorStop(1, '#7a8090');
+      return sg;
+    };
+    if (I.kind === 'orrery') {
+      // a gold sun on a stand, planets wheeling round it on silver arms
+      const cx = I.x;
+      const cy = I.y - s * 0.55;
+      g.fillStyle = silver(cx - s * 0.2, cx + s * 0.2);
+      g.beginPath();
+      g.ellipse(I.x, I.y, s * 0.22, s * 0.06, 0, 0, TAU);
+      g.fill();
+      g.fillRect(I.x - s * 0.02, cy, s * 0.04, I.y - cy);
+      const planets = [0.38, 0.62, 0.9].map((rr, i) => {
+        const a = I.ph * (1.6 - i * 0.45) + i * 2;
+        return { x: cx + Math.cos(a) * rr * s, y: cy + Math.sin(a) * rr * s * 0.28, z: Math.sin(a), r: s * (0.06 + i * 0.015), col: ['#c0c8d8', '#6a9ae0', '#e07a4a'][i] };
+      });
+      g.strokeStyle = 'rgba(200,210,230,0.35)';
+      g.lineWidth = Math.max(1, s * 0.02);
+      g.beginPath();
+      g.ellipse(cx, cy, s * 0.9, s * 0.25, 0, 0, TAU);
+      g.stroke();
+      const draw = (p) => {
+        g.strokeStyle = '#c8d0e0';
+        g.lineWidth = Math.max(1, s * 0.025);
+        g.beginPath();
+        g.moveTo(cx, cy);
+        g.lineTo(p.x, p.y);
+        g.stroke();
+        g.fillStyle = p.col;
+        g.beginPath();
+        g.arc(p.x, p.y, p.r, 0, TAU);
+        g.fill();
+        g.fillStyle = 'rgba(255,255,255,0.5)';
+        g.beginPath();
+        g.arc(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.35, 0, TAU);
+        g.fill();
+      };
+      planets.filter((p) => p.z < 0).forEach(draw);
+      const sg = g.createRadialGradient(cx - s * 0.04, cy - s * 0.04, 0, cx, cy, s * 0.14);
+      sg.addColorStop(0, '#fff2b0');
+      sg.addColorStop(1, '#d89a20');
+      g.fillStyle = sg;
+      g.beginPath();
+      g.arc(cx, cy, s * 0.13, 0, TAU);
+      g.fill();
+      planets.filter((p) => p.z >= 0).forEach(draw);
+    } else if (I.kind === 'armillary') {
+      // silver rings round a little globe, turning on their own axes
+      const cx = I.x;
+      const cy = I.y - s * 0.75;
+      g.fillStyle = silver(cx - s * 0.12, cx + s * 0.12);
+      g.beginPath();
+      g.moveTo(cx - s * 0.18, I.y);
+      g.lineTo(cx + s * 0.18, I.y);
+      g.lineTo(cx + s * 0.03, cy + s * 0.4);
+      g.lineTo(cx - s * 0.03, cy + s * 0.4);
+      g.fill();
+      g.fillStyle = '#4a6aa0';
+      g.beginPath();
+      g.arc(cx, cy, s * 0.12, 0, TAU);
+      g.fill();
+      for (let i = 0; i < 3; i++) {
+        const a = I.ph * (1 + i * 0.6) + i;
+        g.save();
+        g.translate(cx, cy);
+        g.rotate([0.4, -0.5, 1.4][i]);
+        g.strokeStyle = ['#e8eef8', '#b8c0d0', '#f0d080'][i];
+        g.lineWidth = Math.max(1.5, s * 0.035);
+        g.beginPath();
+        g.ellipse(0, 0, s * 0.4, s * 0.4 * Math.max(0.06, Math.abs(Math.cos(a))), 0, 0, TAU);
+        g.stroke();
+        g.restore();
+      }
+      g.strokeStyle = '#c8d0e0';
+      g.lineWidth = Math.max(1, s * 0.025);
+      g.beginPath();
+      g.arc(cx, cy, s * 0.46, 0, TAU);
+      g.stroke();
+    } else {
+      // a silver vessel with a thin chimney and a little wheel: it gives off a puff now and then
+      const cx = I.x;
+      const by = I.y;
+      g.fillStyle = silver(cx - s * 0.28, cx + s * 0.28);
+      g.beginPath();
+      g.moveTo(cx - s * 0.24, by);
+      g.quadraticCurveTo(cx - s * 0.34, by - s * 0.42, cx, by - s * 0.5);
+      g.quadraticCurveTo(cx + s * 0.34, by - s * 0.42, cx + s * 0.24, by);
+      g.closePath();
+      g.fill();
+      g.fillRect(cx + s * 0.24, by - s * 0.95, s * 0.08, s * 0.6);
+      g.strokeStyle = '#e8eef8';
+      g.lineWidth = Math.max(1, s * 0.03);
+      const wx = cx - s * 0.36;
+      const wy = by - s * 0.42;
+      g.beginPath();
+      g.arc(wx, wy, s * 0.12, 0, TAU);
+      for (let i = 0; i < 4; i++) {
+        const a = I.ph * 2 + (i * Math.PI) / 2;
+        g.moveTo(wx, wy);
+        g.lineTo(wx + Math.cos(a) * s * 0.12, wy + Math.sin(a) * s * 0.12);
+      }
+      g.stroke();
+      if (Math.random() < dt / 9) this.puff(I, 1);
+    }
+  }
+
+  frame(dt) {
+    const { g, t, k } = this;
+    if (this.wins.length) this.drawView(g, dt);
+    g.drawImage(this.room, 0, 0);
+
+    // the sleepers in their frames, breathing; one snoring when a snore is heard
+    this.snores = this.snores.filter((s) => t - s.t0 < s.dur + 2);
+    for (const P of this.portraits) {
+      const sn = this.snores.find((s) => s.P === P);
+      let a = 0.012 * Math.sin(t * P.f * TAU + P.ph);
+      if (sn) {
+        const q = (t - sn.t0) / sn.dur;
+        if (q < 1) a += 0.05 * Math.sin(q * Math.PI * 2 * Math.max(1, Math.round(sn.dur / 3.5))) * Math.sin(q * Math.PI);
+      }
+      g.save();
+      g.translate(P.ix + P.iw / 2, P.iy + P.ih);
+      g.scale(1 + a * 0.3, 1 + a);
+      g.drawImage(P.spr, -P.iw / 2, -P.ih);
+      g.restore();
+    }
+    // the z of a snore, floating up out of the frame
+    g.font = `italic ${Math.round(0.022 * k)}px Fraunces, Georgia, serif`;
+    for (const sn of this.snores) {
+      const P = sn.P;
+      for (let j = 0; j < 3; j++) {
+        const q = (t - sn.t0 - j * 0.9) / 2.6;
+        if (q < 0 || q > 1) continue;
+        g.fillStyle = `rgba(240,230,210,${0.8 * Math.sin(q * Math.PI)})`;
+        g.fillText('z', P.ix + P.iw * 0.7 + q * 0.03 * k + j * 0.006 * k, P.iy + P.ih * 0.3 - q * 0.06 * k);
+      }
+    }
+
+    this.lights(g, 0.55);
+
+    // the phoenix's own warm glow, brighter when it sings
+    const song = this.song && t - this.song.t0 < this.song.dur ? this.song : null;
+    if (this.song && !song && t - this.song.t0 > this.song.dur + 2) this.song = null;
+    const singing = song ? clamp(Math.min((t - song.t0) / 1.2, (song.dur - (t - song.t0)) / 1.5), 0, 1) : 0;
+    const P = this.perch;
+    const S = this.bird.width / 1.2;
+    const bx = P.x - S * 0.6;
+    const breath = 1 + 0.02 * Math.sin(t * 1.4);
+    g.globalCompositeOperation = 'lighter';
+    g.globalAlpha = Math.min(1, 0.35 + 0.1 * Math.sin(t * 0.7) + 0.65 * singing);
+    g.drawImage(this.phoenixGlow, P.x - S * 1.4, P.y - S * 1.6, S * 2.8, S * 2.6);
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+
+    for (const I of this.instruments) if (!I.front) this.instrument(g, I, t, dt);
+    catPile(g, this.cats, this.rug, t, dt);
+
+    // the tail: long golden feathers hanging below the perch, stirring
+    {
+      g.lineCap = 'round';
+      for (let i = 0; i < 6; i++) {
+        const x0 = P.x + S * 0.12 + i * S * 0.02;
+        const y0 = P.y - S * 0.06;
+        const len = S * (1.15 + (i % 3) * 0.18);
+        const sw = Math.sin(t * 0.6 + i * 0.7) * S * 0.04;
+        const tg = g.createLinearGradient(0, y0, 0, y0 + len);
+        tg.addColorStop(0, '#d8301c');
+        tg.addColorStop(0.5, '#f08a28');
+        tg.addColorStop(1, '#ffd868');
+        g.strokeStyle = tg;
+        g.lineWidth = Math.max(1.5, S * (0.05 - i * 0.004));
+        g.beginPath();
+        g.moveTo(x0, y0);
+        g.bezierCurveTo(x0 + S * 0.08, y0 + len * 0.35, x0 + sw + S * 0.02, y0 + len * 0.7, x0 + sw * 1.6 + S * (0.02 + i * 0.012), y0 + len);
+        g.stroke();
+        g.fillStyle = '#ffd868';
+        g.beginPath();
+        g.ellipse(x0 + sw * 1.6 + S * (0.02 + i * 0.012), y0 + len, S * 0.025, S * 0.05, 0, 0, TAU);
+        g.fill();
+      }
+    }
+    // the body on the perch; a ruffle shakes it and puffs it up for a moment
+    let ruff = 0;
+    if (this.ruffle) {
+      const q = (t - this.ruffle.t0) / 1.6;
+      if (q > 1) this.ruffle = null;
+      else ruff = Math.sin(q * Math.PI);
+    }
+    const shake = ruff * Math.sin(t * 40) * 0.02;
+    g.save();
+    g.translate(P.x, P.y + 0.002 * k);
+    g.rotate(shake);
+    g.scale((1 + ruff * 0.08) * breath, (1 + ruff * 0.05) * breath);
+    g.drawImage(this.bird, -S * 0.6, -S * 1.2, this.bird.width, this.bird.height);
+    g.restore();
+    // the head: looks about now and then; lifted and singing when its song is heard
+    const L = this.look;
+    L.next -= dt;
+    if (L.next < 0) {
+      L.to = Math.random() < 0.5 ? 0 : rand(-0.25, 0.2);
+      L.next = rand(4, 12);
+    }
+    L.a += (L.to - L.a) * Math.min(1, dt * 3);
+    this.pblink -= dt;
+    if (this.pblink < -0.15) this.pblink = rand(3, 9);
+    const open = singing * (0.5 + 0.5 * Math.abs(Math.sin(t * 5.5) * Math.sin(t * 1.7)));
+    g.save();
+    g.translate(P.x - S * 0.06, P.y - S * 0.62 * breath - ruff * S * 0.03);
+    g.rotate(L.a - singing * 0.35);
+    g.scale(1.3, 1.3);
+    phoenixHead(g, S, open, this.pblink < 0);
+    g.restore();
+    // golden sparks rising while it sings
+    if (singing > 0.1 && Math.random() < dt * 6 * singing) this.puffs.push({ spark: true, x: P.x - S * 0.25 + rand(-1, 1) * S * 0.1, y: P.y - S * 0.9, r: S * 0.02, age: 0, vx: rand(-0.1, 0.1) * S, vy: -rand(0.2, 0.4) * S });
+    void bx;
+
+    g.drawImage(this.front, 0, 0);
+    for (const I of this.instruments) if (I.front) this.instrument(g, I, t, dt);
+
+    // smoke from the instruments, sparks from the phoenix
+    this.puffs = this.puffs.filter((p) => (p.age += dt) < 3);
+    for (const p of this.puffs) {
+      if (p.age < 0) continue;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      if (p.spark) {
+        g.fillStyle = `rgba(255,220,120,${0.9 * (1 - p.age / 3)})`;
+        g.beginPath();
+        g.arc(p.x + Math.sin(p.age * 4 + p.y) * p.r, p.y, p.r * (1 - p.age / 4), 0, TAU);
+        g.fill();
+        continue;
+      }
+      p.r += p.r * 0.6 * dt;
+      g.globalAlpha = 0.6 * Math.min(1, p.age * 4) * (1 - p.age / 3);
+      g.drawImage(this.smoke, p.x - p.r * 1.6, p.y - p.r * 1.6, p.r * 3.2, p.r * 3.2);
+      g.globalAlpha = 1;
+    }
+    const fl = this.flip ? t - this.flip.t0 : null;
+    if (fl != null && fl > 0.9) this.flip = null;
+    openBook(g, this.book, fl);
   }
 }
 
@@ -8902,7 +11486,7 @@ class Blank extends Painting {
   }
 }
 
-const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, halloween: Halloween, christmas: Christmas, lake: LakeRoom, kitchens: Sett, mixer: Blank };
+const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, halloween: Halloween, christmas: Christmas, lake: LakeRoom, kitchens: Sett, den: Den, eyrie: Eyrie, study: Study, mixer: Blank };
 
 export function createPainting(id, canvas, engine) {
   const P = PAINTINGS[id] || Blank;

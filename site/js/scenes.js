@@ -443,6 +443,78 @@ export function buildScenes(pools) {
     ],
   };
 
+  // Three rooms at the tops of towers in the same castle, made to read or sleep in like the two
+  // below: steady and warm, nothing sudden. The cats are asleep by the fire in all three.
+  const hearth = files('tower/hearth').length ? files('tower/hearth') : files('mansion/fire', 'snow/fire');
+  const towerBell = { id: 'toll', type: 'shots', label: 'The clock tower', icon: 'bell', pool: items('castle/toll'), burst: [3, 12], burstGap: [2.5, 2.9], every: [600, 1500], first: [90, 300], level: 0.3, gain: 1.1, reverb: 0.4, muffle: 3500, space: { dist: [50, 100], el: [-10, 20] } };
+  const towerOwls = { id: 'owls', type: 'shots', label: 'Owls in the grounds', icon: 'owl', group: 'Birds', pool: items('castle/tawny-owl'), every: [60, 200], level: 0.35, gain: 2.4, reverb: 0.3, muffle: 4000, space: { dist: [40, 100], el: [-15, 10] } };
+  const purr = (label) => ({ id: 'purr', type: 'bed', label, icon: 'cat', files: files('common/purr'), level: 0.4, gain: 1.3, pan: -0.2 });
+  const towerWind = (label, level) => ({ id: 'wind', type: 'bed', label, icon: 'wind', files: files('mansion/wind'), level, gain: 0.8, muffle: 2400, wander: [0.5, 1], wanderEvery: [4, 14], wanderTau: [2, 6] });
+  // Behind the portrait: scarlet and gold, a roaring fire, the grounds under the moon
+  const den = {
+    id: 'den',
+    name: 'Behind the Portrait',
+    kicker: 'A common room',
+    what: 'A round tower room in scarlet and gold: a roaring fire, squashy armchairs, the grounds under the moon, a game of chess that plays itself, and the cats asleep on the hearthrug.',
+    requires: ['common/purr'],
+    gain: 2.7,
+    reverb: { type: 'room', level: 0.3 },
+    layers: [
+      { id: 'fire', type: 'bed', label: 'The fire, roaring', icon: 'fire', files: hearth, level: 0.7, gain: 0.85, pan: -0.35 },
+      purr('Purring on the hearthrug'),
+      towerWind('Wind round the tower', 0.3),
+      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0, gain: 0.9 },
+      ...reading(0.3, 0.2),
+      { id: 'castle', type: 'shots', label: 'The old castle', icon: 'creak', pool: items('mansion/creak'), every: [60, 200], level: 0.15, gain: 0.6, reverb: 0.6, muffle: 3000, space: { dist: [8, 25], el: [-10, 30] } },
+      towerBell,
+      towerOwls,
+    ],
+  };
+  // Beyond the riddle: blue and bronze under a painted dome, the mountains at the windows
+  const eyrie = {
+    id: 'eyrie',
+    name: 'Beyond the Riddle',
+    kicker: 'A common room',
+    what: 'An airy round room in blue and bronze under a dome painted with stars: tall windows onto the mountains, silk stirring at them, books everywhere, a fire, and the cats asleep on the rug.',
+    requires: ['common/purr'],
+    gain: 3.0,
+    reverb: { type: 'room', level: 0.35 },
+    layers: [
+      towerWind('Night air at the windows', 0.45),
+      { id: 'mountains', type: 'bed', label: 'Wind off the mountains', icon: 'wind', files: files('snow/wind'), level: 0.35, gain: 0.7, muffle: 1600, wander: [0.4, 1], wanderEvery: [6, 18], wanderTau: [3, 8] },
+      { id: 'fire', type: 'bed', label: 'The fire', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.55, gain: 0.8, pan: -0.35 },
+      purr('Purring by the fire'),
+      ...reading(0.4, 0.3),
+      { id: 'rain', type: 'bed', label: 'Rain on the windows', icon: 'rain', files: files('mansion/rain'), level: 0, gain: 0.9 },
+      towerBell,
+      { ...towerOwls, level: 0.4 },
+    ],
+  };
+  // The headmaster's study: instruments, dozing portraits, the phoenix on its perch
+  const phoenixSong = items('tower/phoenix');
+  const study = {
+    id: 'study',
+    name: 'Up the Moving Stair',
+    kicker: "The headmaster's study",
+    what: 'Silver instruments whirring and puffing on spindly tables, old portraits dozing in their frames, a tattered hat on the mantelpiece, a phoenix on its golden perch, and the cats asleep by the fire.',
+    requires: ['tower/clockwork'],
+    gain: 3.5,
+    reverb: { type: 'room', level: 0.35 },
+    layers: [
+      { id: 'fire', type: 'bed', label: 'The fire', icon: 'fire', files: files('mansion/fire', 'snow/fire'), level: 0.55, gain: 0.8, pan: -0.35 },
+      purr('Purring by the fire'),
+      { id: 'instruments', type: 'bed', label: 'Silver instruments, ticking', icon: 'cog', files: files('tower/clockwork'), hold: [1e9, 1e9], fadeIn: 1, level: 0.3, gain: 0.8, pan: 0.1 },
+      { id: 'whirr', type: 'shots', label: 'Instruments whirring', icon: 'cog', pool: items('tower/whirr'), every: [30, 100], first: [8, 30], level: 0.45, gain: 0.6, reverb: 0.3, space: { az: [-40, 40], el: [-10, 0], dist: [2, 5] } },
+      { id: 'snore', type: 'shots', label: 'Portraits snoring', icon: 'zzz', pool: items('tower/snore'), every: [40, 150], first: [20, 60], level: 0.3, gain: 0.55, reverb: 0.4, space: { az: [-80, 80], el: [10, 35], dist: [3, 6] } },
+      { id: 'phoenix', type: 'shots', label: 'The phoenix, singing', icon: 'phoenix', pool: phoenixSong.length ? phoenixSong : items('waterfall/wood-thrush'), every: [150, 420], first: [40, 120], level: 0.4, gain: 0.45, reverb: 0.6, space: { az: [25, 45], el: [5, 15], dist: [3, 4] } },
+      { id: 'feathers', type: 'shots', label: 'The phoenix, stirring', icon: 'feather', pool: items('tower/feathers'), every: [60, 200], first: [30, 90], level: 0.3, gain: 0.6, reverb: 0.3, space: { az: [25, 45], el: [5, 15], dist: [3, 4] } },
+      ...reading(0.25, 0.3),
+      towerWind('Wind round the tower', 0.2),
+      towerBell,
+      { ...towerOwls, level: 0.25 },
+    ],
+  };
+
   const mixer = {
     id: 'mixer',
     name: 'Blank Canvas',
@@ -470,6 +542,7 @@ export function buildScenes(pools) {
       { ...pick(mansion, 'clock'), id: 'clock', label: 'Grandfather clock', pan: 0 },
       { ...pick(lake, 'purr'), id: 'purr', label: 'A cat purring', pan: 0 },
       { ...pick(kitchens, 'kettle'), id: 'kettle', label: 'A kettle simmering', pan: 0 },
+      { ...pick(study, 'instruments'), id: 'clockwork', label: 'Clockwork ticking', pan: 0 },
       { ...pick(lake, 'pages'), id: 'pages' },
       { ...pick(kitchens, 'quill'), id: 'quill' },
       { ...pick(halloween, 'hall'), id: 'great-hall', label: 'A great stone hall', group: 'The castle' },
@@ -516,7 +589,7 @@ export function buildScenes(pools) {
     (l.type === 'pulse' && l.tick);
 
   // a scene whose recordings aren't installed drops out entirely, rather than showing up silent
-  return [storm, waterfall, garden, butterfly, glades, pond, mansion, snow, halloween, christmas, lake, kitchens, mixer]
+  return [storm, waterfall, garden, butterfly, glades, pond, mansion, snow, halloween, christmas, lake, kitchens, den, eyrie, study, mixer]
     .map((s) => ({ ...s, layers: s.layers.filter((l) => l && l.id && usable(l)) }))
     .filter((s) => s.layers.some((l) => l.type !== 'synth') && (s.requires || []).every((k) => list(k).length));
 }
