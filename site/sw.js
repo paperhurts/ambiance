@@ -105,18 +105,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // everything else in the shell: serve cached, refresh in the background
+  // everything else in the shell: network first (revalidated, so new scenes show up on the next
+  // launch rather than the one after), the stored copy when offline or the network stalls
   event.respondWith(
     (async () => {
       const cache = await caches.open(SHELL);
-      const hit = await cache.match(req, { ignoreSearch: true });
-      const refresh = fetch(req)
+      const fresh = fetch(req, { cache: 'no-cache' })
         .then((res) => {
           if (res.ok) cache.put(req, res.clone());
           return res;
         })
         .catch(() => null);
-      return hit || (await refresh) || Response.error();
+      const stalled = new Promise((r) => setTimeout(r, 3500, null));
+      const res = await Promise.race([fresh, stalled]);
+      if (res && res.ok) return res;
+      return (await cache.match(req, { ignoreSearch: true })) || (await fresh) || Response.error();
     })(),
   );
 });

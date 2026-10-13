@@ -617,7 +617,34 @@ function setupInstall() {
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
-  navigator.serviceWorker.register('sw.js').catch((e) => console.warn('service worker', e));
+  navigator.serviceWorker
+    .register('sw.js')
+    .then((reg) => {
+      // a home-screen app can stay open for days without reloading, so look for a new version
+      // whenever it comes back to the front
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) reg.update().catch(() => {});
+      });
+    })
+    .catch((e) => console.warn('service worker', e));
+  // when a new version takes over, load it, but never in the middle of something playing: wait
+  // until nothing plays and the scene list is showing (or the app is in the background)
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) {
+      hadController = true; // the first install: nothing old to replace
+      return;
+    }
+    const ready = () => (!engine.scene || engine.paused) && (!shown || document.hidden);
+    if (ready()) return location.reload();
+    if (shown) toast('An update is ready. It will load when you go back to the scene list.');
+    const wait = setInterval(() => {
+      if (ready()) {
+        clearInterval(wait);
+        location.reload();
+      }
+    }, 1500);
+  });
   if (store.get('offline', false)) {
     $('#save-offline').textContent = 'Update';
     $('#offline-note').textContent = 'Every scene is stored on this device and works without a connection.';
