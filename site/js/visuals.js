@@ -11872,7 +11872,7 @@ function catLying(S, kind) {
 }
 
 // the dog's head: a broad crown, fluffy cheeks, a snout that swings round and out as the head turns,
-// ears set high with their tips folded over
+// ears set high and breaking over so their tips flop forward
 function dogHead(g, r, L) {
   const C = WATCHERS.dog;
   const yaw = clamp(L.yaw, -1, 1);
@@ -11882,71 +11882,54 @@ function dogHead(g, r, L) {
   const fx = sy * r * 0.5;
   const fy = pitch * r * 0.14;
   const pr = L.ears ?? 0.5;
-  const ear = (side) => {
-    const turn = side * sy;
-    return { side, bx: side * r * (0.6 - 0.22 * Math.max(0, turn)) + fx * 0.4, by: -r * 0.5 + fy * 0.3, far: turn > 0.25, w: r * (0.68 - 0.2 * Math.max(0, turn)), len: r * (0.8 + pr * 0.12), ang: side * (0.78 - pr * 0.25) - sy * 0.12 };
-  };
-  const drawEar = (e) => {
-    g.save();
-    g.translate(e.bx, e.by);
-    g.rotate(e.ang);
-    const w = e.w;
-    const len = e.len;
-    // the ear up to where it folds, rounded over at the crease
-    const outer = new Path2D();
-    outer.moveTo(-w * 0.52, r * 0.14);
-    outer.quadraticCurveTo(-w * 0.58, -len * 0.42, -w * 0.3, -len * 0.66);
-    outer.quadraticCurveTo(w * 0.02, -len * 1.02, w * 0.42, -len * 0.6);
-    outer.quadraticCurveTo(w * 0.58, -len * 0.38, w * 0.52, r * 0.14);
-    outer.closePath();
-    // long soft fur at the edges, lit copper-brown from behind
-    g.strokeStyle = 'rgba(190,110,60,0.4)';
-    g.lineWidth = Math.max(1, r * 0.035);
-    g.lineCap = 'round';
-    g.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const f = 0.1 + i * 0.12;
-      for (const sd of [-1, 1]) {
-        const ex = sd * w * (0.56 - f * 0.3);
-        const ey = -len * f;
-        g.moveTo(ex, ey);
-        g.lineTo(ex + sd * r * 0.05, ey - r * 0.03);
-      }
-    }
-    g.stroke();
-    g.fillStyle = C.fur;
-    g.fill(outer);
-    if (!e.far) {
-      g.fillStyle = C.copper;
-      g.beginPath();
-      g.moveTo(-w * 0.3, r * 0.08);
-      g.quadraticCurveTo(-w * 0.3, -len * 0.3, -w * 0.06, -len * 0.5);
-      g.quadraticCurveTo(w * 0.3, -len * 0.3, w * 0.3, r * 0.08);
-      g.closePath();
-      g.fill();
-    }
-    // the tip folded forward over the crease, hanging down and a little out
+  // an ear: it stands up from the top corner of the head and breaks over about halfway, so what we see
+  // is the folded flap, its crease along the top and its tip falling forward toward the eye
+  const drawEar = (s) => {
+    const turn = s * sy; // > 0: this ear is on the far side
+    const k = 1 - 0.45 * Math.max(0, turn);
+    const ox = fx * 0.45 + s * r * 0.06 * Math.max(0, -turn);
+    const lift = pr * 0.08 * r;
+    const X = (x) => ox + s * x * r * k;
+    const Y = (y) => (y + 0.1) * r + fy * 0.3 - lift * (y < -0.8 ? 1 : 0.3);
+    // the flap: from the crease along the top, its tip falling out and down past the side of the head
     const flap = new Path2D();
-    flap.moveTo(-w * 0.3, -len * 0.66);
-    flap.quadraticCurveTo(w * 0.02, -len * 1.02, w * 0.42, -len * 0.6);
-    flap.quadraticCurveTo(e.side * w * 0.1 + w * 0.34, -len * 0.38, e.side * w * 0.14 + w * 0.1, -len * 0.22);
-    flap.quadraticCurveTo(-w * 0.12, -len * 0.44, -w * 0.3, -len * 0.66);
+    flap.moveTo(X(0.16), Y(-0.76));
+    flap.lineTo(X(0.17), Y(-0.92));
+    flap.quadraticCurveTo(X(0.46), Y(-1.1), X(0.8), Y(-0.94));
+    flap.quadraticCurveTo(X(0.98), Y(-0.78), X(1.02), Y(-0.5));
+    flap.quadraticCurveTo(X(0.78), Y(-0.58), X(0.56), Y(-0.66));
+    flap.quadraticCurveTo(X(0.34), Y(-0.7), X(0.16), Y(-0.76));
     flap.closePath();
-    g.fillStyle = '#2a2630';
+    // its shadow on the head below
+    g.save();
+    g.translate(0, r * 0.04);
+    g.fillStyle = 'rgba(0,0,0,0.45)';
     g.fill(flap);
-    g.strokeStyle = 'rgba(150,140,160,0.5)';
+    g.restore();
+    const fg = g.createLinearGradient(0, Y(-1.06), 0, Y(-0.56));
+    fg.addColorStop(0, '#3c3744');
+    fg.addColorStop(0.4, '#221e27');
+    fg.addColorStop(1, '#161419');
+    g.fillStyle = fg;
+    g.fill(flap);
+    // the edge of the flap catching the light along its lower side
+    g.strokeStyle = 'rgba(150,140,165,0.3)';
+    g.lineWidth = Math.max(1, r * 0.02);
+    g.beginPath();
+    g.moveTo(X(1.0), Y(-0.52));
+    g.quadraticCurveTo(X(0.78), Y(-0.6), X(0.56), Y(-0.67));
+    g.stroke();
+    // light along the crease
+    g.strokeStyle = 'rgba(170,160,185,0.55)';
     g.lineWidth = Math.max(1, r * 0.03);
     g.beginPath();
-    g.moveTo(-w * 0.22, -len * 0.72);
-    g.quadraticCurveTo(w * 0.02, -len * 0.98, w * 0.36, -len * 0.62);
+    g.moveTo(X(0.2), Y(-0.94));
+    g.quadraticCurveTo(X(0.46), Y(-1.08), X(0.78), Y(-0.95));
     g.stroke();
-    g.restore();
   };
-  const ears = [ear(-1), ear(1)];
-  ears.filter((e) => e.far).forEach(drawEar);
   // the crown and fluffy cheeks as one shape (traced clockwise so overlaps stay filled)
   const head = new Path2D();
-  head.ellipse(fx * 0.15, -r * 0.13, r * 0.8, r * 0.67, 0, 0, TAU);
+  head.ellipse(fx * 0.15, -r * 0.12, r * 0.8, r * 0.64, 0, 0, TAU);
   for (const s of [-1, 1]) {
     // a fluffy cheek: a soft scalloped edge, the far one tucking in as the head turns
     const far = Math.max(0, s * sy);
@@ -11963,7 +11946,6 @@ function dogHead(g, r, L) {
   }
   g.fillStyle = C.fur;
   g.fill(head, 'nonzero');
-  ears.filter((e) => !e.far).forEach(drawEar);
   g.save();
   g.clip(head);
   // copper on the cheeks, and pips over the eyes
@@ -11985,6 +11967,8 @@ function dogHead(g, r, L) {
   g.fillStyle = sh;
   g.fillRect(-r * 1.5, -r * 1.5, r * 3, r * 3);
   g.restore();
+  drawEar(sy > 0 ? -1 : 1);
+  drawEar(sy > 0 ? 1 : -1);
   // the eyes: the right one brown (on our left), the left one ice-blue
   for (const s of [-1, 1]) {
     const far = Math.max(0, s * sy);
@@ -11995,9 +11979,9 @@ function dogHead(g, r, L) {
   // the snout: from a broad base between the cheeks out to the nose, pointing where the head points,
   // so that turned it sticks out past the side of the head. Copper, the bridge black and grey-ticked
   const base = [fx, r * 0.16 + fy];
-  const tip = [fx + sy * r * 0.56, r * 0.26 + fy * 1.6];
+  const tip = [fx + sy * r * 0.5, r * 0.25 + fy * 1.6];
   const rb = r * 0.32;
-  const rt = r * 0.25;
+  const rt = r * 0.27;
   const ax = tip[0] - base[0];
   const ay = tip[1] - base[1];
   const al = Math.hypot(ax, ay) || 1;
@@ -12080,122 +12064,137 @@ function dogHead(g, r, L) {
   g.stroke();
 }
 
-// the dog lying down facing us, head up on a thick fluffy neck, the white ruff from the chin down the
-// chest, front legs out in front, the hips off to one side behind
+// a closed outline (a list of points) with a furry edge: each stretch between points pushed out into
+// a soft pointed tuft, swept a little along the way round
+function furry(pts, tuft) {
+  const n = pts.length;
+  let area = 0;
+  for (let i = 0; i < n; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    area += a[0] * b[1] - b[0] * a[1];
+  }
+  const sg = area > 0 ? 1 : -1;
+  const p = new Path2D();
+  p.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 0; i < n; i++) {
+    const a = pts[i];
+    const b = pts[(i + 1) % n];
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    const l = Math.hypot(dx, dy) || 1;
+    const nx = (sg * dy) / l;
+    const ny = (-sg * dx) / l;
+    const t = tuft * (0.6 + ((i * 7) % 5) * 0.15);
+    const tip = [a[0] + dx * 0.62 + nx * t, a[1] + dy * 0.62 + ny * t];
+    p.quadraticCurveTo(a[0] + dx * 0.2 + nx * t * 0.9, a[1] + dy * 0.2 + ny * t * 0.9, tip[0], tip[1]);
+    p.quadraticCurveTo(a[0] + dx * 0.9 + nx * t * 0.25, a[1] + dy * 0.9 + ny * t * 0.25, b[0], b[1]);
+  }
+  p.closePath();
+  return p;
+}
+
+// points round an ellipse, from angle a0 to a1, never lower than floor
+function oval(cx, cy, rx, ry, n, a0 = 0, a1 = TAU, floor = Infinity) {
+  return Array.from({ length: n }, (_, i) => {
+    const a = a0 + ((a1 - a0) * i) / n;
+    return [cx + Math.cos(a) * rx, Math.min(floor, cy + Math.sin(a) * ry)];
+  });
+}
+
+// the dog, an Aussie, lying down facing us in a sphinx: head up on a big fluffy mane, the white ruff
+// from the chin down the chest, long front legs out in front with feathering behind them and white
+// toes, the hips and fluffy britches off to one side behind
 function dogLying(S) {
   const C = WATCHERS.dog;
-  const c = layer(Math.ceil(S * 1.3), Math.ceil(S * 0.92));
+  const c = layer(Math.ceil(S * 1.42), Math.ceil(S * 1.0));
   const g = c.getContext('2d');
   const cx = S * 0.6;
-  const by = S * 0.9;
-  // back and hips behind, lying a little to one side
+  const by = S * 0.97;
+  // back, hips and britches behind, lying a little to one side
   g.fillStyle = C.fur;
-  g.beginPath();
-  g.ellipse(cx + S * 0.2, by - S * 0.17, S * 0.48, S * 0.18, -0.04, 0, TAU);
-  g.fill();
-  g.beginPath();
-  g.ellipse(cx + S * 0.52, by - S * 0.13, S * 0.17, S * 0.13, 0, 0, TAU);
-  g.fill();
+  g.fill(furry(oval(cx + S * 0.24, by - S * 0.2, S * 0.5, S * 0.2, 34, 0, TAU, by), S * 0.028));
+  g.fill(furry(oval(cx + S * 0.58, by - S * 0.17, S * 0.19, S * 0.16, 16, 0, TAU, by), S * 0.035));
   g.fillStyle = C.copper;
+  g.fill(furry(oval(cx + S * 0.62, by - S * 0.06, S * 0.12, S * 0.05, 8), S * 0.02));
+  g.fillStyle = C.white;
   g.beginPath();
-  g.ellipse(cx + S * 0.55, by - S * 0.03, S * 0.1, S * 0.04, 0, 0, TAU);
+  g.ellipse(cx + S * 0.68, by - S * 0.035, S * 0.06, S * 0.032, 0, 0, TAU);
   g.fill();
-  // shoulders, chest and the neck rising thick and fluffy into the head
-  const neck = new Path2D();
-  neck.moveTo(cx - S * 0.34, by - S * 0.02);
-  neck.bezierCurveTo(cx - S * 0.4, by - S * 0.3, cx - S * 0.34, by - S * 0.46, cx - S * 0.26, by - S * 0.56);
-  neck.bezierCurveTo(cx - S * 0.24, by - S * 0.7, cx - S * 0.16, by - S * 0.8, cx, by - S * 0.8);
-  neck.bezierCurveTo(cx + S * 0.16, by - S * 0.8, cx + S * 0.24, by - S * 0.7, cx + S * 0.26, by - S * 0.56);
-  neck.bezierCurveTo(cx + S * 0.34, by - S * 0.46, cx + S * 0.4, by - S * 0.3, cx + S * 0.34, by - S * 0.02);
-  neck.closePath();
+  // the mane: shoulders, chest and neck in one big fluffy shape rising into the head
+  const mane = furry(oval(cx, by - S * 0.4, S * 0.42, S * 0.45, 40, 0, TAU, by), S * 0.035);
   g.fillStyle = C.fur;
-  g.fill(neck);
-  // the fluff along the sides of the neck
-  for (const s of [-1, 1]) {
-    for (let i = 0; i < 6; i++) {
-      const f = i / 5;
-      const x = cx + s * S * (0.26 + f * 0.1);
-      const y = by - S * (0.66 - f * 0.34);
-      g.beginPath();
-      g.moveTo(x - s * S * 0.04, y - S * 0.05);
-      g.quadraticCurveTo(x + s * S * 0.06, y - S * 0.01, x + s * S * 0.03, y + S * 0.06);
-      g.lineTo(x - s * S * 0.03, y + S * 0.02);
-      g.fill();
-    }
-  }
+  g.fill(mane);
   g.save();
-  g.clip(neck);
-  const sh = g.createLinearGradient(cx - S * 0.4, 0, cx + S * 0.4, 0);
-  sh.addColorStop(0, 'rgba(160,150,170,0.22)');
+  g.clip(mane);
+  const sh = g.createLinearGradient(cx - S * 0.45, 0, cx + S * 0.45, 0);
+  sh.addColorStop(0, 'rgba(160,150,170,0.24)');
   sh.addColorStop(0.45, 'rgba(160,150,170,0)');
+  sh.addColorStop(1, 'rgba(0,0,0,0.2)');
   g.fillStyle = sh;
   g.fillRect(0, 0, c.width, c.height);
   g.restore();
-  // the white ruff: from under the chin, fluffing out over the chest, in soft points
-  g.fillStyle = C.white;
-  g.beginPath();
-  g.moveTo(cx - S * 0.08, by - S * 0.66);
-  const n = 8;
-  for (let i = 0; i <= n; i++) {
-    const f = i / n;
-    const wd = S * (0.08 + Math.sin(f * Math.PI * 0.8) * 0.13);
-    g.lineTo(cx - wd - (i % 2) * S * 0.018, by - S * (0.64 - f * 0.48));
-  }
-  g.quadraticCurveTo(cx - S * 0.05, by - S * 0.12, cx, by - S * 0.1);
-  g.quadraticCurveTo(cx + S * 0.05, by - S * 0.12, cx + S * 0.12, by - S * 0.16);
-  for (let i = n; i >= 0; i--) {
-    const f = i / n;
-    const wd = S * (0.08 + Math.sin(f * Math.PI * 0.8) * 0.13);
-    g.lineTo(cx + wd + (i % 2) * S * 0.018, by - S * (0.64 - f * 0.48));
-  }
-  g.closePath();
-  g.fill();
-  // soft tufts in the ruff, a shadow under the chin
-  g.fillStyle = 'rgba(120,110,100,0.18)';
-  g.beginPath();
-  g.ellipse(cx, by - S * 0.62, S * 0.12, S * 0.04, 0, 0, TAU);
-  g.fill();
-  g.strokeStyle = 'rgba(160,150,140,0.2)';
-  g.lineWidth = Math.max(1, S * 0.007);
-  g.lineCap = 'round';
-  g.beginPath();
-  for (const [x, y] of [[-0.06, 0.5], [0.07, 0.46], [-0.1, 0.36], [0.03, 0.33]]) {
-    const tx = cx + x * S;
-    const ty = by - y * S;
-    g.moveTo(tx - S * 0.012, ty - S * 0.03);
-    g.lineTo(tx, ty);
-    g.lineTo(tx + S * 0.008, ty - S * 0.035);
-  }
-  g.stroke();
-  // front legs: copper, feathered at the back, big white paws
+  // front legs: black above, copper below, feathered behind, white toes
   for (const s of [-1, 1]) {
     const lx = cx + s * S * 0.19;
-    g.fillStyle = C.copper;
-    g.beginPath();
-    g.moveTo(lx - S * 0.07, by - S * 0.26);
-    g.quadraticCurveTo(lx - s * S * 0.0, by - S * 0.3, lx + S * 0.07, by - S * 0.26);
-    g.lineTo(lx + S * 0.06, by - S * 0.05);
-    g.lineTo(lx - S * 0.06, by - S * 0.05);
-    g.closePath();
-    g.fill();
+    const top = by - S * 0.42;
+    const leg = new Path2D();
+    leg.moveTo(lx - S * 0.075, top);
+    leg.quadraticCurveTo(lx, top - S * 0.03, lx + S * 0.075, top);
+    leg.lineTo(lx + S * 0.065, by - S * 0.05);
+    leg.lineTo(lx - S * 0.065, by - S * 0.05);
+    leg.closePath();
+    // feathering off the back of the leg, out to the side
+    g.fillStyle = C.fur;
+    g.fill(furry([[lx + s * S * 0.05, top + S * 0.04], [lx + s * S * 0.12, top + S * 0.12], [lx + s * S * 0.11, by - S * 0.12], [lx + s * S * 0.04, by - S * 0.08]], S * 0.03));
+    g.fill(leg);
+    g.save();
+    g.clip(leg);
+    const lg = g.createLinearGradient(0, by - S * 0.31, 0, by - S * 0.23);
+    lg.addColorStop(0, 'rgba(138,68,24,0)');
+    lg.addColorStop(1, C.copper);
+    g.fillStyle = lg;
+    g.fillRect(lx - S * 0.1, by - S * 0.31, S * 0.2, S * 0.3);
     g.fillStyle = C.copperLit;
-    g.globalAlpha = 0.35;
-    g.fillRect(lx - s * S * 0.05 - S * 0.012, by - S * 0.24, S * 0.024, S * 0.16);
+    g.globalAlpha = 0.25;
+    g.fillRect(lx - S * 0.045, by - S * 0.24, S * 0.025, S * 0.17);
     g.globalAlpha = 1;
+    g.restore();
     g.fillStyle = C.white;
     g.beginPath();
-    g.ellipse(lx, by - S * 0.04, S * 0.08, S * 0.05, 0, 0, TAU);
+    g.ellipse(lx, by - S * 0.045, S * 0.085, S * 0.052, 0, 0, TAU);
     g.fill();
     g.strokeStyle = 'rgba(150,140,130,0.6)';
     g.lineWidth = Math.max(1, S * 0.006);
     g.beginPath();
-    for (const d of [-0.027, 0, 0.027]) {
-      g.moveTo(lx + d * S, by - S * 0.06);
-      g.lineTo(lx + d * S, by - S * 0.01);
+    for (const d of [-0.028, 0, 0.028]) {
+      g.moveTo(lx + d * S, by - S * 0.07);
+      g.lineTo(lx + d * S, by - S * 0.015);
     }
     g.stroke();
   }
-  return { c, head: [cx, by - S * 0.84], r: S * 0.3 };
+  // the white ruff: from under the chin, fluffing out wide over the chest and down between the legs
+  const ruffL = [];
+  const ruffR = [];
+  const n = 9;
+  for (let i = 0; i <= n; i++) {
+    const f = i / n;
+    const y = by - S * (0.72 - f * 0.54);
+    const wd = S * (0.1 + Math.sin(Math.min(1, f * 1.25) * Math.PI) * 0.16) * (1 - f * 0.55);
+    ruffL.push([cx - wd, y]);
+    ruffR.unshift([cx + wd, y]);
+  }
+  const ruff = furry([...ruffL, [cx, by - S * 0.15], ...ruffR], S * 0.028);
+  g.fillStyle = C.white;
+  g.fill(ruff);
+  g.save();
+  g.clip(ruff);
+  g.fillStyle = 'rgba(120,110,100,0.2)';
+  g.beginPath();
+  g.ellipse(cx, by - S * 0.71, S * 0.14, S * 0.05, 0, 0, TAU);
+  g.fill();
+  g.restore();
+  return { c, head: [cx, by - S * 0.86], r: S * 0.3 };
 }
 
 // ---------------------------------------------------------------------------------------------
