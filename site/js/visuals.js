@@ -11468,6 +11468,1814 @@ class Study extends TowerRoom {
 }
 
 // ---------------------------------------------------------------------------------------------
+// The watchers: the three cats and the dog, awake. Bodies are sprites; heads are drawn live so they
+// can turn to follow whatever is going on. A head is drawn round (0, 0), the middle of the face, r
+// its radius; L is where it's looking: yaw (-1 left .. 1 right, turned that far round), pitch (-1
+// up .. 1 down), blink (0 open .. 1 shut) and ears (0 relaxed .. 1 pricked).
+
+// the looks of each of them
+const WATCHERS = {
+  // a tuxedo: black, a white streak up his forehead, white whisker pads either side of a black
+  // moustache over his nose, a black spot on his chin, a big white bib, white paws, amber eyes
+  tux: { fur: '#16161a', sheen: '#3a3a46', white: '#f2efe8', eye: '#d8a43a', eyeRim: '#8a5a18', nose: '#141418', inner: '#3a2a2e' },
+  // all black, long soft fur, gold eyes
+  black: { fur: '#121216', sheen: '#34343e', eye: '#e2c23c', eyeRim: '#8a7418', nose: '#141418', inner: '#2e2228' },
+  // a cow cat: white, a black cap over his ears and round his eyes with a wide white blaze, a pink
+  // nose, green-gold eyes; black on his back and rear and a black tail
+  cow: { fur: '#16161a', sheen: '#3a3a46', white: '#f4f1ea', shade: '#d8d4cc', eye: '#c8c844', eyeRim: '#6a7a1c', nose: '#e8a0a4', inner: '#e8b4b4' },
+  // the dog: a black tri shepherd, fluffy, copper over each eye, on his cheeks and legs, grey ticking
+  // on his muzzle, a white ruff; one brown eye and one ice-blue
+  dog: { fur: '#141216', sheen: '#3a3640', copper: '#8a4418', copperLit: '#b8622c', white: '#f0ece4', muzzle: '#3a3438', ticking: '#8a8a90', eyeR: '#6a3a14', eyeL: '#a8c4d4', nose: '#0e0c0e' },
+};
+
+// an eye, almond-shaped, looking (lx, ly) within itself: iris colour, a shut fraction
+function eyeAt(g, x, y, rx, ry, iris, rim, lx, ly, shut, slit = 0.42) {
+  g.save();
+  g.translate(x, y);
+  const p = new Path2D();
+  p.moveTo(-rx, 0);
+  p.quadraticCurveTo(0, -ry * 1.35 * (1 - shut), rx, 0);
+  p.quadraticCurveTo(0, ry * 1.25 * (1 - shut * 0.6), -rx, 0);
+  p.closePath();
+  if (shut < 0.92) {
+    g.save();
+    g.clip(p);
+    g.fillStyle = iris;
+    g.fillRect(-rx, -ry * 1.4, rx * 2, ry * 2.8);
+    const ig = g.createRadialGradient(lx * rx * 0.3, ly * ry * 0.3, 0, lx * rx * 0.3, ly * ry * 0.3, rx);
+    ig.addColorStop(0, 'rgba(255,255,220,0.25)');
+    ig.addColorStop(1, 'rgba(0,0,0,0.25)');
+    g.fillStyle = ig;
+    g.fillRect(-rx, -ry * 1.4, rx * 2, ry * 2.8);
+    // the pupil: a cat's tall slot, or a dog's round one (slit 0)
+    g.fillStyle = '#0a0a0c';
+    g.beginPath();
+    if (slit) g.ellipse(lx * rx * 0.35, ly * ry * 0.3, rx * slit * 0.6, ry * 1.05, 0, 0, TAU);
+    else g.arc(lx * rx * 0.3, ly * ry * 0.25, rx * 0.42, 0, TAU);
+    g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.85)';
+    g.beginPath();
+    g.arc(lx * rx * 0.35 - rx * 0.22, ly * ry * 0.3 - ry * 0.4, Math.max(0.6, rx * 0.16), 0, TAU);
+    g.fill();
+    g.restore();
+  }
+  g.strokeStyle = rim;
+  g.lineWidth = Math.max(1, rx * 0.16);
+  g.stroke(p);
+  g.restore();
+}
+
+// a cat's head. kind: tux, black or cow
+function catHead(g, r, L, kind) {
+  const C = WATCHERS[kind];
+  const yaw = clamp(L.yaw, -1, 1);
+  const pitch = clamp(L.pitch, -1, 1);
+  const sy = Math.sin(yaw * 1.1);
+  const cy = Math.cos(yaw * 1.1);
+  const fx = sy * r * 0.56; // where the middle of the face has turned to
+  const fy = pitch * r * 0.16;
+  const pr = (L.ears ?? 0.5) * 0.12;
+  // the ears: the far one tucks behind the head as it turns, the near one swings out
+  const ear = (side) => {
+    const turn = side * sy; // > 0: this ear is on the far side
+    const bx = side * r * (0.52 - 0.2 * Math.max(0, turn)) + fx * 0.45;
+    const by = -r * 0.5 + fy * 0.3;
+    const w = r * (0.62 - 0.3 * Math.max(0, turn));
+    const tip = [bx + side * r * 0.12 - fx * 0.08, by - r * (0.58 + pr)];
+    return { bx, by, w, tip, side, far: turn > 0.15 };
+  };
+  const drawEar = (e) => {
+    const o = e.bx - e.side * e.w * 0.55; // the edge towards the middle of the head
+    const x = e.bx + e.side * e.w * 0.45; // the outer edge
+    g.fillStyle = C.fur;
+    g.beginPath();
+    g.moveTo(o, e.by + r * 0.1);
+    g.quadraticCurveTo(o + e.side * e.w * 0.15, e.tip[1] + r * 0.25, e.tip[0], e.tip[1]);
+    g.quadraticCurveTo(x + e.side * e.w * 0.05, e.tip[1] + r * 0.3, x, e.by + r * 0.18);
+    g.closePath();
+    g.fill();
+    if (!e.far) {
+      g.fillStyle = C.inner;
+      g.beginPath();
+      g.moveTo(o + e.side * e.w * 0.2, e.by + r * 0.08);
+      g.quadraticCurveTo(o + e.side * e.w * 0.3, e.tip[1] + r * 0.32, e.tip[0] - e.side * r * 0.02, e.tip[1] + r * 0.14);
+      g.quadraticCurveTo(x - e.side * e.w * 0.12, e.tip[1] + r * 0.36, x - e.side * e.w * 0.18, e.by + r * 0.14);
+      g.closePath();
+      g.fill();
+    }
+  };
+  const ears = [ear(-1), ear(1)];
+  ears.filter((e) => e.far).forEach(drawEar);
+  // the head: round with full cheeks, the muzzle pushing out on the side it turns to
+  const head = new Path2D();
+  head.ellipse(fx * 0.18, 0, r, r * 0.86, 0, 0, TAU);
+  head.moveTo(fx * 1.2 + r * 0.36, r * 0.3 + fy);
+  head.ellipse(fx * 1.2, r * 0.3 + fy, r * 0.36, r * 0.27, 0, 0, TAU);
+  g.fillStyle = C.fur;
+  g.fill(head);
+  ears.filter((e) => !e.far).forEach(drawEar);
+  g.save();
+  g.clip(head);
+  // the markings
+  if (kind === 'tux') {
+    // the white whisker pads and cheeks either side of his moustache, and the throat
+    g.fillStyle = C.white;
+    for (const s of [-1, 1]) {
+      const vis = 1 - Math.max(0, s * sy) * 0.6;
+      g.beginPath();
+      g.ellipse(fx * 1.15 + s * r * 0.3 * cy * vis, r * 0.36 + fy, r * 0.36 * vis, r * 0.3, s * 0.25, 0, TAU);
+      g.fill();
+    }
+    g.beginPath();
+    g.ellipse(fx * 0.6, r * 0.95 + fy * 0.5, r * 0.7, r * 0.3, 0, 0, TAU);
+    g.fill();
+    // the streak up his forehead, a little to one side
+    g.beginPath();
+    g.moveTo(fx * 0.95 + r * 0.02, -r * 0.08 + fy);
+    g.quadraticCurveTo(fx * 0.75 + r * 0.12, -r * 0.5 + fy * 0.5, fx * 0.5 + r * 0.06, -r * 0.86);
+    g.lineTo(fx * 0.5 + r * 0.14, -r * 0.84);
+    g.quadraticCurveTo(fx * 0.75 + r * 0.2, -r * 0.48 + fy * 0.5, fx * 0.95 + r * 0.08, -r * 0.06 + fy);
+    g.closePath();
+    g.fill();
+    // the black moustache spreading out under his nose, and the spot on his chin
+    g.fillStyle = C.fur;
+    const mx0 = fx * 1.2;
+    const my0 = r * 0.2 + fy;
+    g.beginPath();
+    g.moveTo(mx0 - r * 0.1, my0 - r * 0.06);
+    g.quadraticCurveTo(mx0, my0 - r * 0.1, mx0 + r * 0.1, my0 - r * 0.06);
+    g.quadraticCurveTo(mx0 + r * 0.3, my0 + r * 0.06, mx0 + r * 0.34, my0 + r * 0.16);
+    g.quadraticCurveTo(mx0 + r * 0.16, my0 + r * 0.14, mx0, my0 + r * 0.17);
+    g.quadraticCurveTo(mx0 - r * 0.16, my0 + r * 0.14, mx0 - r * 0.34, my0 + r * 0.16);
+    g.quadraticCurveTo(mx0 - r * 0.3, my0 + r * 0.06, mx0 - r * 0.1, my0 - r * 0.06);
+    g.fill();
+    g.beginPath();
+    g.ellipse(mx0, r * 0.52 + fy, r * 0.12, r * 0.06, 0, 0, TAU);
+    g.fill();
+  } else if (kind === 'cow') {
+    // white below a black cap, with a wide white blaze up between his ears
+    g.fillStyle = C.white;
+    g.beginPath();
+    g.ellipse(fx * 0.9, r * 0.32 + fy, r * 0.98, r * 0.62, 0, 0, TAU);
+    g.fill();
+    g.beginPath();
+    g.moveTo(fx * 0.9 - r * 0.24, r * 0.0 + fy);
+    g.quadraticCurveTo(fx * 0.8 - r * 0.14, -r * 0.5, fx * 0.6 - r * 0.07, -r);
+    g.lineTo(fx * 0.6 + r * 0.07, -r);
+    g.quadraticCurveTo(fx * 0.8 + r * 0.14, -r * 0.5, fx * 0.9 + r * 0.24, r * 0.0 + fy);
+    g.closePath();
+    g.fill();
+    g.fillStyle = 'rgba(0,0,0,0.06)';
+    g.beginPath();
+    g.ellipse(fx * 0.9, r * 0.7 + fy, r * 0.8, r * 0.2, 0, 0, TAU);
+    g.fill();
+  }
+  // a soft sheen on dark fur
+  const sh = g.createRadialGradient(-r * 0.35 + fx * 0.3, -r * 0.45, 0, -r * 0.35 + fx * 0.3, -r * 0.45, r * 0.9);
+  sh.addColorStop(0, kind === 'cow' ? 'rgba(255,255,255,0.12)' : 'rgba(150,150,180,0.22)');
+  sh.addColorStop(1, 'rgba(150,150,180,0)');
+  g.fillStyle = sh;
+  g.fillRect(-r * 1.5, -r * 1.5, r * 3, r * 3);
+  g.restore();
+  // the eyes: the far one narrows as the head turns away from it
+  for (const s of [-1, 1]) {
+    const far = Math.max(0, s * sy);
+    const ex = fx + s * r * 0.34 * cy - sy * r * 0.02;
+    const ey = -r * 0.08 + fy;
+    const erx = r * 0.2 * (1 - far * 0.6);
+    eyeAt(g, ex, ey, erx, r * 0.15, C.eye, C.eyeRim, L.lx ?? 0, L.ly ?? 0, L.blink ?? 0, 0.32 + (L.wide ?? 0) * 0.5);
+  }
+  // the nose and mouth
+  const nx = fx * 1.22;
+  const ny = r * 0.18 + fy;
+  g.fillStyle = C.nose;
+  g.beginPath();
+  g.moveTo(nx - r * 0.09, ny);
+  g.lineTo(nx + r * 0.09, ny);
+  g.quadraticCurveTo(nx + r * 0.04, ny + r * 0.1, nx, ny + r * 0.11);
+  g.quadraticCurveTo(nx - r * 0.04, ny + r * 0.1, nx - r * 0.09, ny);
+  g.fill();
+  g.strokeStyle = kind === 'cow' ? 'rgba(120,80,80,0.7)' : 'rgba(10,10,12,0.9)';
+  g.lineWidth = Math.max(1, r * 0.035);
+  g.lineCap = 'round';
+  g.beginPath();
+  g.moveTo(nx, ny + r * 0.11);
+  g.lineTo(nx, ny + r * 0.18);
+  g.quadraticCurveTo(nx - r * 0.06, ny + r * 0.25, nx - r * 0.13, ny + r * 0.2);
+  g.moveTo(nx, ny + r * 0.18);
+  g.quadraticCurveTo(nx + r * 0.06, ny + r * 0.25, nx + r * 0.13, ny + r * 0.2);
+  g.stroke();
+  // whiskers, both sides
+  g.strokeStyle = kind === 'black' ? 'rgba(200,200,210,0.55)' : 'rgba(250,250,250,0.75)';
+  g.lineWidth = Math.max(0.6, r * 0.018);
+  g.beginPath();
+  for (const s of [-1, 1]) {
+    const reach = 1 - Math.max(0, s * sy) * 0.5;
+    for (let i = 0; i < 3; i++) {
+      const wy = ny + r * (0.12 + i * 0.06);
+      g.moveTo(nx + s * r * 0.22, wy);
+      g.quadraticCurveTo(nx + s * r * 0.6 * reach, wy - r * 0.06 + i * r * 0.04, nx + s * r * 0.95 * reach, wy - r * 0.02 + i * r * 0.1);
+    }
+  }
+  g.stroke();
+}
+
+// a cat sitting up facing us, its head drawn separately at the returned neck: S is its height
+// without the head
+function catSitting(S, kind) {
+  const C = WATCHERS[kind];
+  const c = layer(Math.ceil(S * 1.0), Math.ceil(S * 1.02));
+  const g = c.getContext('2d');
+  const cx = S * 0.5;
+  const by = S;
+  // the tail, curled round in front
+  g.strokeStyle = C.fur;
+  g.lineCap = 'round';
+  g.lineWidth = S * 0.085;
+  g.beginPath();
+  g.moveTo(cx + S * 0.34, by - S * 0.14);
+  g.quadraticCurveTo(cx + S * 0.44, by - S * 0.02, cx + S * 0.2, by - S * 0.04);
+  g.quadraticCurveTo(cx + S * 0.04, by - S * 0.04, cx - S * 0.06, by - S * 0.08);
+  g.stroke();
+  // haunches and body, a pear
+  const body = new Path2D();
+  body.moveTo(cx - S * 0.4, by - S * 0.05);
+  body.quadraticCurveTo(cx - S * 0.48, by - S * 0.42, cx - S * 0.24, by - S * 0.62);
+  body.quadraticCurveTo(cx - S * 0.2, by - S * 0.78, cx - S * 0.16, by - S * 0.86);
+  body.lineTo(cx + S * 0.16, by - S * 0.86);
+  body.quadraticCurveTo(cx + S * 0.2, by - S * 0.78, cx + S * 0.24, by - S * 0.62);
+  body.quadraticCurveTo(cx + S * 0.48, by - S * 0.42, cx + S * 0.4, by - S * 0.05);
+  body.quadraticCurveTo(cx, by + S * 0.02, cx - S * 0.4, by - S * 0.05);
+  body.closePath();
+  g.fillStyle = C.fur;
+  g.fill(body);
+  g.save();
+  g.clip(body);
+  const sh = g.createLinearGradient(cx - S * 0.45, 0, cx + S * 0.45, 0);
+  sh.addColorStop(0, 'rgba(150,150,180,0.24)');
+  sh.addColorStop(0.35, 'rgba(150,150,180,0)');
+  g.fillStyle = sh;
+  g.fillRect(0, 0, c.width, c.height);
+  if (kind === 'tux') {
+    // the big white bib, a shield down his chest to his front paws
+    g.fillStyle = C.white;
+    g.beginPath();
+    g.moveTo(cx - S * 0.2, by - S * 0.9);
+    g.quadraticCurveTo(cx - S * 0.28, by - S * 0.55, cx - S * 0.16, by - S * 0.2);
+    g.lineTo(cx + S * 0.16, by - S * 0.2);
+    g.quadraticCurveTo(cx + S * 0.28, by - S * 0.55, cx + S * 0.2, by - S * 0.9);
+    g.closePath();
+    g.fill();
+  }
+  g.restore();
+  // the front legs, close together, and the paws
+  for (const s of [-1, 1]) {
+    const lx = cx + s * S * 0.075;
+    g.fillStyle = kind === 'tux' ? C.white : C.fur;
+    g.beginPath();
+    g.roundRect(lx - S * 0.06, by - S * 0.42, S * 0.12, S * 0.4, S * 0.06);
+    g.fill();
+    g.beginPath();
+    g.ellipse(lx, by - S * 0.035, S * 0.075, S * 0.045, 0, 0, TAU);
+    g.fill();
+    g.strokeStyle = kind === 'tux' ? 'rgba(120,110,100,0.45)' : 'rgba(90,90,110,0.6)';
+    g.lineWidth = Math.max(1, S * 0.008);
+    g.beginPath();
+    g.moveTo(lx - S * 0.022, by - S * 0.06);
+    g.lineTo(lx - S * 0.022, by - S * 0.015);
+    g.moveTo(lx + S * 0.022, by - S * 0.06);
+    g.lineTo(lx + S * 0.022, by - S * 0.015);
+    g.stroke();
+  }
+  // a rim of light down one side
+  g.strokeStyle = 'rgba(210,210,240,0.25)';
+  g.lineWidth = Math.max(1, S * 0.014);
+  g.beginPath();
+  g.moveTo(cx - S * 0.4, by - S * 0.1);
+  g.quadraticCurveTo(cx - S * 0.47, by - S * 0.42, cx - S * 0.24, by - S * 0.62);
+  g.stroke();
+  return { c, neck: [cx, by - S * 0.86], r: S * 0.3 };
+}
+
+// a cat lying down, his body going off to the right behind him and his front legs stretched out to
+// the left, head up: the cow cat
+function catLying(S, kind) {
+  const C = WATCHERS[kind];
+  const c = layer(Math.ceil(S * 1.7), Math.ceil(S * 0.75));
+  const g = c.getContext('2d');
+  const by = S * 0.72;
+  const body = new Path2D();
+  body.moveTo(S * 0.3, by);
+  body.quadraticCurveTo(S * 0.22, by - S * 0.36, S * 0.55, by - S * 0.42);
+  body.quadraticCurveTo(S * 1.1, by - S * 0.5, S * 1.45, by - S * 0.3);
+  body.quadraticCurveTo(S * 1.62, by - S * 0.12, S * 1.5, by);
+  body.closePath();
+  g.fillStyle = kind === 'cow' ? C.white : C.fur;
+  g.fill(body);
+  g.save();
+  g.clip(body);
+  if (kind === 'cow') {
+    // black over his rear and a patch on his back
+    g.fillStyle = C.fur;
+    g.beginPath();
+    g.ellipse(S * 1.42, by - S * 0.22, S * 0.32, S * 0.3, 0.2, 0, TAU);
+    g.fill();
+    g.beginPath();
+    g.ellipse(S * 0.9, by - S * 0.46, S * 0.24, S * 0.12, 0.1, 0, TAU);
+    g.fill();
+    g.fillStyle = 'rgba(0,0,0,0.07)';
+    g.fillRect(0, by - S * 0.1, c.width, S * 0.1);
+  }
+  g.restore();
+  // the tail along the front, black
+  g.strokeStyle = C.fur;
+  g.lineCap = 'round';
+  g.lineWidth = S * 0.07;
+  g.beginPath();
+  g.moveTo(S * 1.5, by - S * 0.06);
+  g.quadraticCurveTo(S * 1.4, by + S * 0.0, S * 1.1, by - S * 0.02);
+  g.stroke();
+  // the front legs stretched out to the left, white, paws crossed a little
+  for (const [dy, len, col] of [
+    [-0.035, 0.34, kind === 'cow' ? C.shade : C.fur],
+    [0.0, 0.3, kind === 'cow' ? C.white : C.fur],
+  ]) {
+    g.fillStyle = col;
+    g.beginPath();
+    g.moveTo(S * 0.42, by + dy * S - S * 0.13);
+    g.quadraticCurveTo(S * 0.3 - len * S * 0.5, by + dy * S - S * 0.11, S * 0.36 - len * S, by + dy * S - S * 0.07);
+    g.quadraticCurveTo(S * 0.3 - len * S, by + dy * S - S * 0.0, S * 0.38 - len * S, by + dy * S);
+    g.lineTo(S * 0.42, by + dy * S);
+    g.closePath();
+    g.fill();
+    g.strokeStyle = 'rgba(150,140,130,0.5)';
+    g.lineWidth = Math.max(1, S * 0.008);
+    g.beginPath();
+    g.moveTo(S * 0.33 - len * S, by + dy * S - S * 0.05);
+    g.lineTo(S * 0.36 - len * S, by + dy * S - S * 0.005);
+    g.stroke();
+  }
+  return { c, neck: [S * 0.42, by - S * 0.36], r: S * 0.26 };
+}
+
+// the dog's head: a broad crown, fluffy cheeks, a muzzle that swings round as the head turns, ears
+// set high with their tips folded over
+function dogHead(g, r, L) {
+  const C = WATCHERS.dog;
+  const yaw = clamp(L.yaw, -1, 1);
+  const pitch = clamp(L.pitch, -1, 1);
+  const sy = Math.sin(yaw * 1.1);
+  const cy = Math.cos(yaw * 1.1);
+  const fx = sy * r * 0.5;
+  const fy = pitch * r * 0.14;
+  const pr = L.ears ?? 0.5;
+  const ear = (side) => {
+    const turn = side * sy;
+    return { side, bx: side * r * (0.6 - 0.22 * Math.max(0, turn)) + fx * 0.4, by: -r * 0.5 + fy * 0.3, far: turn > 0.25, w: r * (0.68 - 0.2 * Math.max(0, turn)), len: r * (0.7 + pr * 0.12), ang: side * (0.78 - pr * 0.25) - sy * 0.12 };
+  };
+  const drawEar = (e) => {
+    g.save();
+    g.translate(e.bx, e.by);
+    g.rotate(e.ang);
+    const w = e.w;
+    const outer = new Path2D();
+    outer.moveTo(-w * 0.52, r * 0.14);
+    outer.quadraticCurveTo(-w * 0.56, -e.len * 0.6, -w * 0.05, -e.len);
+    outer.quadraticCurveTo(w * 0.56, -e.len * 0.62, w * 0.52, r * 0.14);
+    outer.closePath();
+    g.fillStyle = C.fur;
+    g.fill(outer);
+    // long soft fur at the edges, lit copper-brown from behind
+    g.strokeStyle = 'rgba(190,110,60,0.45)';
+    g.lineWidth = Math.max(1, r * 0.035);
+    g.lineCap = 'round';
+    g.beginPath();
+    for (let i = 0; i < 7; i++) {
+      const f = 0.12 + i * 0.12;
+      for (const sd of [-1, 1]) {
+        const ex = sd * w * (0.54 - f * 0.4);
+        const ey = -e.len * f * 0.95;
+        g.moveTo(ex, ey);
+        g.lineTo(ex + sd * r * 0.05, ey - r * 0.035);
+      }
+    }
+    g.stroke();
+    g.fillStyle = C.fur;
+    g.fill(outer);
+    if (!e.far) {
+      g.fillStyle = C.copper;
+      g.beginPath();
+      g.moveTo(-w * 0.3, r * 0.08);
+      g.quadraticCurveTo(-w * 0.28, -e.len * 0.4, -w * 0.02, -e.len * 0.58);
+      g.quadraticCurveTo(w * 0.3, -e.len * 0.36, w * 0.3, r * 0.08);
+      g.closePath();
+      g.fill();
+    }
+    // the top of the ear folded over, forward and out, its edge catching the light
+    const fold = new Path2D();
+    fold.moveTo(-w * 0.4, -e.len * 0.58);
+    fold.quadraticCurveTo(-w * 0.1, -e.len * 1.02, w * 0.36, -e.len * 0.62);
+    fold.quadraticCurveTo(e.side * w * 0.3 + w * 0.05, -e.len * 0.32, e.side * w * 0.5, -e.len * 0.2);
+    fold.quadraticCurveTo(0, -e.len * 0.36, -w * 0.4, -e.len * 0.58);
+    fold.closePath();
+    g.fillStyle = '#1c181e';
+    g.fill(fold);
+    g.strokeStyle = 'rgba(210,140,90,0.35)';
+    g.lineWidth = Math.max(1, r * 0.022);
+    g.stroke(fold);
+    g.restore();
+  };
+  const ears = [ear(-1), ear(1)];
+  ears.filter((e) => e.far).forEach(drawEar);
+  // the crown, fluffy cheeks and the muzzle as one shape (traced clockwise so overlaps stay filled)
+  const mx = fx * 1.35;
+  const head = new Path2D();
+  head.ellipse(fx * 0.15, -r * 0.16, r * 0.82, r * 0.74, 0, 0, TAU);
+  for (const s of [-1, 1]) {
+    // a fluffy cheek: a soft scalloped edge
+    const cx = s * r * 0.6 * cy + fx * 0.25;
+    const n = 18;
+    head.moveTo(cx + r * 0.3, r * 0.1);
+    for (let i = 1; i <= n; i++) {
+      const a = (i / n) * TAU;
+      const rr = r * (i % 2 ? 0.31 : 0.28);
+      head.lineTo(cx + Math.cos(a) * rr, r * 0.1 + Math.sin(a) * rr * 1.05);
+    }
+    head.closePath();
+  }
+  head.moveTo(mx + r * 0.36, -r * 0.04 + fy);
+  head.quadraticCurveTo(mx + r * 0.4, r * 0.36 + fy, mx + r * 0.24, r * 0.56 + fy);
+  head.quadraticCurveTo(mx, r * 0.66 + fy, mx - r * 0.24, r * 0.56 + fy);
+  head.quadraticCurveTo(mx - r * 0.4, r * 0.36 + fy, mx - r * 0.36, -r * 0.04 + fy);
+  head.closePath();
+  g.fillStyle = C.fur;
+  g.fill(head, 'nonzero');
+  ears.filter((e) => !e.far).forEach(drawEar);
+  g.save();
+  g.clip(head);
+  // copper over the muzzle and spilling onto the cheeks below the eyes; the bridge of the muzzle
+  // black down the middle, a little grey-ticked, widening to the nose
+  const cop = new Path2D();
+  cop.moveTo(mx + r * 0.46, -r * 0.0 + fy);
+  cop.quadraticCurveTo(mx + r * 0.46, r * 0.4 + fy, mx + r * 0.24, r * 0.58 + fy);
+  cop.quadraticCurveTo(mx, r * 0.68 + fy, mx - r * 0.24, r * 0.58 + fy);
+  cop.quadraticCurveTo(mx - r * 0.46, r * 0.4 + fy, mx - r * 0.46, -r * 0.0 + fy);
+  cop.quadraticCurveTo(mx, -r * 0.12 + fy, mx + r * 0.46, -r * 0.0 + fy);
+  g.fillStyle = C.copper;
+  g.fill(cop);
+  const bx = mx + sy * r * 0.05;
+  g.fillStyle = C.fur;
+  g.beginPath();
+  g.moveTo(bx - r * 0.12, -r * 0.14 + fy);
+  g.quadraticCurveTo(bx - r * 0.13, r * 0.2 + fy, bx - r * 0.22, r * 0.4 + fy);
+  g.quadraticCurveTo(bx, r * 0.46 + fy, bx + r * 0.22, r * 0.4 + fy);
+  g.quadraticCurveTo(bx + r * 0.13, r * 0.2 + fy, bx + r * 0.12, -r * 0.14 + fy);
+  g.closePath();
+  g.fill();
+  g.fillStyle = C.ticking;
+  let s0 = 7;
+  const rr = () => (s0 = (s0 * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 12; i++) {
+    const yy = rr();
+    g.globalAlpha = 0.12 + rr() * 0.18;
+    g.fillRect(bx + (rr() - 0.5) * r * (0.14 + yy * 0.2), r * (0.0 + yy * 0.32) + fy, Math.max(1, r * 0.018), Math.max(1, r * 0.03));
+  }
+  g.globalAlpha = 1;
+  // a darker chin under the mouth
+  g.fillStyle = 'rgba(60,24,8,0.45)';
+  g.beginPath();
+  g.ellipse(mx, r * 0.6 + fy, r * 0.16, r * 0.06, 0, 0, TAU);
+  g.fill();
+  // copper pips over the eyes
+  for (const s of [-1, 1]) {
+    const far = Math.max(0, s * sy);
+    g.fillStyle = C.copperLit;
+    g.beginPath();
+    g.ellipse(fx + s * r * 0.32 * cy, -r * 0.4 + fy, r * 0.1 * (1 - far * 0.5), r * 0.07, s * 0.35, 0, TAU);
+    g.fill();
+  }
+  // a sheen on the crown
+  const sh = g.createRadialGradient(-r * 0.3 + fx * 0.3, -r * 0.6, 0, -r * 0.3 + fx * 0.3, -r * 0.6, r * 0.8);
+  sh.addColorStop(0, 'rgba(160,150,170,0.22)');
+  sh.addColorStop(1, 'rgba(160,150,170,0)');
+  g.fillStyle = sh;
+  g.fillRect(-r * 1.5, -r * 1.5, r * 3, r * 3);
+  g.restore();
+  // the eyes: the right one brown (on our left), the left one ice-blue
+  for (const s of [-1, 1]) {
+    const far = Math.max(0, s * sy);
+    const ex = fx + s * r * 0.32 * cy - sy * r * 0.03;
+    const ey = -r * 0.2 + fy;
+    eyeAt(g, ex, ey, r * 0.17 * (1 - far * 0.6), r * 0.14, s < 0 ? C.eyeR : C.eyeL, '#0a0808', L.lx ?? 0, L.ly ?? 0, L.blink ?? 0, 0);
+  }
+  // the nose at the end of the muzzle, and the mouth
+  const nx = mx + sy * r * 0.1;
+  const ny = r * 0.44 + fy;
+  g.fillStyle = C.nose;
+  g.beginPath();
+  g.moveTo(nx - r * 0.2, ny - r * 0.06);
+  g.quadraticCurveTo(nx, ny - r * 0.14, nx + r * 0.2, ny - r * 0.06);
+  g.quadraticCurveTo(nx + r * 0.17, ny + r * 0.1, nx, ny + r * 0.12);
+  g.quadraticCurveTo(nx - r * 0.17, ny + r * 0.1, nx - r * 0.2, ny - r * 0.06);
+  g.fill();
+  g.fillStyle = 'rgba(255,255,255,0.35)';
+  g.beginPath();
+  g.ellipse(nx - r * 0.06, ny - r * 0.06, r * 0.06, r * 0.025, -0.2, 0, TAU);
+  g.fill();
+  g.strokeStyle = 'rgba(0,0,0,0.8)';
+  g.lineWidth = Math.max(1, r * 0.025);
+  g.beginPath();
+  g.moveTo(nx, ny + r * 0.12);
+  g.lineTo(nx, ny + r * 0.16);
+  g.quadraticCurveTo(nx - r * 0.08, ny + r * 0.22, nx - r * 0.17, ny + r * 0.17);
+  g.moveTo(nx, ny + r * 0.16);
+  g.quadraticCurveTo(nx + r * 0.08, ny + r * 0.22, nx + r * 0.17, ny + r * 0.17);
+  g.stroke();
+}
+
+// the dog lying down facing us, head up, front legs out in front: the head is drawn at the neck
+function dogLying(S) {
+  const C = WATCHERS.dog;
+  const c = layer(Math.ceil(S * 1.3), Math.ceil(S * 0.8));
+  const g = c.getContext('2d');
+  const cx = S * 0.6;
+  const by = S * 0.78;
+  // the back and hips behind, lying a little to one side
+  g.fillStyle = C.fur;
+  g.beginPath();
+  g.ellipse(cx + S * 0.16, by - S * 0.18, S * 0.48, S * 0.2, -0.05, 0, TAU);
+  g.fill();
+  g.beginPath();
+  g.ellipse(cx + S * 0.5, by - S * 0.12, S * 0.18, S * 0.14, 0, 0, TAU);
+  g.fill();
+  const sh = g.createLinearGradient(0, by - S * 0.4, 0, by);
+  sh.addColorStop(0, 'rgba(160,150,170,0.22)');
+  sh.addColorStop(0.5, 'rgba(160,150,170,0)');
+  g.fillStyle = sh;
+  g.beginPath();
+  g.ellipse(cx + S * 0.16, by - S * 0.18, S * 0.48, S * 0.2, -0.05, 0, TAU);
+  g.fill();
+  // a back foot tucked in by the hip
+  g.fillStyle = C.copper;
+  g.beginPath();
+  g.ellipse(cx + S * 0.52, by - S * 0.03, S * 0.1, S * 0.04, 0, 0, TAU);
+  g.fill();
+  // shoulders and chest
+  g.fillStyle = C.fur;
+  g.beginPath();
+  g.moveTo(cx - S * 0.3, by - S * 0.02);
+  g.quadraticCurveTo(cx - S * 0.34, by - S * 0.36, cx - S * 0.16, by - S * 0.5);
+  g.lineTo(cx + S * 0.16, by - S * 0.5);
+  g.quadraticCurveTo(cx + S * 0.34, by - S * 0.36, cx + S * 0.3, by - S * 0.02);
+  g.closePath();
+  g.fill();
+  // the white ruff: narrow under the chin, fluffing out down the chest in soft points
+  g.fillStyle = C.white;
+  g.beginPath();
+  g.moveTo(cx - S * 0.07, by - S * 0.52);
+  const pts = 7;
+  for (let i = 0; i <= pts; i++) {
+    const f = i / pts;
+    const yy = by - S * (0.5 - f * 0.34);
+    const wd = S * (0.06 + Math.sin(f * Math.PI * 0.85) * 0.1);
+    g.lineTo(cx - wd - (i % 2) * S * 0.014, yy);
+  }
+  g.quadraticCurveTo(cx - S * 0.06, by - S * 0.1, cx, by - S * 0.08);
+  g.quadraticCurveTo(cx + S * 0.06, by - S * 0.1, cx + S * 0.1, by - S * 0.16);
+  for (let i = pts; i >= 0; i--) {
+    const f = i / pts;
+    const yy = by - S * (0.5 - f * 0.34);
+    const wd = S * (0.06 + Math.sin(f * Math.PI * 0.85) * 0.1);
+    g.lineTo(cx + wd + (i % 2) * S * 0.014, yy);
+  }
+  g.closePath();
+  g.fill();
+  g.fillStyle = 'rgba(180,170,160,0.35)';
+  g.beginPath();
+  g.ellipse(cx, by - S * 0.47, S * 0.06, S * 0.03, 0, 0, TAU);
+  g.fill();
+  // front legs: copper, white feet
+  for (const s of [-1, 1]) {
+    const lx = cx + s * S * 0.19;
+    g.fillStyle = C.copper;
+    g.beginPath();
+    g.roundRect(lx - S * 0.055, by - S * 0.22, S * 0.11, S * 0.2, S * 0.05);
+    g.fill();
+    g.fillStyle = C.white;
+    g.beginPath();
+    g.ellipse(lx, by - S * 0.03, S * 0.065, S * 0.04, 0, 0, TAU);
+    g.fill();
+    g.strokeStyle = 'rgba(150,140,130,0.6)';
+    g.lineWidth = Math.max(1, S * 0.006);
+    g.beginPath();
+    g.moveTo(lx - S * 0.02, by - S * 0.055);
+    g.lineTo(lx - S * 0.02, by - S * 0.01);
+    g.moveTo(lx + S * 0.02, by - S * 0.055);
+    g.lineTo(lx + S * 0.02, by - S * 0.01);
+    g.stroke();
+  }
+  return { c, neck: [cx, by - S * 0.5], r: S * 0.3 };
+}
+
+// ---------------------------------------------------------------------------------------------
+// A bed adrift on a warm sea: a four-poster with a thatched tiki roof, white curtains tied back to
+// its bamboo posts and a quilt printed with hibiscus, and on it the three cats and the dog, all
+// awake, all watching: dolphins leaping, gulls and terns going over, sea turtles paddling by and
+// coming up to breathe. Each of them turns to look at whatever's going on, in their own time. Two
+// days of it: a sunny one, the sea sparkling, clouds drifting and pelicans gliding low; and a
+// stormy one, rain on the thatch, lightning out at sea, the bed rocking on a bigger swell and a
+// lantern lit under the roof.
+
+// a dolphin side-on, nose to the right, its length len, centred at (0, 0)
+function dolphinShape(g, len, kick) {
+  const L = len;
+  const top = '#5c7088';
+  const belly = '#d4dce4';
+  const body = new Path2D();
+  body.moveTo(L * 0.5, L * 0.02);
+  body.quadraticCurveTo(L * 0.42, -L * 0.04, L * 0.34, -L * 0.06);
+  body.quadraticCurveTo(L * 0.1, -L * 0.13, -L * 0.2, -L * 0.07);
+  body.quadraticCurveTo(-L * 0.36, -L * 0.03, -L * 0.42, 0);
+  body.quadraticCurveTo(-L * 0.36, L * 0.05, -L * 0.2, L * 0.07);
+  body.quadraticCurveTo(L * 0.1, L * 0.12, L * 0.32, L * 0.06);
+  body.quadraticCurveTo(L * 0.42, L * 0.05, L * 0.5, L * 0.02);
+  body.closePath();
+  const gr = g.createLinearGradient(0, -L * 0.12, 0, L * 0.12);
+  gr.addColorStop(0, '#3e5068');
+  gr.addColorStop(0.45, top);
+  gr.addColorStop(0.62, belly);
+  gr.addColorStop(1, belly);
+  g.fillStyle = gr;
+  g.fill(body);
+  // the dorsal fin, a flipper, the tail flukes
+  g.fillStyle = '#44566e';
+  g.beginPath();
+  g.moveTo(L * 0.02, -L * 0.1);
+  g.quadraticCurveTo(-L * 0.04, -L * 0.22, -L * 0.12, -L * 0.24);
+  g.quadraticCurveTo(-L * 0.08, -L * 0.14, -L * 0.12, -L * 0.08);
+  g.closePath();
+  g.fill();
+  g.beginPath();
+  g.moveTo(L * 0.18, L * 0.06);
+  g.quadraticCurveTo(L * 0.1, L * 0.16, L * 0.04, L * 0.17);
+  g.quadraticCurveTo(L * 0.06, L * 0.1, L * 0.08, L * 0.07);
+  g.closePath();
+  g.fill();
+  g.save();
+  g.translate(-L * 0.42, 0);
+  g.rotate(kick);
+  g.beginPath();
+  g.moveTo(L * 0.02, 0);
+  g.quadraticCurveTo(-L * 0.06, -L * 0.04, -L * 0.12, -L * 0.1);
+  g.quadraticCurveTo(-L * 0.08, 0, -L * 0.12, L * 0.1);
+  g.quadraticCurveTo(-L * 0.06, L * 0.04, L * 0.02, 0);
+  g.fill();
+  g.restore();
+  // the eye and the line of the mouth
+  g.fillStyle = '#1a2230';
+  g.beginPath();
+  g.arc(L * 0.33, -L * 0.015, Math.max(0.8, L * 0.012), 0, TAU);
+  g.fill();
+  g.strokeStyle = 'rgba(30,40,55,0.6)';
+  g.lineWidth = Math.max(0.6, L * 0.006);
+  g.beginPath();
+  g.moveTo(L * 0.5, L * 0.025);
+  g.quadraticCurveTo(L * 0.44, L * 0.03, L * 0.38, L * 0.01);
+  g.stroke();
+}
+
+// a seabird with wings at flap (-1 down .. 1 up), body s across, heading right
+function seabird(g, s, flap, kind, open) {
+  const wing = kind === 'gull' ? '#6a7480' : '#c4ccd4';
+  const tip = kind === 'gull' ? '#16181c' : '#5a6068';
+  for (const far of [true, false]) {
+    const up = flap * (far ? 0.85 : 1);
+    g.fillStyle = far ? mix(wing, '#20262c', 0.25) : wing;
+    g.beginPath();
+    g.moveTo(-s * 0.08, -s * 0.02);
+    g.quadraticCurveTo(-s * 0.1, -s * 0.3 * up - s * 0.05, -s * 0.28, -s * 0.62 * up - (far ? s * 0.04 : 0));
+    g.lineTo(-s * 0.18, -s * 0.6 * up - (far ? s * 0.04 : 0));
+    g.quadraticCurveTo(s * 0.05, -s * 0.28 * up, s * 0.1, -s * 0.02);
+    g.closePath();
+    g.fill();
+    g.fillStyle = tip;
+    g.beginPath();
+    g.moveTo(-s * 0.28, -s * 0.62 * up - (far ? s * 0.04 : 0));
+    g.lineTo(-s * 0.18, -s * 0.6 * up - (far ? s * 0.04 : 0));
+    g.lineTo(-s * 0.2, -s * 0.48 * up - (far ? s * 0.03 : 0));
+    g.closePath();
+    g.fill();
+    if (far) {
+      // the body between the wings
+      g.fillStyle = '#f4f4f0';
+      g.beginPath();
+      g.ellipse(0, 0, s * 0.3, s * 0.07, 0, 0, TAU);
+      g.fill();
+      // tail
+      g.beginPath();
+      g.moveTo(-s * 0.26, -s * 0.02);
+      if (kind === 'tern') {
+        g.lineTo(-s * 0.46, -s * 0.07);
+        g.lineTo(-s * 0.36, 0);
+        g.lineTo(-s * 0.46, s * 0.06);
+      } else g.lineTo(-s * 0.38, 0);
+      g.lineTo(-s * 0.26, s * 0.03);
+      g.fill();
+      // the head: black hood on a gull, a black cap and a shaggy crest on a tern
+      g.fillStyle = kind === 'gull' ? '#1c1c20' : '#f4f4f0';
+      g.beginPath();
+      g.arc(s * 0.29, -s * 0.03, s * 0.065, 0, TAU);
+      g.fill();
+      if (kind === 'tern') {
+        g.fillStyle = '#1c1c20';
+        g.beginPath();
+        g.arc(s * 0.29, -s * 0.05, s * 0.06, Math.PI * 0.9, Math.PI * 2.1);
+        g.lineTo(s * 0.2, -s * 0.07);
+        g.fill();
+      }
+      g.fillStyle = kind === 'gull' ? '#b0303a' : '#f08a2a';
+      g.beginPath();
+      g.moveTo(s * 0.34, -s * 0.045);
+      g.lineTo(s * 0.46, -s * 0.03 + open * s * 0.01);
+      g.lineTo(s * 0.34, -s * 0.015 + open * s * 0.03);
+      g.closePath();
+      g.fill();
+    }
+  }
+}
+
+// a pelican gliding, heading right, wings out flat
+function pelican(g, s, flap) {
+  g.fillStyle = '#5a4c40';
+  g.beginPath();
+  g.moveTo(-s * 0.1, 0);
+  g.quadraticCurveTo(-s * 0.2, -s * 0.12 * flap, -s * 0.55, -s * 0.06 - s * 0.2 * flap);
+  g.lineTo(-s * 0.5, s * 0.0);
+  g.quadraticCurveTo(-s * 0.2, s * 0.04, s * 0.08, s * 0.02);
+  g.closePath();
+  g.fill();
+  g.fillStyle = '#7a6a5a';
+  g.beginPath();
+  g.ellipse(0, s * 0.01, s * 0.22, s * 0.06, 0, 0, TAU);
+  g.fill();
+  g.fillStyle = '#e8dcc0';
+  g.beginPath();
+  g.arc(s * 0.2, -s * 0.02, s * 0.045, 0, TAU);
+  g.fill();
+  g.fillStyle = '#9a7a5a';
+  g.beginPath();
+  g.moveTo(s * 0.22, -s * 0.03);
+  g.lineTo(s * 0.48, s * 0.02);
+  g.lineTo(s * 0.22, s * 0.04);
+  g.closePath();
+  g.fill();
+}
+
+// a green sea turtle seen from above as it swims, heading right: paddle is the stroke of its
+// flippers (0..1)
+function turtleShape(g, s, paddle) {
+  const a = Math.sin(paddle * TAU);
+  g.fillStyle = '#6a7a4a';
+  for (const side of [-1, 1]) {
+    // front flippers sweep, back ones trail
+    g.save();
+    g.translate(s * 0.18, side * s * 0.22);
+    g.rotate(side * (0.5 + a * 0.45));
+    g.beginPath();
+    g.ellipse(-s * 0.02, side * s * 0.18, s * 0.08, s * 0.24, side * 0.3, 0, TAU);
+    g.fill();
+    g.restore();
+    g.save();
+    g.translate(-s * 0.3, side * s * 0.16);
+    g.rotate(side * (0.4 - a * 0.2));
+    g.beginPath();
+    g.ellipse(-s * 0.04, side * s * 0.07, s * 0.06, s * 0.1, 0, 0, TAU);
+    g.fill();
+    g.restore();
+  }
+  // the head
+  g.fillStyle = '#7a8a58';
+  g.beginPath();
+  g.ellipse(s * 0.48, 0, s * 0.13, s * 0.1, 0, 0, TAU);
+  g.fill();
+  // the shell, its plates
+  const sg = g.createRadialGradient(-s * 0.05, -s * 0.08, 0, 0, 0, s * 0.42);
+  sg.addColorStop(0, '#9a8a4a');
+  sg.addColorStop(1, '#4e4a2a');
+  g.fillStyle = sg;
+  g.beginPath();
+  g.ellipse(0, 0, s * 0.42, s * 0.3, 0, 0, TAU);
+  g.fill();
+  g.strokeStyle = 'rgba(40,36,20,0.6)';
+  g.lineWidth = Math.max(0.8, s * 0.02);
+  g.beginPath();
+  for (const x of [-0.22, 0, 0.22]) {
+    g.moveTo(s * (x - 0.08), -s * 0.1);
+    g.lineTo(s * (x + 0.08), -s * 0.1);
+    g.lineTo(s * (x + 0.1), s * 0.1);
+    g.lineTo(s * (x - 0.1), s * 0.1);
+    g.closePath();
+  }
+  g.stroke();
+}
+
+// a hibiscus flower, five petals round an eye, flat on the quilt
+function quiltFlower(g, x, y, r, petal, eye, rot) {
+  g.save();
+  g.translate(x, y);
+  g.scale(1, 0.55);
+  g.rotate(rot);
+  g.fillStyle = petal;
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * TAU;
+    g.beginPath();
+    g.ellipse(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55, r * 0.55, r * 0.42, a, 0, TAU);
+    g.fill();
+  }
+  g.fillStyle = eye;
+  g.beginPath();
+  g.arc(0, 0, r * 0.28, 0, TAU);
+  g.fill();
+  g.strokeStyle = '#f6d36a';
+  g.lineWidth = Math.max(1, r * 0.08);
+  g.beginPath();
+  g.moveTo(0, 0);
+  g.lineTo(r * 0.5, -r * 0.35);
+  g.stroke();
+  g.restore();
+}
+
+class Afloat extends Painting {
+  get stormy() {
+    return false;
+  }
+  build() {
+    const { w, h } = this;
+    const k = Math.min(w * 2, h);
+    const q = Math.min(w * 0.8, k * 0.5);
+    const storm = this.stormy;
+    this.q = q;
+    this.cx = w / 2;
+    this.Y = h * 0.84; // the waterline at the bed (the controls cover the bottom of the screen)
+    this.horizon = Math.min(h * 0.47, this.Y - 0.62 * q);
+    let seed = 23;
+    const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const R = (a, b) => a + r() * (b - a);
+    this.grain = grainLayer(w, h);
+    const H = this.horizon;
+
+    // the sky and the sea, still
+    this.bg = layer(w, h);
+    let g = this.bg.getContext('2d');
+    g.fillStyle = vgrad(g, 0, H, storm ? [
+      [0, '#2a333c'],
+      [0.6, '#46525c'],
+      [1, '#6a7680'],
+    ] : [
+      [0, '#3a8ad0'],
+      [0.6, '#7cbfe6'],
+      [1, '#cfe9f2'],
+    ]);
+    g.fillRect(0, 0, w, H + 1);
+    this.sun = { x: w * 0.2, y: H * 0.3 };
+    if (!storm) {
+      const sg = g.createRadialGradient(this.sun.x, this.sun.y, 0, this.sun.x, this.sun.y, Math.max(w, H) * 0.6);
+      sg.addColorStop(0, 'rgba(255,250,220,0.9)');
+      sg.addColorStop(0.08, 'rgba(255,245,210,0.5)');
+      sg.addColorStop(0.35, 'rgba(255,240,200,0.12)');
+      sg.addColorStop(1, 'rgba(255,240,200,0)');
+      g.fillStyle = sg;
+      g.fillRect(0, 0, w, H);
+      g.fillStyle = '#fffbe8';
+      g.beginPath();
+      g.arc(this.sun.x, this.sun.y, k * 0.03, 0, TAU);
+      g.fill();
+    }
+    g.fillStyle = vgrad(g, H, h, storm ? [
+      [0, '#4a5a62'],
+      [0.25, '#2e4650'],
+      [1, '#16303a'],
+    ] : [
+      [0, '#8fcfe0'],
+      [0.12, '#3aa0c0'],
+      [0.5, '#1a7aa2'],
+      [1, '#0e5a80'],
+    ]);
+    g.fillRect(0, H, w, h - H);
+    // haze along the horizon
+    const hz = g.createLinearGradient(0, H - k * 0.03, 0, H + k * 0.02);
+    hz.addColorStop(0, storm ? 'rgba(110,122,130,0)' : 'rgba(230,245,250,0)');
+    hz.addColorStop(0.6, storm ? 'rgba(110,122,130,0.6)' : 'rgba(230,245,250,0.7)');
+    hz.addColorStop(1, storm ? 'rgba(110,122,130,0)' : 'rgba(230,245,250,0)');
+    g.fillStyle = hz;
+    g.fillRect(0, H - k * 0.03, w, k * 0.05);
+    printGrain(this.bg, this.grain, 0.08);
+
+    // clouds: puffy white ones, or a heavy grey ceiling
+    const cloud = (cw, ch, dark) => {
+      const c = layer(Math.ceil(cw * 1.2), Math.ceil(ch * 1.5));
+      const q2 = c.getContext('2d');
+      q2.translate(cw * 0.1, ch * 0.4);
+      const n = dark ? 12 : 7;
+      const lobes = Array.from({ length: n }, (_, i) => {
+        const f = i / (n - 1);
+        return { x: cw * (0.1 + f * 0.8) + R(-0.04, 0.04) * cw, y: ch * (0.7 - Math.sin(f * Math.PI) * 0.32 + R(-0.06, 0.06)), r: ch * (0.2 + Math.sin(f * Math.PI) * 0.2) * R(0.85, 1.15) };
+      });
+      const shape = new Path2D();
+      for (const L of lobes) {
+        shape.moveTo(L.x + L.r, L.y);
+        shape.arc(L.x, L.y, L.r, 0, TAU);
+      }
+      shape.roundRect(cw * 0.06, ch * 0.62, cw * 0.88, ch * 0.28, ch * 0.14);
+      q2.save();
+      q2.beginPath();
+      q2.rect(-cw, -ch, cw * 3, ch * 1.9);
+      q2.clip();
+      q2.fillStyle = dark ? '#4e5a64' : '#ffffff';
+      q2.fill(shape);
+      q2.clip(shape);
+      // shading: lit tops, a flat grey-blue underside
+      if (!dark) {
+        for (const L of lobes) {
+          q2.fillStyle = '#ffffff';
+          q2.beginPath();
+          q2.arc(L.x - L.r * 0.15, L.y - L.r * 0.2, L.r * 0.8, 0, TAU);
+          q2.fill();
+        }
+      } else {
+        const tg = q2.createLinearGradient(0, 0, 0, ch);
+        tg.addColorStop(0, 'rgba(120,132,142,0.5)');
+        tg.addColorStop(0.5, 'rgba(120,132,142,0)');
+        q2.fillStyle = tg;
+        q2.fillRect(-cw * 0.1, -ch * 0.4, cw * 1.2, ch * 1.5);
+      }
+      const bgr = q2.createLinearGradient(0, ch * 0.45, 0, ch * 0.9);
+      bgr.addColorStop(0, dark ? 'rgba(30,38,46,0)' : 'rgba(200,216,232,0)');
+      bgr.addColorStop(1, dark ? 'rgba(30,38,46,0.7)' : 'rgba(186,206,226,0.9)');
+      q2.fillStyle = bgr;
+      q2.fillRect(-cw * 0.1, -ch * 0.4, cw * 1.2, ch * 1.5);
+      q2.restore();
+      return c;
+    };
+    this.clouds = Array.from({ length: storm ? 7 : 6 }, (_, i) => {
+      const cw = (storm ? R(0.45, 0.75) : R(0.22, 0.4)) * Math.max(w, k);
+      const ch = cw * (storm ? R(0.3, 0.42) : R(0.4, 0.55));
+      return { spr: cloud(cw, ch, storm), x: R(-0.3, 1) * w, y: (storm ? R(-0.25, 0.55) : R(0.05, 0.55)) * H - ch * 0.5, v: (storm ? R(4, 9) : R(0.6, 1.6)) * k * 0.001 };
+    });
+    this.clouds.sort((a, b) => a.y - b.y);
+    // the sky with its clouds is redrawn a few times a second, not every frame: they drift slowly
+    this.sky = layer(w, Math.ceil(this.horizon + 2));
+    this.skyAt = -1;
+    // the sea's crests: each row a scatter of them, of different lengths, drifting
+    this.crests = Array.from({ length: 30 }, (_, j) => {
+      const z = (j + 0.5) / 30;
+      const n = Math.round(lerp(26, 9, z) * (w / Math.max(w, 600)) * 1.6);
+      return { z, items: Array.from({ length: n }, () => ({ x: r(), l: R(0.5, 1.4), a: R(0.3, 1) })) };
+    });
+
+    // the bed, in two sprites in its own frame of reference (origin at the middle of the waterline,
+    // q across): what's behind the cats and the dog, and what's in front of them
+    const pad = 0.75 * q;
+    const top = 1.4 * q;
+    const BW = Math.ceil(pad * 2);
+    const BH = Math.ceil(top + 0.2 * q);
+    this.bedOff = [pad, top];
+    this.bedBack = layer(BW, BH);
+    this.bedFront = layer(BW, BH);
+    g = this.bedBack.getContext('2d');
+    g.translate(pad, top);
+    const bamboo = (x0, y0, x1, y1, wd) => {
+      const ang = Math.atan2(y1 - y0, x1 - x0);
+      const len = Math.hypot(x1 - x0, y1 - y0);
+      g.save();
+      g.translate(x0, y0);
+      g.rotate(ang);
+      const bg = g.createLinearGradient(0, -wd / 2, 0, wd / 2);
+      bg.addColorStop(0, '#8a6a30');
+      bg.addColorStop(0.35, '#e8cc84');
+      bg.addColorStop(0.6, '#c8a45a');
+      bg.addColorStop(1, '#6a4e22');
+      g.fillStyle = bg;
+      g.fillRect(0, -wd / 2, len, wd);
+      g.fillStyle = 'rgba(90,60,20,0.65)';
+      for (let d = len * 0.08; d < len; d += Math.max(wd * 3, q * 0.11)) {
+        g.fillRect(d, -wd / 2 - 0.5, Math.max(1.5, wd * 0.18), wd + 1);
+      }
+      g.restore();
+    };
+    const PW = 0.026 * q;
+    const near = { y0: 0.05 * q, y1: -0.88 * q, x: 0.5 * q };
+    const far = { y0: -0.27 * q, y1: -0.95 * q, x: 0.4 * q };
+    this.posts = { near, far, w: PW };
+    // the far posts, the headboard of woven cane between them, the canopy rails
+    for (const s of [-1, 1]) bamboo(s * far.x, far.y0, s * far.x, far.y1, PW * 0.85);
+    g.fillStyle = '#b08a4a';
+    g.fillRect(-far.x, -0.48 * q, far.x * 2, 0.22 * q);
+    g.strokeStyle = 'rgba(90,60,25,0.5)';
+    g.lineWidth = Math.max(1, q * 0.003);
+    for (let x = -far.x; x < far.x; x += q * 0.02) {
+      g.beginPath();
+      g.moveTo(x, -0.48 * q);
+      g.lineTo(x + q * 0.01, -0.26 * q);
+      g.stroke();
+    }
+    for (let y = -0.48 * q; y < -0.26 * q; y += q * 0.02) {
+      g.beginPath();
+      g.moveTo(-far.x, y);
+      g.lineTo(far.x, y);
+      g.stroke();
+    }
+    bamboo(-far.x, -0.49 * q, far.x, -0.49 * q, PW * 0.6);
+    bamboo(-far.x, far.y1 + PW * 0.3, far.x, far.y1 + PW * 0.3, PW * 0.7);
+    // the base: a deep wooden frame sitting in the water
+    g.fillStyle = '#6a4a28';
+    g.beginPath();
+    g.moveTo(-0.5 * q, -0.04 * q);
+    g.lineTo(0.5 * q, -0.04 * q);
+    g.lineTo(0.49 * q, 0.05 * q);
+    g.lineTo(-0.49 * q, 0.05 * q);
+    g.closePath();
+    g.fill();
+    g.fillStyle = '#8a6232';
+    g.fillRect(-0.5 * q, -0.045 * q, q, 0.022 * q);
+    // the mattress top, receding to the pillows; a quilt of hibiscus on turquoise
+    const mat = new Path2D();
+    mat.moveTo(-0.49 * q, -0.06 * q);
+    mat.lineTo(0.49 * q, -0.06 * q);
+    mat.lineTo(0.4 * q, -0.27 * q);
+    mat.lineTo(-0.4 * q, -0.27 * q);
+    mat.closePath();
+    g.fillStyle = '#f2f0ea';
+    g.fill(mat);
+    // pillows
+    for (const [x, col] of [
+      [-0.2, '#fbfaf6'],
+      [0.18, '#f6f4ee'],
+      [0.0, '#f2876a'],
+    ]) {
+      g.fillStyle = col;
+      g.beginPath();
+      g.ellipse(x * q, -0.25 * q, (col === '#f2876a' ? 0.1 : 0.17) * q, 0.045 * q, 0, 0, TAU);
+      g.fill();
+      g.fillStyle = 'rgba(0,0,0,0.08)';
+      g.beginPath();
+      g.ellipse(x * q, -0.23 * q, (col === '#f2876a' ? 0.09 : 0.15) * q, 0.02 * q, 0, 0, Math.PI);
+      g.fill();
+    }
+    const quilt = new Path2D();
+    quilt.moveTo(-0.5 * q, -0.06 * q);
+    quilt.lineTo(0.5 * q, -0.06 * q);
+    quilt.lineTo(0.43 * q, -0.21 * q);
+    quilt.quadraticCurveTo(0, -0.23 * q, -0.43 * q, -0.21 * q);
+    quilt.closePath();
+    g.fillStyle = '#2aa6a8';
+    g.fill(quilt);
+    g.save();
+    g.clip(quilt);
+    for (let i = 0; i < 26; i++) {
+      const fy = R(0, 1);
+      const y = lerp(-0.21, -0.05, fy) * q;
+      const x = R(-0.5, 0.5) * q * lerp(0.86, 1, fy);
+      const fr = q * lerp(0.025, 0.04, fy);
+      const [petal, eye] = [['#f4a07a', '#c8304a'], ['#f8d24a', '#b8202a'], ['#f47a6a', '#7a1a2a'], ['#f6f2e6', '#e86a7a']][i % 4];
+      quiltFlower(g, x, y, fr, petal, eye, R(0, TAU));
+    }
+    for (let i = 0; i < 18; i++) {
+      g.fillStyle = 'rgba(30,110,70,0.75)';
+      g.beginPath();
+      g.ellipse(R(-0.5, 0.5) * q, R(-0.2, -0.06) * q, q * 0.022, q * 0.008, R(0, TAU), 0, TAU);
+      g.fill();
+    }
+    g.restore();
+    // the quilt's front edge hanging over the side, with a scalloped hem
+    g.fillStyle = '#23908f';
+    g.beginPath();
+    g.moveTo(-0.5 * q, -0.06 * q);
+    g.lineTo(0.5 * q, -0.06 * q);
+    g.lineTo(0.5 * q, -0.015 * q);
+    for (let x = 0.5; x >= -0.5; x -= 0.05) g.quadraticCurveTo((x - 0.025) * q, 0.0 * q, (x - 0.05) * q, -0.015 * q);
+    g.closePath();
+    g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.12)';
+    g.fillRect(-0.5 * q, -0.062 * q, q, 0.006 * q);
+
+    // in front: the near posts, the front rail, and the thatched roof
+    g = this.bedFront.getContext('2d');
+    g.translate(pad, top);
+    {
+      const save = this.bedFront;
+      void save;
+    }
+    const bambooF = (x0, y0, x1, y1, wd) => {
+      const ang = Math.atan2(y1 - y0, x1 - x0);
+      const len = Math.hypot(x1 - x0, y1 - y0);
+      g.save();
+      g.translate(x0, y0);
+      g.rotate(ang);
+      const bg = g.createLinearGradient(0, -wd / 2, 0, wd / 2);
+      bg.addColorStop(0, '#8a6a30');
+      bg.addColorStop(0.35, '#f0d48c');
+      bg.addColorStop(0.6, '#c8a45a');
+      bg.addColorStop(1, '#6a4e22');
+      g.fillStyle = bg;
+      g.fillRect(0, -wd / 2, len, wd);
+      g.fillStyle = 'rgba(90,60,20,0.65)';
+      for (let d = len * 0.06; d < len; d += Math.max(wd * 3, q * 0.12)) g.fillRect(d, -wd / 2 - 0.5, Math.max(1.5, wd * 0.18), wd + 1);
+      g.restore();
+    };
+    for (const s of [-1, 1]) bambooF(s * near.x, near.y0, s * near.x, near.y1, PW);
+    bambooF(-near.x - PW * 0.5, near.y1 + PW * 0.4, near.x + PW * 0.5, near.y1 + PW * 0.4, PW * 0.8);
+    for (const s of [-1, 1]) bambooF(s * near.x, near.y1 + PW * 0.4, s * far.x, far.y1 + PW * 0.3, PW * 0.7);
+    // a hibiscus tucked against a post, and the cords that tie the curtains back
+    quiltFlower(g, -near.x + PW * 0.2, -0.62 * q, q * 0.035, '#f47a6a', '#7a1a2a', 0.4);
+    // the roof: a steep pyramid of thatch, rows of straw overlapping, from a ragged eave up to a peak
+    const roof = { y: -0.86 * q, ox: 0.6 * q, fy: -0.98 * q, fx: 0.5 * q, peak: -1.26 * q };
+    this.roof = roof;
+    const face = new Path2D();
+    face.moveTo(-roof.ox, roof.y);
+    face.lineTo(roof.ox, roof.y);
+    face.lineTo(0, roof.peak);
+    face.closePath();
+    const sides = new Path2D();
+    sides.moveTo(-roof.ox, roof.y);
+    sides.lineTo(-roof.fx * 1.06, roof.fy);
+    sides.lineTo(0, roof.peak);
+    sides.closePath();
+    sides.moveTo(roof.ox, roof.y);
+    sides.lineTo(roof.fx * 1.06, roof.fy);
+    sides.lineTo(0, roof.peak);
+    sides.closePath();
+    g.fillStyle = '#8a6a34';
+    g.fill(sides);
+    const tg = g.createLinearGradient(0, roof.peak, 0, roof.y);
+    tg.addColorStop(0, '#c8a052');
+    tg.addColorStop(1, '#e2bf6e');
+    g.fillStyle = tg;
+    g.fill(face);
+    // rows of thatch: each row a band of straw strokes, its lower edge ragged
+    g.save();
+    g.clip(face);
+    g.lineCap = 'round';
+    const rows = 8;
+    for (let i = 0; i < rows; i++) {
+      const f0 = i / rows;
+      const yb = lerp(roof.peak, roof.y, (i + 1) / rows) + q * 0.012;
+      const half = roof.ox * ((i + 1) / rows) + q * 0.05;
+      g.fillStyle = 'rgba(110,80,30,0.35)';
+      g.fillRect(-half, yb - q * 0.012, half * 2, q * 0.012);
+      for (let x = -half; x < half; x += q * 0.006) {
+        const len = q * R(0.04, 0.07);
+        g.strokeStyle = ['#f0d080', '#d8b462', '#c49a4a', '#e8c878'][Math.floor(r() * 4)];
+        g.lineWidth = Math.max(1, q * R(0.003, 0.006));
+        g.beginPath();
+        g.moveTo(x, yb - len);
+        g.lineTo(x + R(-0.004, 0.004) * q, yb + R(-0.004, 0.008) * q);
+        g.stroke();
+      }
+      void f0;
+    }
+    g.restore();
+    g.strokeStyle = 'rgba(90,60,20,0.5)';
+    g.lineWidth = Math.max(1, q * 0.004);
+    g.beginPath();
+    g.moveTo(-roof.ox, roof.y);
+    g.lineTo(0, roof.peak);
+    g.lineTo(roof.ox, roof.y);
+    g.stroke();
+    // a little carved finial at the peak
+    g.fillStyle = '#6a4a28';
+    g.beginPath();
+    g.moveTo(-q * 0.02, roof.peak + q * 0.02);
+    g.lineTo(0, roof.peak - q * 0.07);
+    g.lineTo(q * 0.02, roof.peak + q * 0.02);
+    g.closePath();
+    g.fill();
+    g.beginPath();
+    g.arc(0, roof.peak - q * 0.075, q * 0.014, 0, TAU);
+    g.fill();
+    printGrain(this.bedBack, this.grain, 0.1);
+    printGrain(this.bedFront, this.grain, 0.1);
+    // the fringe of the eave (live, it stirs in the wind)
+    const nf = Math.max(8, Math.round(q / 6));
+    this.fringe = Array.from({ length: nf }, (_, i) => ({ x: lerp(-roof.ox, roof.ox, i / (nf - 1)), len: q * R(0.035, 0.07), col: ['#e0bc6a', '#c8a052', '#f0d080'][i % 3], ph: R(0, TAU) }));
+
+    // the watchers, and where each sits on the bed (in the bed's frame): S is a body's size
+    this.watchers = [
+      { kind: 'tux', body: catSitting(0.25 * q, 'tux'), at: [-0.25 * q, -0.19 * q], pace: 2.5, keen: 0.8 },
+      { kind: 'black', body: catSitting(0.23 * q, 'black'), at: [0.02 * q, -0.22 * q], pace: 5, keen: 1.2 },
+      { kind: 'cow', body: catLying(0.22 * q, 'cow'), at: [-0.16 * q, -0.07 * q], pace: 4, keen: 1 },
+      { kind: 'dog', body: dogLying(0.4 * q), at: [0.23 * q, -0.065 * q], pace: 4, keen: 1.1 },
+    ];
+    for (const W of this.watchers) {
+      W.L = { yaw: R(-0.3, 0.3), pitch: 0, lx: 0, ly: 0, blink: 0, ears: 0.5, wide: 0 };
+      W.goal = { yaw: 0, pitch: 0 };
+      W.nextBlink = R(2, 6);
+      W.nextIdle = R(1, 4);
+      W.idle = { x: R(0, w), y: R(0, h) };
+      W.react = 0;
+    }
+
+    this.glow = glowSprite([
+      [0, 'rgba(255,200,130,0.85)'],
+      [0.3, 'rgba(255,150,70,0.3)'],
+      [1, 'rgba(255,120,50,0)'],
+    ]);
+    this.dolphins = [];
+    this.birds = [];
+    this.splashes = [];
+    this.rings = [];
+    this.flashes = [];
+    this.drops = [];
+    this.pelicans = null;
+    this.nextPelicans = R(20, 60);
+    // turtles swimming slowly across the water, at different distances
+    const A = this.spot();
+    this.turtles = Array.from({ length: 2 }, (_, i) => ({ z: w < q * 1.7 ? lerp(A.z0, A.z1, i ? 0.35 : 0.85) : i ? 0.55 : 0.82, x: R(0, 1) * w, dir: i ? -1 : 1, v: R(0.012, 0.02), ph: R(0, 1), up: null, next: R(20, 60) }));
+    this.rollKick = 0;
+    this.lantern = 0;
+  }
+
+  // where on the sea something can happen and be seen: on a narrow screen the bed hides most of
+  // it, so between the posts, under the eave and over the headboard; on a wide one, anywhere
+  spot() {
+    const { w, q } = this;
+    if (w < q * 1.7) {
+      const zTop = (this.Y - 0.74 * q - this.horizon) / (this.Y - this.horizon);
+      const zLow = (this.Y - 0.52 * q - this.horizon) / (this.Y - this.horizon);
+      return { x0: this.cx - 0.3 * q, x1: this.cx + 0.3 * q, z0: clamp(zTop, 0.05, 0.9), z1: clamp(zLow, 0.1, 0.95) };
+    }
+    return { x0: w * 0.05, x1: w * 0.95, z0: 0.2, z1: 0.75 };
+  }
+  // where a point at distance z (0 the horizon, 1 the waterline at the bed) is on the screen
+  seaY(z) {
+    return lerp(this.horizon, this.Y, z);
+  }
+  // how strong the storm is now
+  stormLevel() {
+    return this.stormy ? this.drivers.storm ?? 0.7 : 0;
+  }
+
+  event(e) {
+    const { w } = this;
+    if (e.type === 'lightning') {
+      this.at(e.at, () => {
+        const n = e.strength > 0.5 ? Math.round(rand(2, 3)) : 1;
+        let t = 0;
+        for (let i = 0; i < n; i++) {
+          this.flashes.push({ t0: this.t + t, life: rand(0.08, 0.18), k: (e.strength ?? 0.5) * rand(0.6, 1), bolt: e.km < 6 && i === 0 ? this.bolt() : null });
+          t += rand(0.06, 0.16);
+        }
+      });
+    }
+    if (e.type === 'shot' && e.layer === 'dolphins') {
+      this.at(e.at, () => {
+        const A = this.spot();
+        const x = clamp(w / 2 + ((e.az ?? rand(-60, 60)) / 90) * w * 0.55, A.x0, A.x1);
+        const z = rand(A.z0, A.z1);
+        const n = Math.random() < 0.4 ? 2 : 1;
+        for (let i = 0; i < n; i++) this.dolphins.push({ x: x + i * rand(0.04, 0.08) * Math.min(w, this.q), z: z + i * 0.03, dir: Math.random() < 0.5 ? 1 : -1, t0: this.t + i * rand(0.3, 0.7), leap: Math.random() < 0.65, dur: rand(1.5, 2) });
+      });
+    }
+    if (e.type === 'shot' && e.layer === 'whistles') {
+      // a dolphin passing under the water near the bed
+      this.at(e.at, () => {
+        const A = this.spot();
+        this.dolphins.push({ x: rand(A.x0, A.x1), z: A.z1, dir: Math.random() < 0.5 ? 1 : -1, t0: this.t, under: true, dur: 4 });
+      });
+    }
+    if (e.type === 'shot' && e.layer === 'turtles') {
+      this.at(e.at, () => {
+        const T = this.turtles[Math.floor(Math.random() * this.turtles.length)];
+        T.up = { t0: this.t };
+      });
+    }
+    if (e.type === 'shot' && e.layer === 'creak') this.rollKick += rand(-1, 1) * 0.6;
+    if (e.type === 'bird') {
+      this.at(e.at, () => {
+        if (this.birds.length > 3) return;
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        const kind = String(e.species).includes('tern') ? 'tern' : 'gull';
+        const s = rand(0.13, 0.19) * this.q;
+        this.birds.push({ kind, dir, x: dir > 0 ? -s : w + s, y: rand(0.08, 0.85) * this.horizon, v: rand(0.08, 0.14) * w, s, t0: this.t, call: e.dur || 2, ph: rand(0, TAU), bob: rand(0, TAU) });
+      });
+    }
+  }
+
+  bolt() {
+    const pts = [];
+    let x = rand(0.1, 0.9) * this.w;
+    let y = rand(0.02, 0.15) * this.horizon;
+    while (y < this.horizon) {
+      pts.push([x, y]);
+      x += rand(-0.04, 0.04) * this.w;
+      y += rand(0.06, 0.14) * this.horizon;
+    }
+    pts.push([x, this.horizon]);
+    return pts;
+  }
+
+  // the things worth watching right now, as screen points with how interesting each is
+  sights() {
+    const out = [];
+    const { t } = this;
+    for (const d of this.dolphins) {
+      const age = t - d.t0;
+      if (age < -0.3 || age > d.dur + 0.8) continue;
+      out.push({ x: d.sx ?? d.x, y: d.sy ?? this.seaY(d.z), k: d.under ? 1.2 : 2.5 });
+    }
+    for (const b of this.birds) out.push({ x: b.x, y: b.y, k: t - b.t0 < b.call ? 2.2 : 1.4 });
+    for (const T of this.turtles) {
+      if (T.up && t - T.up.t0 < 4) out.push({ x: T.x, y: this.seaY(T.z), k: 2 });
+      else out.push({ x: T.x, y: this.seaY(T.z), k: 0.4 });
+    }
+    if (this.pelicans) out.push({ x: this.pelicans.x, y: this.pelicans.y, k: 1.6 });
+    return out;
+  }
+
+  // each watcher turns to look at the most interesting thing it can see, in its own time, or
+  // gazes about when there's nothing much
+  watch(dt, sights, M) {
+    const { w, h, t, q } = this;
+    for (const W of this.watchers) {
+      const hx = M.x(W.hx, W.hy);
+      const hy = M.y(W.hx, W.hy);
+      let best = null;
+      let bk = 0.9;
+      for (const s of sights) {
+        const kk = s.k * W.keen * (1 + 0.15 * Math.sin(t * 0.3 + W.at[0]));
+        if (kk > bk) {
+          bk = kk;
+          best = s;
+        }
+      }
+      W.nextIdle -= dt;
+      if (W.nextIdle < 0) {
+        W.nextIdle = rand(2.5, 7);
+        const pick = Math.random();
+        W.idle = pick < 0.3 ? { x: hx, y: hy + h } : pick < 0.5 ? { x: hx + rand(-0.1, 0.1) * w, y: hy + rand(0.1, 0.2) * h } : { x: rand(0, w), y: rand(0.1, 0.9) * h };
+      }
+      const tgt = best || W.idle;
+      const dx = tgt.x - hx;
+      const dy = tgt.y - hy;
+      // nearly everything happens behind them, out on the sea or up in the sky, so to watch it
+      // they turn their heads well round to that side (looking at us is the only straight-on)
+      const span = Math.max(Math.min(w, q * 1.4), q);
+      const side = Math.abs(dx) < 2 ? 0 : Math.sign(dx);
+      const toUs = !best && W.idle.y > hy + h * 0.5;
+      W.goal.yaw = toUs ? 0 : side * (0.35 + 0.6 * Math.min(1, Math.abs(dx) / (span * 0.35)));
+      W.goal.pitch = clamp(dy / (h * 0.3), -1, 1) * 0.8;
+      const pace = W.pace * (best ? 1.4 : 0.6);
+      const kf = Math.min(1, dt * pace);
+      W.L.yaw += (W.goal.yaw - W.L.yaw) * kf;
+      W.L.pitch += (W.goal.pitch - W.L.pitch) * kf;
+      W.L.lx += (clamp(dx / (span * 0.25), -1, 1) - W.L.lx) * Math.min(1, dt * pace * 2);
+      W.L.ly += (clamp(dy / (h * 0.25), -1, 1) - W.L.ly) * Math.min(1, dt * pace * 2);
+      W.L.ears += ((best ? 1 : 0.4) - W.L.ears) * Math.min(1, dt * 3);
+      W.L.wide += ((best ? 1 : 0) - W.L.wide) * Math.min(1, dt * 2);
+      // blinking: slow blinks when nothing's happening
+      W.nextBlink -= dt;
+      if (W.nextBlink < 0) {
+        W.blinkT = 0;
+        W.nextBlink = best ? rand(3, 7) : rand(2.5, 6);
+        W.slow = !best && Math.random() < 0.5;
+      }
+      if (W.blinkT != null) {
+        W.blinkT += dt;
+        const len = W.slow ? 0.9 : 0.25;
+        const p = W.blinkT / len;
+        W.L.blink = p < 1 ? Math.sin(p * Math.PI) : 0;
+        if (p >= 1) W.blinkT = null;
+      }
+    }
+  }
+
+  frame(dt) {
+    const { g, w, h, t, q, cx, Y } = this;
+    const H = this.horizon;
+    const storm = this.stormLevel();
+    const S = this.stormy;
+    if (t - this.skyAt > 0.2 || this.skyAt < 0) {
+      const sg = this.sky.getContext('2d');
+      sg.drawImage(this.bg, 0, 0);
+      for (const c of this.clouds) {
+        c.x += c.v * (this.skyAt < 0 ? 0 : t - this.skyAt);
+        if (c.x > w + 10) c.x = -c.spr.width - rand(0, w * 0.2);
+        sg.drawImage(c.spr, c.x, c.y);
+      }
+      this.skyAt = t;
+    }
+    g.drawImage(this.bg, 0, 0);
+    g.drawImage(this.sky, 0, 0);
+
+    // lightning
+    let flash = 0;
+    this.flashes = this.flashes.filter((f) => t - f.t0 < f.life + 0.3);
+    for (const f of this.flashes) {
+      const age = t - f.t0;
+      if (age < 0) continue;
+      const kk = age < f.life ? f.k : f.k * Math.max(0, 1 - (age - f.life) / 0.3);
+      flash = Math.max(flash, kk);
+      if (f.bolt && age < f.life + 0.08) {
+        g.strokeStyle = `rgba(235,240,255,${0.9 * kk})`;
+        g.lineWidth = Math.max(1.5, q * 0.004);
+        g.beginPath();
+        f.bolt.forEach((p, i) => (i ? g.lineTo(...p) : g.moveTo(...p)));
+        g.stroke();
+      }
+    }
+    if (flash > 0.01) {
+      g.globalCompositeOperation = 'lighter';
+      g.globalAlpha = 0.5 * flash;
+      g.drawImage(this.sky, 0, 0);
+      g.globalAlpha = 1;
+      g.fillStyle = `rgba(150,165,190,${0.3 * flash})`;
+      g.fillRect(0, 0, w, H);
+      g.globalCompositeOperation = 'source-over';
+    }
+
+    // the sea: crests moving on the swell, small and close-packed out by the horizon, a glitter
+    // of sun on the water
+    g.lineCap = 'round';
+    for (const row of this.crests) {
+      const z = row.z;
+      const y = lerp(H, h, z ** 1.5);
+      const len = lerp(0.012, 0.06, z) * w * (S ? 1.3 : 1);
+      const amp = lerp(0.4, 2.5, z) * this.dpr * (1 + storm * 2);
+      const drift = t * (0.004 + z * 0.01) * (1 + storm * 2);
+      g.lineWidth = Math.max(1, lerp(0.6, 2.6, z) * this.dpr * (S ? 1 + storm * 0.8 : 1));
+      for (const pass of [0, 1]) {
+        g.strokeStyle = S ? `rgba(220,232,236,${(0.1 + 0.3 * z * (0.4 + storm)) * (pass ? 1 : 0.5)})` : `rgba(240,252,255,${(0.1 + 0.28 * z) * (pass ? 1 : 0.45)})`;
+        g.beginPath();
+        for (const c of row.items) {
+          if ((c.a > 0.65) !== !!pass) continue;
+          const x = (((c.x + drift) % 1) * 1.1 - 0.05) * w;
+          const l = len * c.l;
+          const yy = y + Math.sin(t * (0.7 + storm) + c.x * 40) * amp;
+          g.moveTo(x, yy);
+          g.quadraticCurveTo(x + l * 0.5, yy - amp * 0.8, x + l, yy + amp * 0.2);
+        }
+        g.stroke();
+      }
+    }
+    if (!S) {
+      // the sun's glitter on the water, under the sun
+      g.fillStyle = 'rgba(255,252,230,0.85)';
+      for (let i = 0; i < 70; i++) {
+        const z = Math.random() ** 1.6;
+        const y = lerp(H, h, z);
+        const spread = lerp(0.05, 0.3, z) * w;
+        const x = this.sun.x + (Math.random() - 0.5) * spread * 2;
+        const lw = lerp(2, 10, z) * this.dpr;
+        g.globalAlpha = Math.random() * 0.8;
+        g.fillRect(x, y, lw, Math.max(1, lw * 0.2));
+      }
+      g.globalAlpha = 1;
+    }
+
+    // pelicans now and then, gliding low in a line (on a sunny day)
+    if (!S) {
+      this.nextPelicans -= dt;
+      if (!this.pelicans && this.nextPelicans < 0) {
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        this.pelicans = { dir, x: dir > 0 ? -0.06 * w : 1.06 * w, y: lerp(H, Y, rand(0.08, 0.25)) - q * 0.06, v: rand(0.04, 0.06) * Math.max(w, q * 2), s: q * 0.12 };
+        this.nextPelicans = rand(60, 150);
+      }
+      const P = this.pelicans;
+      if (P) {
+        P.x += P.dir * P.v * dt;
+        for (let i = 0; i < 3; i++) {
+          g.save();
+          g.translate(P.x - P.dir * i * P.s * 1.4, P.y + Math.sin(t * 0.8 + i) * P.s * 0.05 + i * P.s * 0.08);
+          g.scale(P.dir, 1);
+          pelican(g, P.s, Math.max(0, Math.sin(t * 2 + i * 1.3)) * 0.4);
+          g.restore();
+        }
+        if (P.x < -0.4 * w || P.x > 1.4 * w) this.pelicans = null;
+      }
+    }
+
+    // turtles paddling along under the surface, coming up now and then to breathe
+    for (const T of this.turtles) {
+      T.x += T.dir * T.v * w * dt * 0.4;
+      T.ph += dt * 0.35;
+      const lim = w < q * 1.7 ? [cx - 0.42 * q, cx + 0.42 * q] : [-0.15 * w, 1.15 * w];
+      if (T.x < lim[0]) T.dir = 1;
+      if (T.x > lim[1]) T.dir = -1;
+      T.next -= dt;
+      if (!T.up && T.next < 0) {
+        T.up = { t0: t };
+        T.next = rand(40, 90);
+      }
+      const ys = this.seaY(T.z);
+      const s = lerp(0.05, 0.17, T.z) * q;
+      let rise = 0;
+      if (T.up) {
+        const a = t - T.up.t0;
+        rise = clamp(Math.min(a / 1.2, (4 - a) / 1.2), 0, 1);
+        if (a > 4) T.up = null;
+      }
+      g.save();
+      g.translate(T.x, ys + s * 0.15);
+      g.scale(T.dir, 0.55);
+      g.globalAlpha = S ? 0.25 + rise * 0.4 : 0.45 + rise * 0.45;
+      turtleShape(g, s, T.ph);
+      g.restore();
+      g.globalAlpha = 1;
+      // its head breaking the surface, and rings spreading
+      if (rise > 0.05) {
+        g.fillStyle = '#7a8a58';
+        g.beginPath();
+        g.ellipse(T.x + T.dir * s * 0.5, ys - s * 0.06 * rise, s * 0.1, s * 0.09 * rise, 0, 0, TAU);
+        g.fill();
+        g.strokeStyle = `rgba(255,255,255,${0.5 * rise})`;
+        g.lineWidth = Math.max(1, this.dpr);
+        g.beginPath();
+        g.ellipse(T.x + T.dir * s * 0.5, ys, s * 0.25 * (1 + (t % 1)), s * 0.06 * (1 + (t % 1)), 0, 0, TAU);
+        g.stroke();
+      }
+    }
+
+    // dolphins: leaping clear in an arc, or rolling up to breathe; or a shadow passing under
+    this.dolphins = this.dolphins.filter((d) => t - d.t0 < d.dur + 1);
+    for (const d of this.dolphins) {
+      const age = t - d.t0;
+      if (age < 0) continue;
+      const yw = this.seaY(d.z);
+      const len = lerp(0.04, 0.24, d.z) * q;
+      const p = clamp(age / d.dur, 0, 1);
+      if (d.under) {
+        d.sx = d.x + d.dir * (p - 0.5) * len * 6;
+        d.sy = yw + len * 0.1;
+        g.save();
+        g.translate(d.sx, d.sy);
+        g.scale(d.dir, 0.4);
+        g.globalAlpha = 0.28 * Math.sin(p * Math.PI);
+        dolphinShape(g, len, Math.sin(t * 6) * 0.2);
+        g.restore();
+        g.globalAlpha = 1;
+        continue;
+      }
+      const run = len * (d.leap ? 2.4 : 1.4);
+      const hgt = len * (d.leap ? 0.8 : 0.12);
+      const x = d.x + d.dir * (p - 0.5) * run;
+      const y = yw - 4 * hgt * p * (1 - p) + (d.leap ? 0 : len * 0.04);
+      const ang = Math.atan2(-4 * hgt * (1 - 2 * p), d.dir * run);
+      d.sx = x;
+      d.sy = y;
+      if (p > 0 && p < 1) {
+        g.save();
+        g.beginPath();
+        g.rect(0, 0, w, yw + 1);
+        g.clip();
+        g.translate(x, y);
+        g.scale(d.dir, 1);
+        g.rotate(d.dir * ang);
+        dolphinShape(g, len, Math.sin(age * 8) * 0.15);
+        g.restore();
+      }
+      // splashes going out and coming back in, and a puff of breath
+      for (const at of [0.06, 0.94]) {
+        if (!d['s' + at] && p >= at) {
+          d['s' + at] = true;
+          const sx = d.x + d.dir * (at - 0.5) * run;
+          for (let i = 0; i < (d.leap ? 14 : 6); i++) this.splashes.push({ x: sx, y: yw, vx: rand(-1, 1) * len * 0.8, vy: -rand(0.6, 1.4) * len * (d.leap ? 1.6 : 0.8), r: rand(0.012, 0.025) * len * 2, age: 0, yw });
+          this.rings.push({ x: sx, y: yw, r: len * 0.2, age: 0, s: len });
+        }
+      }
+      if (!d.leap && !d.puff && p > 0.45) {
+        d.puff = true;
+        for (let i = 0; i < 8; i++) this.splashes.push({ x: x + d.dir * len * 0.1, y: y - len * 0.08, vx: rand(-0.3, 0.3) * len, vy: -rand(0.4, 0.9) * len, r: rand(0.01, 0.02) * len * 2, age: 0, yw: yw + len, mist: true });
+      }
+    }
+    this.rings = this.rings.filter((rg) => (rg.age += dt) < 1.6);
+    g.lineWidth = Math.max(1, this.dpr);
+    for (const rg of this.rings) {
+      g.strokeStyle = `rgba(255,255,255,${0.5 * (1 - rg.age / 1.6)})`;
+      g.beginPath();
+      g.ellipse(rg.x, rg.y, rg.r + rg.s * 0.6 * rg.age, (rg.r + rg.s * 0.6 * rg.age) * 0.22, 0, 0, TAU);
+      g.stroke();
+    }
+    this.splashes = this.splashes.filter((sp) => (sp.age += dt) < 1.4 && sp.y <= sp.yw + 2);
+    for (const sp of this.splashes) {
+      sp.vy += (sp.mist ? 0.3 : 2.2) * this.q * 0.4 * dt;
+      sp.x += sp.vx * dt;
+      sp.y += sp.vy * dt;
+      g.fillStyle = `rgba(255,255,255,${(sp.mist ? 0.4 : 0.85) * (1 - sp.age / 1.4)})`;
+      g.beginPath();
+      g.arc(sp.x, sp.y, sp.r, 0, TAU);
+      g.fill();
+    }
+
+    // the bed, rising and falling on the swell and rolling a little
+    this.rollKick *= Math.exp(-dt * 0.8);
+    const heave = q * (S ? 0.012 + 0.02 * storm : 0.006) * (Math.sin(t * 0.6) + 0.45 * Math.sin(t * 1.27 + 1));
+    const roll = (S ? 0.012 + 0.03 * storm : 0.008) * (Math.sin(t * 0.47 + 0.5) + 0.35 * Math.sin(t * 1.1)) + this.rollKick * 0.02 * Math.sin(t * 2.2);
+    const by = Y + heave;
+    const cr = Math.cos(roll);
+    const sr = Math.sin(roll);
+    const M = { x: (lx, ly) => cx + lx * cr - ly * sr, y: (lx, ly) => by + lx * sr + ly * cr };
+    // a wobbling reflection on a calm day
+    if (!S) {
+      g.save();
+      g.beginPath();
+      g.rect(0, Y, w, h - Y);
+      g.clip();
+      g.globalAlpha = 0.16;
+      g.translate(cx, Y + heave * 0.5);
+      g.scale(1, -0.7);
+      g.rotate(roll);
+      g.drawImage(this.bedFront, -this.bedOff[0], -this.bedOff[1]);
+      g.restore();
+      g.globalAlpha = 1;
+    }
+    g.save();
+    g.translate(cx, by);
+    g.rotate(roll);
+    g.drawImage(this.bedBack, -this.bedOff[0], -this.bedOff[1]);
+    // the watchers, back to front
+    for (const W of this.watchers) {
+      const b = W.body;
+      const sc = 1 + 0.012 * Math.sin(t * 1.3 + W.at[0] * 9);
+      const x0 = W.at[0] - b.neck[0];
+      const y0 = W.at[1] - b.c.height;
+      g.drawImage(b.c, x0, y0 + b.c.height * (1 - sc), b.c.width, b.c.height * sc);
+      W.hx = x0 + b.neck[0];
+      W.hy = y0 + b.neck[1] - b.r * (W.kind === 'cow' ? 0.5 : 0.62) + b.c.height * (1 - sc);
+      g.save();
+      g.translate(W.hx, W.hy);
+      g.rotate(W.L.yaw * 0.08);
+      if (W.kind === 'dog') dogHead(g, b.r, W.L);
+      else catHead(g, b.r, W.L, W.kind);
+      g.restore();
+    }
+    // the curtains: sheer, gathered from the rail, tied to the near posts, the hem stirring
+    const sway = Math.sin(t * 0.9) * 0.5 + Math.sin(t * 2.1 + 1) * 0.3;
+    const gust = S ? 0.6 + storm : 0.3;
+    for (const s of [-1, 1]) {
+      const px = s * this.posts.near.x;
+      const top = this.posts.near.y1 + q * 0.015;
+      const tie = -0.55 * q;
+      const hem = -0.07 * q;
+      for (let f = 0; f < 3; f++) {
+        const out = (sway * gust + f * 0.3) * q * 0.012;
+        const reach = q * (0.13 - f * 0.035);
+        g.fillStyle = 'rgba(255,255,255,0.28)';
+        g.beginPath();
+        g.moveTo(px + s * q * 0.012, top);
+        g.lineTo(px - s * reach, top);
+        g.quadraticCurveTo(px - s * reach * 0.7, lerp(top, tie, 0.55), px - s * q * 0.004, tie);
+        g.quadraticCurveTo(px + s * q * (0.02 + f * 0.012) + out, lerp(tie, hem, 0.55), px + s * q * (0.035 + f * 0.015) + out * 1.6, hem);
+        g.lineTo(px + s * q * 0.005 + out, hem);
+        g.quadraticCurveTo(px - s * q * 0.006, lerp(tie, hem, 0.4), px - s * q * 0.006, tie);
+        g.closePath();
+        g.fill();
+      }
+      g.strokeStyle = 'rgba(255,255,255,0.55)';
+      g.lineWidth = Math.max(1, q * 0.002);
+      g.beginPath();
+      g.moveTo(px - s * q * 0.13, top);
+      g.quadraticCurveTo(px - s * q * 0.09, lerp(top, tie, 0.55), px - s * q * 0.004, tie);
+      g.stroke();
+      g.strokeStyle = '#a07a3a';
+      g.lineWidth = Math.max(1.5, q * 0.006);
+      g.beginPath();
+      g.moveTo(px - s * q * 0.02, tie - q * 0.005);
+      g.lineTo(px + s * q * 0.02, tie + q * 0.008);
+      g.stroke();
+    }
+    g.drawImage(this.bedFront, -this.bedOff[0], -this.bedOff[1]);
+    // the fringe along the eave, blowing
+    const roof = this.roof;
+    g.lineCap = 'round';
+    for (const f of this.fringe) {
+      const blow = (Math.sin(t * (1.2 + storm * 3) + f.ph) * 0.5 + 0.5) * (S ? 0.06 + 0.1 * storm : 0.03) * q;
+      g.strokeStyle = f.col;
+      g.lineWidth = Math.max(1, q * 0.005);
+      g.beginPath();
+      g.moveTo(f.x, roof.y - q * 0.01);
+      g.quadraticCurveTo(f.x + blow * 0.3, roof.y + f.len * 0.5, f.x + blow, roof.y + f.len);
+      g.stroke();
+    }
+    // a lantern hanging under the roof, lit on a stormy day, swinging
+    if (S) {
+      const ly = -0.8 * q;
+      const sw = -roll * 3 + Math.sin(t * 1.4) * 0.05;
+      g.save();
+      g.translate(0, roof.y + q * 0.02);
+      g.rotate(sw);
+      g.strokeStyle = '#3a2a1a';
+      g.lineWidth = Math.max(1, q * 0.003);
+      g.beginPath();
+      g.moveTo(0, 0);
+      g.lineTo(0, ly - roof.y - q * 0.05);
+      g.stroke();
+      g.translate(0, ly - roof.y);
+      g.fillStyle = '#4a3420';
+      g.fillRect(-q * 0.025, -q * 0.055, q * 0.05, q * 0.012);
+      g.fillRect(-q * 0.025, q * 0.035, q * 0.05, q * 0.012);
+      g.fillStyle = 'rgba(255,200,110,0.9)';
+      g.fillRect(-q * 0.02, -q * 0.045, q * 0.04, q * 0.08);
+      g.restore();
+      this.lantern = { x: M.x(-sw * (ly - roof.y), ly), y: M.y(0, ly) };
+    }
+    g.restore();
+
+    // the water at the bed's sides: the surface over the frame, lapping
+    g.save();
+    g.beginPath();
+    g.moveTo(0, h);
+    for (let x = 0; x <= w; x += 6) g.lineTo(x, Y + q * 0.02 + Math.sin(x * 0.03 + t * (1.5 + storm)) * q * (S ? 0.006 + 0.01 * storm : 0.004));
+    g.lineTo(w, h);
+    g.closePath();
+    const wg = g.createLinearGradient(0, Y, 0, h);
+    wg.addColorStop(0, S ? 'rgba(40,70,80,0.8)' : 'rgba(30,140,170,0.8)');
+    wg.addColorStop(1, S ? 'rgba(22,48,58,0.95)' : 'rgba(14,90,128,0.95)');
+    g.fillStyle = wg;
+    g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.45)';
+    g.lineWidth = Math.max(1, 1.5 * this.dpr);
+    g.beginPath();
+    for (let x = cx - q * 0.56; x <= cx + q * 0.56; x += 6) {
+      const yy = Y + q * 0.02 + Math.sin(x * 0.03 + t * (1.5 + storm)) * q * (S ? 0.006 + 0.01 * storm : 0.004);
+      if (x === cx - q * 0.56) g.moveTo(x, yy);
+      else g.lineTo(x, yy);
+    }
+    g.stroke();
+    g.restore();
+
+    // birds going over: they fly across while they call
+    this.birds = this.birds.filter((b) => b.x > -0.2 * w && b.x < 1.2 * w);
+    for (const b of this.birds) {
+      b.x += b.dir * b.v * dt * (S ? 1 + storm * 0.5 : 1);
+      b.y += Math.sin(t * 0.7 + b.bob) * b.s * 0.1 * dt;
+      const calling = t - b.t0 < b.call;
+      const flap = calling || Math.sin(t * 0.4 + b.bob) > 0 ? Math.sin(t * 7 + b.ph) : 0.2;
+      g.save();
+      g.translate(b.x, b.y);
+      g.scale(b.dir, 1);
+      g.rotate(Math.sin(t * 0.9 + b.bob) * 0.05);
+      seabird(g, b.s, flap, b.kind, calling ? Math.abs(Math.sin(t * 9)) : 0);
+      g.restore();
+    }
+
+    // rain, slanting in the wind, and drips off the eaves
+    if (S) {
+      const n = Math.round(180 * (0.4 + storm));
+      g.strokeStyle = `rgba(210,220,230,${0.18 + 0.15 * storm})`;
+      g.lineWidth = Math.max(1, 0.8 * this.dpr);
+      g.beginPath();
+      const slant = 0.25 + storm * 0.25;
+      for (let i = 0; i < n; i++) {
+        const fx = (i * 0.618 + t * 0.05) % 1;
+        const fy = (i * 0.377 + t * (1.6 + (i % 5) * 0.2)) % 1;
+        const x = fx * w * 1.2 - w * 0.1;
+        const y = fy * h;
+        const l = (0.02 + (i % 3) * 0.01) * h;
+        g.moveTo(x, y);
+        g.lineTo(x + l * slant, y + l);
+      }
+      g.stroke();
+      if (Math.random() < dt * 14) this.drops.push({ x: M.x(rand(-1, 1) * roof.ox, roof.y), y: M.y(0, roof.y) + q * 0.06, v: 0, age: 0 });
+      this.drops = this.drops.filter((d) => (d.age += dt) < 1.2 && d.y < Y);
+      g.fillStyle = 'rgba(220,230,240,0.7)';
+      for (const d of this.drops) {
+        d.v += h * 1.2 * dt;
+        d.y += d.v * dt;
+        g.fillRect(d.x, d.y, Math.max(1, this.dpr), Math.max(2, 3 * this.dpr));
+      }
+      // the storm's gloom over everything, the lantern's glow, the flash
+      g.fillStyle = `rgba(20,28,36,${0.12 + 0.15 * storm})`;
+      g.fillRect(0, 0, w, h);
+      if (this.lantern) {
+        const L = this.lantern;
+        g.globalCompositeOperation = 'lighter';
+        g.globalAlpha = 0.5 + 0.05 * Math.sin(t * 7);
+        g.drawImage(this.glow, L.x - q * 0.45, L.y - q * 0.3, q * 0.9, q * 0.9);
+        g.globalAlpha = 1;
+        g.globalCompositeOperation = 'source-over';
+      }
+      if (flash > 0.01) {
+        g.globalCompositeOperation = 'lighter';
+        g.fillStyle = `rgba(160,170,200,${0.12 * flash})`;
+        g.fillRect(0, 0, w, h);
+        g.globalCompositeOperation = 'source-over';
+      }
+    }
+
+    // and they all watch
+    const sights = this.sights();
+    for (const f of this.flashes) if (t - f.t0 < 1) sights.push({ x: f.bolt ? f.bolt[f.bolt.length - 1][0] : w / 2, y: H * 0.5, k: 1.8 });
+    this.watch(dt, sights, M);
+  }
+}
+class SunnySea extends Afloat {}
+class StormySea extends Afloat {
+  get stormy() {
+    return true;
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // The blank canvas: black, with a slow breathing ring so you know it's alive.
 class Blank extends Painting {
   frame() {
@@ -11486,7 +13294,7 @@ class Blank extends Painting {
   }
 }
 
-const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, halloween: Halloween, christmas: Christmas, lake: LakeRoom, kitchens: Sett, den: Den, eyrie: Eyrie, study: Study, mixer: Blank };
+const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, halloween: Halloween, christmas: Christmas, lake: LakeRoom, kitchens: Sett, den: Den, eyrie: Eyrie, study: Study, afloat: SunnySea, 'afloat-storm': StormySea, mixer: Blank };
 
 export function createPainting(id, canvas, engine) {
   const P = PAINTINGS[id] || Blank;
