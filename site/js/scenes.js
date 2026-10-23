@@ -74,8 +74,8 @@ const HABITS = {
   'chuck-wills-widow': { bout: [2, 5], gap: [0.3, 1], rest: [40, 150], el: [5, 25], dist: [30, 80] },
   'screech-owl': { bout: [1, 3], gap: [4, 10], rest: [60, 200], el: [5, 30], dist: [20, 60] },
   // seabirds going over, out at sea
-  'laughing-gull': { bout: [1, 3], gap: [1.5, 4], rest: [40, 120], el: [20, 60], dist: [20, 60] },
-  'royal-tern': { bout: [1, 3], gap: [1.5, 4], rest: [50, 150], el: [25, 65], dist: [20, 70] },
+  'laughing-gull': { bout: [1, 3], gap: [1.5, 4], rest: [40, 120], el: [20, 60], dist: [10, 35] },
+  'royal-tern': { bout: [1, 3], gap: [1.5, 4], rest: [50, 150], el: [25, 65], dist: [10, 35] },
 };
 
 // What each species is called on its slider.
@@ -94,7 +94,7 @@ const NAMES = {
   'screech-owl': 'Screech owl', 'wood-thrush': 'Wood thrush', veery: 'Veery', 'louisiana-waterthrush': 'Louisiana waterthrush',
   'winter-wren': 'Winter wren', 'red-eyed-vireo': 'Red-eyed vireo', 'eastern-wood-pewee': 'Eastern wood-pewee',
   'black-capped-chickadee': 'Black-capped chickadee', 'white-breasted-nuthatch': 'White-breasted nuthatch',
-  'american-crow': 'American crow', 'laughing-gull': 'Laughing gull', 'royal-tern': 'Royal tern',
+  'american-crow': 'American crow', 'laughing-gull': 'Laughing gull', 'royal-tern': 'Terns',
 };
 const FROGS = ['green-treefrog', 'squirrel-treefrog', 'barking-treefrog', 'pig-frog', 'leopard-frog', 'southern-toad', 'oak-toad', 'cricket-frog'];
 const NIGHT_BIRDS = ['barred-owl', 'chuck-wills-widow', 'screech-owl'];
@@ -521,13 +521,11 @@ export function buildScenes(pools) {
   // The floating bed: a four-poster with a thatched roof adrift on a warm sea, the cats and the dog
   // aboard watching dolphins, seabirds and turtles, on a sunny day or a stormy one
   const seaLife = (stormy) => [
-    { id: 'dolphins', type: 'shots', label: 'Dolphins', icon: 'dolphin', pool: items('sea/dolphin'), every: stormy ? [70, 220] : [30, 100], first: [6, 25], level: 0.4, gain: 0.8, reverb: 0.15, space: { az: [-70, 70], el: [-10, 0], dist: [10, 40] } },
-    { id: 'whistles', type: 'shots', label: 'Dolphins under the water', icon: 'dolphin', pool: items('sea/whistle'), every: [90, 300], first: [40, 120], level: stormy ? 0 : 0.2, gain: 0.5, reverb: 0.3, muffle: 1500, space: { az: [-80, 80], el: [-30, -10], dist: [5, 15] } },
-    { id: 'turtles', type: 'shots', label: 'Turtles coming up for air', icon: 'turtle', pool: items('sea/turtle'), every: [60, 180], first: [20, 60], level: 0.3, gain: 0.7, reverb: 0.1, space: { az: [-60, 60], el: [-10, 0], dist: [4, 15] } },
+    { id: 'whistles', type: 'shots', label: 'Dolphins under the water', icon: 'dolphin', pool: items('sea/whistle'), every: [60, 200], first: [20, 60], level: stormy ? 0 : 0.25, gain: 1.2, reverb: 0.3, space: { az: [-80, 80], el: [-30, -10], dist: [5, 15] } },
     { id: 'creak', type: 'shots', label: 'The bed creaking', icon: 'creak', pool: items('sea/creak'), every: stormy ? [10, 35] : [25, 75], first: [10, 30], level: stormy ? 0.35 : 0.22, gain: 0.7, reverb: 0.1, space: { az: [-40, 40], el: [-20, 10], dist: [1.5, 3] } },
     { id: 'purr', type: 'bed', label: stormy ? 'Purring anyway' : 'Purring on the quilt', icon: 'cat', files: files('common/purr'), level: 0.3, gain: 1.3, pan: -0.1 },
   ];
-  const seabirds = (quiet, level) => birds('sea', [], { only: ['laughing-gull', 'royal-tern'], count: 1, quiet, level, gain: 1.0, reverb: 0.2, relocate: [60, 200] });
+  const seabirds = (quiet, level) => birds('sea', [], { only: ['laughing-gull', 'royal-tern'], count: 1, quiet, level, gain: 1.4, reverb: 0.2, relocate: [60, 200] });
   const afloat = {
     id: 'afloat',
     name: 'Sunny Day',

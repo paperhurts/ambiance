@@ -12809,6 +12809,7 @@ class Afloat extends Painting {
     this.drops = [];
     this.pelicans = null;
     this.nextPelicans = R(20, 60);
+    this.nextPod = R(6, 25);
     // turtles swimming slowly across the water, at different distances
     const A = this.spot();
     this.turtles = Array.from({ length: 2 }, (_, i) => ({ z: w < q * 1.7 ? lerp(A.z0, A.z1, i ? 0.35 : 0.85) : i ? 0.55 : 0.82, x: R(0, 1) * w, dir: i ? -1 : 1, v: R(0.012, 0.02), ph: R(0, 1), up: null, next: R(20, 60) }));
@@ -12826,6 +12827,15 @@ class Afloat extends Painting {
       return { x0: this.cx - 0.3 * q, x1: this.cx + 0.3 * q, z0: clamp(zTop, 0.05, 0.9), z1: clamp(zLow, 0.1, 0.95) };
     }
     return { x0: w * 0.05, x1: w * 0.95, z0: 0.2, z1: 0.75 };
+  }
+  // one or two dolphins breaking the surface near x (anywhere in view when x isn't given) at time t0:
+  // leaping clear, or rolling up to breathe
+  pod(x, t0 = this.t) {
+    const A = this.spot();
+    const x0 = clamp(x ?? rand(A.x0, A.x1), A.x0, A.x1);
+    const z = rand(A.z0, A.z1);
+    const n = Math.random() < 0.4 ? 2 : 1;
+    for (let i = 0; i < n; i++) this.dolphins.push({ x: x0 + i * rand(0.04, 0.08) * Math.min(this.w, this.q), z: z + i * 0.03, dir: Math.random() < 0.5 ? 1 : -1, t0: t0 + i * rand(0.3, 0.7), leap: Math.random() < 0.65, dur: rand(1.5, 2) });
   }
   // where a point at distance z (0 the horizon, 1 the waterline at the bed) is on the screen
   seaY(z) {
@@ -12848,20 +12858,16 @@ class Afloat extends Painting {
         }
       });
     }
-    if (e.type === 'shot' && e.layer === 'dolphins') {
+    if (e.type === 'shot' && e.layer === 'whistles') {
+      // a dolphin passing under the water near the bed, and often coming up a little way off
       this.at(e.at, () => {
         const A = this.spot();
         const x = clamp(w / 2 + ((e.az ?? rand(-60, 60)) / 90) * w * 0.55, A.x0, A.x1);
-        const z = rand(A.z0, A.z1);
-        const n = Math.random() < 0.4 ? 2 : 1;
-        for (let i = 0; i < n; i++) this.dolphins.push({ x: x + i * rand(0.04, 0.08) * Math.min(w, this.q), z: z + i * 0.03, dir: Math.random() < 0.5 ? 1 : -1, t0: this.t + i * rand(0.3, 0.7), leap: Math.random() < 0.65, dur: rand(1.5, 2) });
-      });
-    }
-    if (e.type === 'shot' && e.layer === 'whistles') {
-      // a dolphin passing under the water near the bed
-      this.at(e.at, () => {
-        const A = this.spot();
-        this.dolphins.push({ x: rand(A.x0, A.x1), z: A.z1, dir: Math.random() < 0.5 ? 1 : -1, t0: this.t, under: true, dur: 4 });
+        this.dolphins.push({ x, z: A.z1, dir: Math.random() < 0.5 ? 1 : -1, t0: this.t, under: true, dur: 4 });
+        if (Math.random() < 0.6) {
+          this.pod(x, this.t + rand(2.5, 4));
+          this.nextPod = Math.max(this.nextPod, rand(20, 40));
+        }
       });
     }
     if (e.type === 'shot' && e.layer === 'turtles') {
@@ -13051,6 +13057,13 @@ class Afloat extends Painting {
         g.fillRect(x, y, lw, Math.max(1, lw * 0.2));
       }
       g.globalAlpha = 1;
+    }
+
+    // dolphins coming up every so often, less when the sea's rough
+    this.nextPod -= dt;
+    if (this.nextPod < 0) {
+      this.pod();
+      this.nextPod = S ? rand(70, 220) : rand(30, 100);
     }
 
     // pelicans now and then, gliding low in a line (on a sunny day)

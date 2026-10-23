@@ -1362,10 +1362,54 @@
     "dur": 60.5
    }
   ],
+  "sea/laughing-gull": [
+   {
+    "file": "audio/sea/laughing-gull-1.05ec61a4.mp3",
+    "dur": 4.2
+   },
+   {
+    "file": "audio/sea/laughing-gull-2.e9d0ea7b.mp3",
+    "dur": 4.3
+   },
+   {
+    "file": "audio/sea/laughing-gull-3.4530ec81.mp3",
+    "dur": 1.0
+   },
+   {
+    "file": "audio/sea/laughing-gull-4.6fc0fdf2.mp3",
+    "dur": 5.6
+   },
+   {
+    "file": "audio/sea/laughing-gull-5.f1ccbb3c.mp3",
+    "dur": 1.0
+   }
+  ],
   "sea/roughsea": [
    {
     "file": "audio/sea/roughsea-1.0c0ccce7.mp3",
     "dur": 90.0
+   }
+  ],
+  "sea/royal-tern": [
+   {
+    "file": "audio/sea/royal-tern-1.f1bcc11a.mp3",
+    "dur": 0.85
+   },
+   {
+    "file": "audio/sea/royal-tern-2.caf643cf.mp3",
+    "dur": 0.95
+   },
+   {
+    "file": "audio/sea/royal-tern-3.c77fc190.mp3",
+    "dur": 1.0
+   },
+   {
+    "file": "audio/sea/royal-tern-4.0fa1bc0c.mp3",
+    "dur": 0.85
+   },
+   {
+    "file": "audio/sea/royal-tern-5.22798496.mp3",
+    "dur": 0.8
    }
   ],
   "sea/swell": [
@@ -1382,6 +1426,24 @@
    {
     "file": "audio/sea/thatch-2.60e1f7a3.mp3",
     "dur": 90.0
+   }
+  ],
+  "sea/whistle": [
+   {
+    "file": "audio/sea/whistle-1.4f57ff8d.mp3",
+    "dur": 3.3
+   },
+   {
+    "file": "audio/sea/whistle-2.de8f59f0.mp3",
+    "dur": 6.8
+   },
+   {
+    "file": "audio/sea/whistle-3.7876fbfe.mp3",
+    "dur": 8.6
+   },
+   {
+    "file": "audio/sea/whistle-4.25a0f069.mp3",
+    "dur": 4.15
    }
   ],
   "snow/blizzard": [
@@ -2218,10 +2280,24 @@
   "audio/sea/creak-6.4f2aca0f.mp3",
   "audio/sea/lapping-1.268298f7.mp3",
   "audio/sea/lapping-2.e560fcc6.mp3",
+  "audio/sea/laughing-gull-1.05ec61a4.mp3",
+  "audio/sea/laughing-gull-2.e9d0ea7b.mp3",
+  "audio/sea/laughing-gull-3.4530ec81.mp3",
+  "audio/sea/laughing-gull-4.6fc0fdf2.mp3",
+  "audio/sea/laughing-gull-5.f1ccbb3c.mp3",
   "audio/sea/roughsea-1.0c0ccce7.mp3",
+  "audio/sea/royal-tern-1.f1bcc11a.mp3",
+  "audio/sea/royal-tern-2.caf643cf.mp3",
+  "audio/sea/royal-tern-3.c77fc190.mp3",
+  "audio/sea/royal-tern-4.0fa1bc0c.mp3",
+  "audio/sea/royal-tern-5.22798496.mp3",
   "audio/sea/swell-1.84b856e0.mp3",
   "audio/sea/thatch-1.a79974ed.mp3",
   "audio/sea/thatch-2.60e1f7a3.mp3",
+  "audio/sea/whistle-1.4f57ff8d.mp3",
+  "audio/sea/whistle-2.de8f59f0.mp3",
+  "audio/sea/whistle-3.7876fbfe.mp3",
+  "audio/sea/whistle-4.25a0f069.mp3",
   "audio/silence.mp3",
   "audio/snow/blizzard-1.4dbc3d3f.mp3",
   "audio/snow/blizzard-2.c7fb3e74.mp3",
@@ -3682,6 +3758,78 @@
    "page": "https://archive.org/details/aporee_61199_70394",
    "license": "Public Domain Mark 1.0",
    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC1033904 Laughing Gull",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/1033904",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC447329 Laughing Gull",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/447329",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC169206 Laughing Gull",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/169206",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC145812 Laughing Gull",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/145812",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "A royal tern",
+   "title": "XC1034355 Royal Tern",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/1034355",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A royal tern",
+   "title": "XC560599 Royal Tern",
+   "author": "Russ Wigh",
+   "page": "https://xeno-canto.org/560599",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A Cabot's tern",
+   "title": "XC383121 Cabot's Tern",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/383121",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Dolphins under the water",
+   "title": "Tursiops Sequency",
+   "author": "Lilian Hoffmann",
+   "page": "https://archive.org/details/tursiops-sequency",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Dolphins under the water",
+   "title": "iNaturalist observation 340025282 (sound 1777042)",
+   "author": "Luciara Azevedo (iNaturalist: luciaraazevedo)",
+   "page": "https://www.inaturalist.org/observations/340025282",
+   "license": "CC BY-NC 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc/4.0/"
   },
   {
    "what": "Wind in the pines",
