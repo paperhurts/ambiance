@@ -20,7 +20,8 @@ Entry fields (see tools/sources/*.json):
             max_len (seconds kept; default 90 for beds, 45 for shots),
             limit_db (how much peak limiting a shot may use to reach its loudness; default 6),
             widen (seconds: make stereo from a mono recording by offsetting the right channel),
-            tag (for the engine, e.g. "near"/"far" thunder), fade_in, fade_out (seconds), what (credit label)
+            tag (for the engine, e.g. "near"/"far" thunder), fade_in, fade_out (seconds), what (credit label),
+            tame (dB: gently compress whatever sticks out of a bed by more than this, e.g. a slap of water)
 """
 import hashlib
 import json
@@ -152,6 +153,10 @@ def process(e):
     if e.get("denoise"):
         chain.append(f"afftdn=nr={e['denoise']}:nf=-60:tn=1")
     x = filt(x, ch, ",".join(chain))
+    if e.get("tame"):
+        lufs0, _ = loudness(x, ch)
+        thr = 10 ** ((lufs0 + float(e["tame"])) / 20)
+        x = filt(x, ch, f"acompressor=threshold={thr:.5f}:ratio=4:attack=8:release=250:knee=4")
 
     if kind == "bed":
         x = make_loop(x, float(e.get("loop_xfade", 3.0)))

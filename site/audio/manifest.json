@@ -1326,6 +1326,126 @@
     "dur": 90.0
    }
   ],
+  "sea/creak": [
+   {
+    "file": "audio/sea/creak-1.35a19173.mp3",
+    "dur": 1.1
+   },
+   {
+    "file": "audio/sea/creak-2.7ae01264.mp3",
+    "dur": 2.3
+   },
+   {
+    "file": "audio/sea/creak-3.d3333fa4.mp3",
+    "dur": 1.7
+   },
+   {
+    "file": "audio/sea/creak-4.a57e0031.mp3",
+    "dur": 2.0
+   },
+   {
+    "file": "audio/sea/creak-5.29ce2f7f.mp3",
+    "dur": 3.1
+   },
+   {
+    "file": "audio/sea/creak-6.4f2aca0f.mp3",
+    "dur": 7.3
+   }
+  ],
+  "sea/lapping": [
+   {
+    "file": "audio/sea/lapping-1.268298f7.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/sea/lapping-2.e560fcc6.mp3",
+    "dur": 60.5
+   }
+  ],
+  "sea/laughing-gull": [
+   {
+    "file": "audio/sea/laughing-gull-1.05ec61a4.mp3",
+    "dur": 4.2
+   },
+   {
+    "file": "audio/sea/laughing-gull-2.e9d0ea7b.mp3",
+    "dur": 4.3
+   },
+   {
+    "file": "audio/sea/laughing-gull-3.4530ec81.mp3",
+    "dur": 1.0
+   },
+   {
+    "file": "audio/sea/laughing-gull-4.6fc0fdf2.mp3",
+    "dur": 5.6
+   },
+   {
+    "file": "audio/sea/laughing-gull-5.f1ccbb3c.mp3",
+    "dur": 1.0
+   }
+  ],
+  "sea/roughsea": [
+   {
+    "file": "audio/sea/roughsea-1.0c0ccce7.mp3",
+    "dur": 90.0
+   }
+  ],
+  "sea/royal-tern": [
+   {
+    "file": "audio/sea/royal-tern-1.f1bcc11a.mp3",
+    "dur": 0.85
+   },
+   {
+    "file": "audio/sea/royal-tern-2.caf643cf.mp3",
+    "dur": 0.95
+   },
+   {
+    "file": "audio/sea/royal-tern-3.c77fc190.mp3",
+    "dur": 1.0
+   },
+   {
+    "file": "audio/sea/royal-tern-4.0fa1bc0c.mp3",
+    "dur": 0.85
+   },
+   {
+    "file": "audio/sea/royal-tern-5.22798496.mp3",
+    "dur": 0.8
+   }
+  ],
+  "sea/swell": [
+   {
+    "file": "audio/sea/swell-1.84b856e0.mp3",
+    "dur": 90.0
+   }
+  ],
+  "sea/thatch": [
+   {
+    "file": "audio/sea/thatch-1.a79974ed.mp3",
+    "dur": 84.0
+   },
+   {
+    "file": "audio/sea/thatch-2.60e1f7a3.mp3",
+    "dur": 90.0
+   }
+  ],
+  "sea/whistle": [
+   {
+    "file": "audio/sea/whistle-1.4f57ff8d.mp3",
+    "dur": 3.3
+   },
+   {
+    "file": "audio/sea/whistle-2.de8f59f0.mp3",
+    "dur": 6.8
+   },
+   {
+    "file": "audio/sea/whistle-3.7876fbfe.mp3",
+    "dur": 8.6
+   },
+   {
+    "file": "audio/sea/whistle-4.25a0f069.mp3",
+    "dur": 4.15
+   }
+  ],
   "snow/blizzard": [
    {
     "file": "audio/snow/blizzard-1.4dbc3d3f.mp3",
@@ -2152,6 +2272,32 @@
   "audio/pond/squirrel-treefrog-3.f1f923f3.mp3",
   "audio/pond/squirrel-treefrog-4.623dd1c3.mp3",
   "audio/pond/water-1.1b9b83be.mp3",
+  "audio/sea/creak-1.35a19173.mp3",
+  "audio/sea/creak-2.7ae01264.mp3",
+  "audio/sea/creak-3.d3333fa4.mp3",
+  "audio/sea/creak-4.a57e0031.mp3",
+  "audio/sea/creak-5.29ce2f7f.mp3",
+  "audio/sea/creak-6.4f2aca0f.mp3",
+  "audio/sea/lapping-1.268298f7.mp3",
+  "audio/sea/lapping-2.e560fcc6.mp3",
+  "audio/sea/laughing-gull-1.05ec61a4.mp3",
+  "audio/sea/laughing-gull-2.e9d0ea7b.mp3",
+  "audio/sea/laughing-gull-3.4530ec81.mp3",
+  "audio/sea/laughing-gull-4.6fc0fdf2.mp3",
+  "audio/sea/laughing-gull-5.f1ccbb3c.mp3",
+  "audio/sea/roughsea-1.0c0ccce7.mp3",
+  "audio/sea/royal-tern-1.f1bcc11a.mp3",
+  "audio/sea/royal-tern-2.caf643cf.mp3",
+  "audio/sea/royal-tern-3.c77fc190.mp3",
+  "audio/sea/royal-tern-4.0fa1bc0c.mp3",
+  "audio/sea/royal-tern-5.22798496.mp3",
+  "audio/sea/swell-1.84b856e0.mp3",
+  "audio/sea/thatch-1.a79974ed.mp3",
+  "audio/sea/thatch-2.60e1f7a3.mp3",
+  "audio/sea/whistle-1.4f57ff8d.mp3",
+  "audio/sea/whistle-2.de8f59f0.mp3",
+  "audio/sea/whistle-3.7876fbfe.mp3",
+  "audio/sea/whistle-4.25a0f069.mp3",
   "audio/silence.mp3",
   "audio/snow/blizzard-1.4dbc3d3f.mp3",
   "audio/snow/blizzard-2.c7fb3e74.mp3",
@@ -3548,6 +3694,142 @@
    "page": "https://www.nps.gov/subjects/sound/sounds-alligator.htm",
    "license": "Public Domain (US Government work, NPS)",
    "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "The open sea",
+   "title": "Open Sea, Free Flow, W\u0142ochy - 1036 waves at open sea",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_63689_73307",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Water lapping",
+   "title": "\u516d\u584a\u539d\u6f01\u6e2f, New Taipei City, Taiwan - Waves lapping the pier",
+   "author": "Wu, Tsan-Cheng",
+   "page": "https://archive.org/details/aporee_32057_36818",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Water lapping",
+   "title": "WWS Smallwaves",
+   "author": "Work With Sounds / Torsten Nilsson",
+   "page": "https://commons.wikimedia.org/wiki/File:WWS_Smallwaves.ogg",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+   "what": "A rough sea",
+   "title": "\u9577\u6ff1\u6f01\u6e2f, Changbin Township - In the fishing pier",
+   "author": "Wu, Tsan-Cheng",
+   "page": "https://archive.org/details/aporee_25228_29258",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Rain on a roof",
+   "title": "Estagnol de Gaudet, Orlu, Ari\u00e8ge, France - france_pyrenees_morning_rain on tent_thunder",
+   "author": "clement.grumberg",
+   "page": "https://archive.org/details/aporee_69445_80843",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Rain on a roof",
+   "title": "The rain knocks on the roof of the tent, White Sea, Russia",
+   "author": "Nikolaj Terent'ev",
+   "page": "https://archive.org/details/aporee_24947_28941",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Creaking",
+   "title": "Troms\u00f8 / Romsa Harbour, North Norway / S\u00e1pmi - Pontoon Creaking",
+   "author": "anguscarlyle",
+   "page": "https://archive.org/details/aporee_65563_75724",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Creaking",
+   "title": "WP9R+W4 Ajaccio, France - the mooring rope.",
+   "author": "kaoss012",
+   "page": "https://archive.org/details/aporee_61199_70394",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC1033904 Laughing Gull",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/1033904",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC447329 Laughing Gull",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/447329",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC169206 Laughing Gull",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/169206",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "A laughing gull",
+   "title": "XC145812 Laughing Gull",
+   "author": "Paul Marvin",
+   "page": "https://xeno-canto.org/145812",
+   "license": "CC BY-NC-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/"
+  },
+  {
+   "what": "A royal tern",
+   "title": "XC1034355 Royal Tern",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/1034355",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A royal tern",
+   "title": "XC560599 Royal Tern",
+   "author": "Russ Wigh",
+   "page": "https://xeno-canto.org/560599",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "A Cabot's tern",
+   "title": "XC383121 Cabot's Tern",
+   "author": "David Darrell-Lambert",
+   "page": "https://xeno-canto.org/383121",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Dolphins under the water",
+   "title": "Tursiops Sequency",
+   "author": "Lilian Hoffmann",
+   "page": "https://archive.org/details/tursiops-sequency",
+   "license": "CC BY-NC-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  },
+  {
+   "what": "Dolphins under the water",
+   "title": "iNaturalist observation 340025282 (sound 1777042)",
+   "author": "Luciara Azevedo (iNaturalist: luciaraazevedo)",
+   "page": "https://www.inaturalist.org/observations/340025282",
+   "license": "CC BY-NC 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-nc/4.0/"
   },
   {
    "what": "Wind in the pines",

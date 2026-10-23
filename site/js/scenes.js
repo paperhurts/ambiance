@@ -73,6 +73,9 @@ const HABITS = {
   'barred-owl': { bout: [1, 2], gap: [5, 15], rest: [90, 300], el: [10, 40], dist: [40, 120] },
   'chuck-wills-widow': { bout: [2, 5], gap: [0.3, 1], rest: [40, 150], el: [5, 25], dist: [30, 80] },
   'screech-owl': { bout: [1, 3], gap: [4, 10], rest: [60, 200], el: [5, 30], dist: [20, 60] },
+  // seabirds going over, out at sea
+  'laughing-gull': { bout: [1, 3], gap: [1.5, 4], rest: [40, 120], el: [20, 60], dist: [10, 35] },
+  'royal-tern': { bout: [1, 3], gap: [1.5, 4], rest: [50, 150], el: [25, 65], dist: [10, 35] },
 };
 
 // What each species is called on its slider.
@@ -91,7 +94,7 @@ const NAMES = {
   'screech-owl': 'Screech owl', 'wood-thrush': 'Wood thrush', veery: 'Veery', 'louisiana-waterthrush': 'Louisiana waterthrush',
   'winter-wren': 'Winter wren', 'red-eyed-vireo': 'Red-eyed vireo', 'eastern-wood-pewee': 'Eastern wood-pewee',
   'black-capped-chickadee': 'Black-capped chickadee', 'white-breasted-nuthatch': 'White-breasted nuthatch',
-  'american-crow': 'American crow',
+  'american-crow': 'American crow', 'laughing-gull': 'Laughing gull', 'royal-tern': 'Terns',
 };
 const FROGS = ['green-treefrog', 'squirrel-treefrog', 'barking-treefrog', 'pig-frog', 'leopard-frog', 'southern-toad', 'oak-toad', 'cricket-frog'];
 const NIGHT_BIRDS = ['barred-owl', 'chuck-wills-widow', 'screech-owl'];
@@ -515,6 +518,51 @@ export function buildScenes(pools) {
     ],
   };
 
+  // The floating bed: a four-poster with a thatched roof adrift on a warm sea, the cats and the dog
+  // aboard watching dolphins, seabirds and turtles, on a sunny day or a stormy one
+  const seaLife = (stormy) => [
+    { id: 'whistles', type: 'shots', label: 'Dolphins under the water', icon: 'dolphin', pool: items('sea/whistle'), every: [60, 200], first: [20, 60], level: stormy ? 0 : 0.25, gain: 1.2, reverb: 0.3, space: { az: [-80, 80], el: [-30, -10], dist: [5, 15] } },
+    { id: 'creak', type: 'shots', label: 'The bed creaking', icon: 'creak', pool: items('sea/creak'), every: stormy ? [10, 35] : [25, 75], first: [10, 30], level: stormy ? 0.35 : 0.22, gain: 0.7, reverb: 0.1, space: { az: [-40, 40], el: [-20, 10], dist: [1.5, 3] } },
+    { id: 'purr', type: 'bed', label: stormy ? 'Purring anyway' : 'Purring on the quilt', icon: 'cat', files: files('common/purr'), level: 0.3, gain: 1.3, pan: -0.1 },
+  ];
+  const seabirds = (quiet, level) => birds('sea', [], { only: ['laughing-gull', 'royal-tern'], count: 1, quiet, level, gain: 1.4, reverb: 0.2, relocate: [60, 200] });
+  const afloat = {
+    id: 'afloat',
+    name: 'Sunny Day',
+    kicker: 'The floating bed',
+    what: 'A four-poster with a thatched roof, adrift on a warm sea, with the cats and the dog aboard watching dolphins leap, gulls go over and turtles come up for air.',
+    requires: ['sea/swell'],
+    gain: 2.8,
+    reverb: { type: 'open', level: 0.25 },
+    layers: [
+      { id: 'swell', type: 'bed', label: 'The open sea', icon: 'wave', files: files('sea/swell'), level: 0.55, gain: 1.0 },
+      { id: 'lapping', type: 'bed', label: 'Water lapping at the bed', icon: 'water', files: files('sea/lapping'), level: 0.4, gain: 0.9 },
+      { id: 'breeze', type: 'bed', label: 'A breeze in the thatch', icon: 'wind', files: files('florida/palms'), level: 0.25, gain: 0.8, wander: [0.4, 1], wanderEvery: [4, 12], wanderTau: [2, 5] },
+      ...seaLife(false),
+      ...seabirds(1, 0.4),
+    ],
+  };
+  const afloatStorm = {
+    id: 'afloat-storm',
+    name: 'Stormy Day',
+    kicker: 'The floating bed',
+    what: 'The same bed in a storm: rain drumming on the thatch, the sea heaving, thunder out at sea and a lantern lit under the roof, with the cats and the dog snug aboard and still watching.',
+    requires: ['sea/thatch'],
+    gain: 2.7,
+    reverb: { type: 'open', level: 0.25 },
+    drivers: { storm: { range: [0.45, 1], every: [60, 180], tau: 25 } },
+    layers: [
+      { id: 'thatch', type: 'bed', label: 'Rain on the thatch', icon: 'rain', files: files('sea/thatch'), level: 0.55, gain: 1.0, drive: { by: 'storm', gain: [0.6, 1] } },
+      { id: 'roughsea', type: 'bed', label: 'The sea heaving', icon: 'wave', files: files('sea/roughsea').length ? files('sea/roughsea') : files('sea/swell'), level: 0.42, gain: 1.0, drive: { by: 'storm', gain: [0.6, 1] } },
+      { id: 'rain', type: 'bed', label: 'Rain on the sea', icon: 'rain', files: files('glades/downpour', 'storm/rain'), level: 0.3, gain: 0.9, muffle: 4000, drive: { by: 'storm', gain: [0.4, 1] } },
+      { id: 'wind', type: 'bed', label: 'Wind', icon: 'wind', files: files('storm/wind'), level: 0.4, gain: 0.8, drive: { by: 'storm', gain: [0.4, 1] }, wander: [0.5, 1], wanderEvery: [3, 10], wanderTau: [1.5, 5] },
+      { id: 'thunder', type: 'storm', label: 'Thunder out at sea', icon: 'bolt', pool: items('storm/thunder', 'glades/thunder'), lazy: true, keep: 2, every: [40, 150], first: [10, 40], level: 0.45, gain: 1.0, muffle: 2500, km: [11, 5], drive: { by: 'storm', rate: [0.5, 1.3] } },
+      { id: 'lapping', type: 'bed', label: 'Water slapping at the bed', icon: 'water', files: files('sea/lapping'), level: 0.3, gain: 0.9 },
+      ...seaLife(true),
+      ...seabirds(3, 0.25),
+    ],
+  };
+
   const mixer = {
     id: 'mixer',
     name: 'Blank Canvas',
@@ -550,6 +598,9 @@ export function buildScenes(pools) {
       { ...pick(christmas, 'peal'), id: 'peal', label: 'Church bells, far off' },
       { ...pick(christmas, 'carols'), id: 'carols', label: 'Carols, somewhere' },
       { ...pick(kitchens, 'kitchens'), id: 'kitchens', label: 'Kitchens through a wall' },
+      { ...pick(afloat, 'swell'), id: 'open-sea', label: 'The open sea', group: 'Water' },
+      { ...pick(afloat, 'lapping'), id: 'lapping', label: 'Water lapping at a boat' },
+      { ...pick(afloatStorm, 'thatch'), id: 'thatch', label: 'Rain on a thatched roof', drive: null },
       { ...pick(butterfly, 'morning'), id: 'fl-morning', group: 'Outdoors' },
       { ...pick(butterfly, 'palms'), id: 'palms' },
       { ...pick(butterfly, 'cicadas'), id: 'cicadas' },
@@ -589,7 +640,7 @@ export function buildScenes(pools) {
     (l.type === 'pulse' && l.tick);
 
   // a scene whose recordings aren't installed drops out entirely, rather than showing up silent
-  return [storm, waterfall, garden, butterfly, glades, pond, mansion, snow, halloween, christmas, lake, kitchens, den, eyrie, study, mixer]
+  return [storm, waterfall, garden, butterfly, glades, pond, mansion, snow, halloween, christmas, lake, kitchens, den, eyrie, study, afloat, afloatStorm, mixer]
     .map((s) => ({ ...s, layers: s.layers.filter((l) => l && l.id && usable(l)) }))
     .filter((s) => s.layers.some((l) => l.type !== 'synth') && (s.requires || []).every((k) => list(k).length));
 }
