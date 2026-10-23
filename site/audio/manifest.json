@@ -1326,6 +1326,64 @@
     "dur": 90.0
    }
   ],
+  "sea/creak": [
+   {
+    "file": "audio/sea/creak-1.35a19173.mp3",
+    "dur": 1.1
+   },
+   {
+    "file": "audio/sea/creak-2.7ae01264.mp3",
+    "dur": 2.3
+   },
+   {
+    "file": "audio/sea/creak-3.d3333fa4.mp3",
+    "dur": 1.7
+   },
+   {
+    "file": "audio/sea/creak-4.a57e0031.mp3",
+    "dur": 2.0
+   },
+   {
+    "file": "audio/sea/creak-5.29ce2f7f.mp3",
+    "dur": 3.1
+   },
+   {
+    "file": "audio/sea/creak-6.4f2aca0f.mp3",
+    "dur": 7.3
+   }
+  ],
+  "sea/lapping": [
+   {
+    "file": "audio/sea/lapping-1.268298f7.mp3",
+    "dur": 90.0
+   },
+   {
+    "file": "audio/sea/lapping-2.e560fcc6.mp3",
+    "dur": 60.5
+   }
+  ],
+  "sea/roughsea": [
+   {
+    "file": "audio/sea/roughsea-1.0c0ccce7.mp3",
+    "dur": 90.0
+   }
+  ],
+  "sea/swell": [
+   {
+    "file": "audio/sea/swell-1.84b856e0.mp3",
+    "dur": 90.0
+   }
+  ],
+  "sea/thatch": [
+   {
+    "file": "audio/sea/thatch-1.a79974ed.mp3",
+    "dur": 84.0
+   },
+   {
+    "file": "audio/sea/thatch-2.60e1f7a3.mp3",
+    "dur": 90.0
+   }
+  ],
   "snow/blizzard": [
    {
     "file": "audio/snow/blizzard-1.4dbc3d3f.mp3",
@@ -2152,6 +2210,18 @@
   "audio/pond/squirrel-treefrog-3.f1f923f3.mp3",
   "audio/pond/squirrel-treefrog-4.623dd1c3.mp3",
   "audio/pond/water-1.1b9b83be.mp3",
+  "audio/sea/creak-1.35a19173.mp3",
+  "audio/sea/creak-2.7ae01264.mp3",
+  "audio/sea/creak-3.d3333fa4.mp3",
+  "audio/sea/creak-4.a57e0031.mp3",
+  "audio/sea/creak-5.29ce2f7f.mp3",
+  "audio/sea/creak-6.4f2aca0f.mp3",
+  "audio/sea/lapping-1.268298f7.mp3",
+  "audio/sea/lapping-2.e560fcc6.mp3",
+  "audio/sea/roughsea-1.0c0ccce7.mp3",
+  "audio/sea/swell-1.84b856e0.mp3",
+  "audio/sea/thatch-1.a79974ed.mp3",
+  "audio/sea/thatch-2.60e1f7a3.mp3",
   "audio/silence.mp3",
   "audio/snow/blizzard-1.4dbc3d3f.mp3",
   "audio/snow/blizzard-2.c7fb3e74.mp3",
@@ -3548,6 +3618,70 @@
    "page": "https://www.nps.gov/subjects/sound/sounds-alligator.htm",
    "license": "Public Domain (US Government work, NPS)",
    "license_url": "https://www.nps.gov/aboutus/disclaimer.htm"
+  },
+  {
+   "what": "The open sea",
+   "title": "Open Sea, Free Flow, W\u0142ochy - 1036 waves at open sea",
+   "author": "Piotrek Zyla",
+   "page": "https://archive.org/details/aporee_63689_73307",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Water lapping",
+   "title": "\u516d\u584a\u539d\u6f01\u6e2f, New Taipei City, Taiwan - Waves lapping the pier",
+   "author": "Wu, Tsan-Cheng",
+   "page": "https://archive.org/details/aporee_32057_36818",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Water lapping",
+   "title": "WWS Smallwaves",
+   "author": "Work With Sounds / Torsten Nilsson",
+   "page": "https://commons.wikimedia.org/wiki/File:WWS_Smallwaves.ogg",
+   "license": "CC BY 4.0",
+   "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+   "what": "A rough sea",
+   "title": "\u9577\u6ff1\u6f01\u6e2f, Changbin Township - In the fishing pier",
+   "author": "Wu, Tsan-Cheng",
+   "page": "https://archive.org/details/aporee_25228_29258",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Rain on a roof",
+   "title": "Estagnol de Gaudet, Orlu, Ari\u00e8ge, France - france_pyrenees_morning_rain on tent_thunder",
+   "author": "clement.grumberg",
+   "page": "https://archive.org/details/aporee_69445_80843",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Rain on a roof",
+   "title": "The rain knocks on the roof of the tent, White Sea, Russia",
+   "author": "Nikolaj Terent'ev",
+   "page": "https://archive.org/details/aporee_24947_28941",
+   "license": "CC BY 3.0",
+   "license_url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+   "what": "Creaking",
+   "title": "Troms\u00f8 / Romsa Harbour, North Norway / S\u00e1pmi - Pontoon Creaking",
+   "author": "anguscarlyle",
+   "page": "https://archive.org/details/aporee_65563_75724",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+   "what": "Creaking",
+   "title": "WP9R+W4 Ajaccio, France - the mooring rope.",
+   "author": "kaoss012",
+   "page": "https://archive.org/details/aporee_61199_70394",
+   "license": "Public Domain Mark 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
   },
   {
    "what": "Wind in the pines",
