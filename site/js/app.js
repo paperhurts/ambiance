@@ -9,7 +9,13 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 const engine = new Engine();
-window.ambiance = { engine }; // handy from the console, and for tests
+// handy from the console, and for tests
+window.ambiance = {
+  engine,
+  get painting() {
+    return painting;
+  },
+};
 let scenes = [];
 let byId = {};
 let credits = [];
@@ -144,7 +150,7 @@ function openPlayer(def) {
     shown = def;
     $('#scene-title').textContent = def.name;
     $('#scene-kicker').textContent = def.kicker || '';
-    painting?.stop();
+    retire();
     painting = createPainting(def.id, $('#stage'), engine);
     renderMix(def);
   }
@@ -162,11 +168,17 @@ function openPlayer(def) {
   if (def.id === 'mixer' && !Object.values(levelsFor(def)).some((v) => v > 0)) openSheet('mix-sheet');
 }
 
+// put the picture away for good (a scene drawn in 3D has a canvas and a graphics context to hand back)
+function retire() {
+  painting?.stop();
+  painting?.destroy?.();
+  painting = null;
+}
+
 function closePlayer() {
   if (!shown && $('#player').hidden) return;
   shown = null;
-  painting?.stop();
-  painting = null;
+  retire();
   closeSheets();
   $('#player').hidden = true;
   document.title = 'Ambiance';
