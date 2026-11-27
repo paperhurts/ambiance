@@ -18,69 +18,10 @@
 //
 // The world is drawn small and enlarged to fit the screen; how small is decided by how well the
 // device is keeping up (Pacer). Where WebGL is missing, or can't keep up at any size, the painting
-// this replaced takes over.
+// this replaced takes over (world.js has that, and the rest of what 3D scenes share).
 
 import { store } from './store.js';
-
-const TAU = Math.PI * 2;
-const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-const lerp = (a, b, t) => a + (b - a) * t;
-const sstep = (a, b, x) => {
-  const t = clamp((x - a) / (b - a), 0, 1);
-  return t * t * (3 - 2 * t);
-};
-const rand = (a, b) => a + Math.random() * (b - a);
-const norm = (v) => {
-  const l = Math.hypot(v[0], v[1], v[2]) || 1;
-  return [v[0] / l, v[1] / l, v[2] / l];
-};
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-function rng(a) {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// ---------------------------------------------------------------------------------------------
-// Noise: one 256 x 256 table of random values. Each texel also carries its three neighbours, so
-// a single lookup gives a smooth value (and its slope). The shader and this file read the same
-// table, which is how this file knows where the gaps in the cloud are.
-const NT = 256;
-const packed = new Uint8Array(NT * NT * 4);
-{
-  const r = rng(20261126);
-  const b = new Uint8Array(NT * NT);
-  for (let i = 0; i < b.length; i++) b[i] = (r() * 256) | 0;
-  for (let j = 0; j < NT; j++) {
-    for (let i = 0; i < NT; i++) {
-      const i1 = (i + 1) & 255;
-      const j1 = (j + 1) & 255;
-      const k = (j * NT + i) * 4;
-      packed[k] = b[j * NT + i];
-      packed[k + 1] = b[j * NT + i1];
-      packed[k + 2] = b[j1 * NT + i];
-      packed[k + 3] = b[j1 * NT + i1];
-    }
-  }
-}
-function nzv(x, y) {
-  const fx = Math.floor(x);
-  const fy = Math.floor(y);
-  const tx = x - fx;
-  const ty = y - fy;
-  const k = ((((fy % NT) + NT) % NT) * NT + (((fx % NT) + NT) % NT)) * 4;
-  const a = packed[k] / 255;
-  const b = packed[k + 1] / 255;
-  const c = packed[k + 2] / 255;
-  const d = packed[k + 3] / 255;
-  const ux = tx * tx * (3 - 2 * tx);
-  const uy = ty * ty * (3 - 2 * ty);
-  return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
-}
+import { World, TAU, clamp, lerp, sstep, rand, norm, dot, rng, f, nzv, VS, NOISE_GLSL } from './world.js';
 
 // ---------------------------------------------------------------------------------------------
 // The sea. One table, written out twice: as shader code, and as seaAt() below.
@@ -138,10 +79,6 @@ function seaAt(x, z, ph, n) {
   }
   return h;
 }
-const f = (x) => {
-  const s = Number(x).toFixed(6);
-  return s.includes('.') ? s : s + '.0';
-};
 // the same sum as shader code; weight(W, i) gives an expression that fades a wave out, or null
 function seaSrc(n, weight) {
   let s = 'vec2 q=p;float h=0.0,ph,sp,w;\n';
@@ -164,18 +101,6 @@ const CAM_H = 3.9; // eye height above a flat sea
 const FL = 2.3; // lens: the short side of the screen spans about 47 degrees
 const BUOY_DIST = 32;
 const LAMP_Y = 3.18; // where the lantern's lens is, up from the waterline
-
-const VS = 'attribute vec2 aP;varying vec2 vP;void main(){vP=aP;gl_Position=vec4(aP,0.0,1.0);}';
-
-const NOISE_GLSL = `
-uniform sampler2D uN;
-vec4 tx(vec2 p){return TX(p);}
-float nv(vec2 x){vec2 p=floor(x),f=x-p;vec4 t=tx(p);vec2 u=f*f*(3.0-2.0*f);
-  return t.x+(t.y-t.x)*u.x+(t.z-t.x)*u.y+(t.x-t.y-t.z+t.w)*u.x*u.y;}
-vec3 nz(vec2 x){vec2 p=floor(x),f=x-p;vec4 t=tx(p);vec2 u=f*f*(3.0-2.0*f);vec2 du=6.0*f*(1.0-f);
-  float k1=t.y-t.x,k2=t.z-t.x,k4=t.x-t.y-t.z+t.w;
-  return vec3(t.x+k1*u.x+k2*u.y+k4*u.x*u.y,du*vec2(k1+k4*u.y,k2+k4*u.x));}
-`;
 
 const FS_SCENE = `varying vec2 vP;
 uniform vec3 uCam,uR,uU,uF;
@@ -638,30 +563,11 @@ class Pacer {
   }
 }
 
-const query = new URLSearchParams(location.search);
-
-export class Storm3D {
-  // null where this can't be done (no WebGL, or only a software one), so the caller can paint instead.
-  // ?gl=off in the address asks for the painting; ?gl=soft lets a software renderer try (for tests).
-  static create(stage, engine, makeFallback) {
-    if (query.get('gl') === 'off') return null;
-    try {
-      return new Storm3D(stage, engine, makeFallback);
-    } catch (e) {
-      console.warn('Storm at Sea: painting it instead.', e.message || e);
-      return null;
-    }
-  }
-
+export class Storm3D extends World {
   constructor(stage, engine, makeFallback) {
-    this.stage = stage;
-    this.engine = engine;
-    this.makeFallback = makeFallback;
-    this.fallback = null;
-    this.running = false;
+    super(stage, engine, makeFallback);
     this.t = rand(0, 900); // a different sea every visit
     this.flashes = [];
-    this.timers = new Set();
     this.tune = {}; // hold a value still: { storm, rain, wind, surf }, each 0..1 (tests, screenshots)
     this.s = null; // the mix and the storm, eased
     this.ph = new Float64Array(NW);
@@ -674,119 +580,24 @@ export class Storm3D {
     this.tiltV = [0, 0];
     this.lamp = 0;
     this.moonGap = 0.3;
-    this.lastDraw = 0;
-
-    const cv = document.createElement('canvas');
-    cv.className = 'stage-gl';
-    cv.setAttribute('aria-hidden', 'true');
-    this.cv = cv;
-    this.onLost = (e) => {
-      e.preventDefault();
-      this.lost = true;
-      // phones take the graphics context away now and then; if it isn't handed back, paint instead
-      this.later(() => this.lost && this.giveUp(), 2500);
-    };
-    this.onRestored = () => {
-      try {
-        this.initGL();
-        this.lost = false;
-        this.cw = 0;
-        this.resize();
-      } catch {
-        this.giveUp();
-      }
-    };
-    cv.addEventListener('webglcontextlost', this.onLost);
-    cv.addEventListener('webglcontextrestored', this.onRestored);
-    const opts = { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: query.get('gl') !== 'soft' };
-    const gl = (query.get('gl') === '1' ? null : cv.getContext('webgl2', opts)) || cv.getContext('webgl', opts);
-    if (!gl) throw new Error('no WebGL here');
-    this.gl = gl;
-    try {
-      this.initGL(); // throws if the shaders won't build on this device
-    } catch (e) {
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
-      throw e;
-    }
-
-    const coarse = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
-    this.coarse = coarse;
     const saved = Number(store.get('storm3d:px', 0)) || 0;
-    this.pacer = new Pacer(saved > 40000 ? saved : coarse ? 170000 : 300000, saved > 40000);
-
-    // the 2D stage stays on top (it takes the taps), cleared so this shows through from beneath it
-    stage.width = stage.height = 2;
-    stage.parentNode.insertBefore(cv, stage);
-    this.resize();
-  }
-
-  get drivers() {
-    return this.engine.scene?.drivers || {};
+    this.pacer = new Pacer(saved > 40000 ? saved : this.coarse ? 170000 : 300000, saved > 40000);
+    this.boot();
   }
 
   // ---- GL
-  initGL() {
+  setup() {
     const gl = this.gl;
-    const GL2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
-    const lodExt = !GL2 && gl.getExtension('EXT_shader_texture_lod');
-    const TX = GL2
-      ? '#define TX(p) texelFetch(uN,ivec2(p)&255,0)\n'
-      : lodExt
-        ? '#define TX(p) texture2DLodEXT(uN,(mod(p,256.0)+0.5)/256.0,0.0)\n'
-        : '#define TX(p) texture2D(uN,(mod(p,256.0)+0.5)/256.0)\n';
-    const vsrc = (s) => (GL2 ? '#version 300 es\n#define attribute in\n#define varying out\n' + s : s);
-    const fsrc = (s) =>
-      GL2
-        ? '#version 300 es\nprecision highp float;\nprecision highp int;\n#define varying in\n#define texture2D texture\nout vec4 fragColor;\n#define gl_FragColor fragColor\n' + TX + s
-        : (lodExt ? '#extension GL_EXT_shader_texture_lod : enable\n' : '') + 'precision highp float;\n' + TX + s;
-    const prog = (vs, fs) => {
-      const p = gl.createProgram();
-      for (const [type, src] of [
-        [gl.VERTEX_SHADER, vsrc(vs)],
-        [gl.FRAGMENT_SHADER, fsrc(fs)],
-      ]) {
-        const sh = gl.createShader(type);
-        gl.shaderSource(sh, src);
-        gl.compileShader(sh);
-        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error('shader: ' + gl.getShaderInfoLog(sh));
-        gl.attachShader(p, sh);
-      }
-      gl.bindAttribLocation(p, 0, 'aP');
-      gl.linkProgram(p);
-      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link: ' + gl.getProgramInfoLog(p));
-      const u = {};
-      const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
-      for (let i = 0; i < n; i++) {
-        const name = gl.getActiveUniform(p, i).name;
-        u[name.replace(/\[0\]$/, '')] = gl.getUniformLocation(p, name);
-      }
-      return { p, u };
-    };
-    this.pScene = prog(VS, FS_SCENE);
-    this.pFinal = prog(VS, FS_FINAL);
-
-    this.noiseTex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.noiseTex);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, NT, NT, 0, gl.RGBA, gl.UNSIGNED_BYTE, packed);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-
-    this.tri = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.tri);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
+    this.pScene = this.program(VS, FS_SCENE);
+    this.pFinal = this.program(VS, FS_FINAL);
+    this.noiseTex = this.noiseTexture();
+    this.tri = this.screenTriangle();
     this.fbo = gl.createFramebuffer();
     this.sceneTex = gl.createTexture();
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.BLEND);
     // a stopwatch on the chip itself, where the browser offers one
-    this.timer = GL2 ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
+    this.timer = this.GL2 ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
     this.query = null;
     this.timing = false;
   }
@@ -803,17 +614,9 @@ export class Storm3D {
   }
 
   // ---- size
-  resize() {
-    if (this.fallback) return this.fallback.resize();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let w = Math.max(2, Math.round(this.stage.clientWidth * dpr));
-    let h = Math.max(2, Math.round(this.stage.clientHeight * dpr));
-    const k = Math.sqrt(Math.min(1, 3200000 / (w * h)));
-    w = Math.round(w * k);
-    h = Math.round(h * k);
-    if (w === this.cw && h === this.ch) return;
-    this.cw = this.cv.width = w;
-    this.ch = this.cv.height = h;
+  sized(w, h) {
+    this.cv.width = w;
+    this.cv.height = h;
     this.asp = w >= h ? [w / h, 1] : [1, h / w];
     const pc = this.pacer;
     pc.max = Math.min(this.coarse ? 600000 : 1600000, w * h);
@@ -860,74 +663,23 @@ export class Storm3D {
   }
 
   // ---- the clock
-  start() {
-    if (this.fallback) return this.fallback.start();
-    if (this.running) return;
-    this.running = true;
-    let last = performance.now();
-    this.pacer.deaf = Math.max(this.pacer.deaf, last + 1500); // the first frames are slow for reasons of their own
-    const loop = (now) => {
-      if (!this.running) return;
-      this.raf = requestAnimationFrame(loop);
-      const dt = (now - last) / 1000;
-      if (dt < 1 / 31) return; // 30 frames a second is plenty, and kinder to a battery
-      last = now;
-      if (document.hidden || this.lost) return;
-      if (this.pacer.frame(dt * 1000, now) | this.clockChip()) {
-        this.layout();
-        store.set('storm3d:px', Math.round(this.pacer.size));
-      }
-      if (this.pacer.stuck >= 4) return this.giveUp(); // can't keep up however small: paint it instead
-      this.t += Math.min(dt, 0.1);
-      this.draw(Math.min(dt, 0.1));
-    };
-    this.raf = requestAnimationFrame(loop);
+  began(now) {
+    this.pacer.deaf = Math.max(this.pacer.deaf, now + 1500); // the first frames are slow for reasons of their own
   }
-  stop() {
-    if (this.fallback) return this.fallback.stop();
-    this.running = false;
-    cancelAnimationFrame(this.raf);
-  }
-  // done with: called when the player moves on to another scene, or closes
-  destroy() {
-    this.stop();
-    this.fallback = null;
-    this.dispose();
-  }
-  dispose() {
-    if (this.gone) return;
-    this.gone = true;
-    for (const id of this.timers) clearTimeout(id);
-    this.timers.clear();
-    this.cv.removeEventListener('webglcontextlost', this.onLost);
-    this.cv.removeEventListener('webglcontextrestored', this.onRestored);
-    this.gl.getExtension('WEBGL_lose_context')?.loseContext();
-    this.cv.remove();
-  }
-  giveUp() {
-    if (this.gone) return;
-    const was = this.running;
-    this.running = false;
-    cancelAnimationFrame(this.raf);
-    this.dispose();
-    this.fallback = this.makeFallback();
-    if (was) this.fallback.start();
-  }
-  later(fn, ms) {
-    const id = setTimeout(() => {
-      this.timers.delete(id);
-      if (!this.gone) fn();
-    }, ms);
-    this.timers.add(id);
+  step(dt, now, ms) {
+    if (this.pacer.frame(ms, now) | this.clockChip()) {
+      this.layout();
+      store.set('storm3d:px', Math.round(this.pacer.size));
+    }
+    if (this.pacer.stuck >= 4) return this.giveUp(); // can't keep up however small: paint it instead
+    this.draw(dt);
   }
 
   // ---- what the engine tells us
-  event(e) {
-    if (this.fallback) return this.fallback.event(e);
-    const wait = () => Math.max(0, this.engine.delayUntil(e.at) * 1000);
-    if (e.type === 'lightning') this.later(() => this.strike(e.km, e.strength), wait());
+  heard(e) {
+    if (e.type === 'lightning') this.at(e.at, () => this.strike(e.km, e.strength));
     // the bell rings because the buoy lurched: lurch it
-    else if (e.type === 'shot' && e.layer === 'buoy') this.later(() => this.lurch(), wait());
+    else if (e.type === 'shot' && e.layer === 'buoy') this.at(e.at, () => this.lurch());
   }
   lurch() {
     const a = rand(0, TAU);
@@ -1227,9 +979,6 @@ export class Storm3D {
       this.timing = false;
     }
 
-    if (!this.shown) {
-      this.shown = true;
-      this.cv.classList.add('on'); // fade up from black
-    }
+    this.reveal();
   }
 }

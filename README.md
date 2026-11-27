@@ -9,7 +9,7 @@ None of them loops audibly: long recordings crossfade between random points, and
 | | |
 |---|---|
 | **Storm at Sea** | Breakers, rain and a gale; thunder that arrives after its lightning, later and duller the further away it is. The one scene that isn't a painting: the sea, the sky and the weather are worked out in three dimensions as you watch (see below). Waves you look across rather than at, foam on the breaking crests and drawn out down the wind, a deck of cloud with the moon behind it finding a gap now and then, rain slanting past. Lightning is a light inside the cloud at the distance its thunder says it is: a far strike glows on the horizon, a near one comes down in front of you and lights the whole sea, green through the tops of the waves. A red bell buoy rides the swell, lurches when you hear its bell, and flashes its lamp every four seconds, the light strung out across the water toward you. |
-| **Forest Waterfall** | The East Hampton waterfall: a cascade stepping down mossy slate into a pool under a sunlit canopy, painted after the real one and sounding like it (recorded there for this app). A creek, forest air and leaves, and the birds of a Connecticut ravine, each keeping its own perch and singing in bouts: wood thrush, veery, the Louisiana waterthrush that lives along creeks, winter wren, red-eyed vireo, eastern wood-pewee, black-capped chickadee, white-breasted nuthatch, a far-off crow, and pileated and downy woodpeckers. |
+| **Forest Waterfall** | The East Hampton waterfall: a cascade stepping down mossy slate into a pool under a sunlit canopy, built after the real one and sounding like it (recorded there for this app). Like the storm it is a place rather than a painting (see below): a stream down a staircase of slate, spread across the back of one great slab and pouring off its edge into a pool that mirrors the falls and the trees; ledges of layered rock up either bank, moss and lichen on them; the sun behind the falls, coming and going through the leaves and slanting down through the spray. The water runs harder as you raise the waterfall sliders and the leaves stir more with Leaves. A creek, forest air and leaves, and the birds of a Connecticut ravine, each keeping its own perch and singing in bouts: wood thrush, veery, the Louisiana waterthrush that lives along creeks, winter wren, red-eyed vireo, eastern wood-pewee, black-capped chickadee, white-breasted nuthatch, a far-off crow, and pileated and downy woodpeckers. |
 | **Sunrise Garden** | A real dawn chorus that builds over 25 minutes as the sky (and the birds) wake up. |
 | **Butterfly Garden** | A Florida yard full of pollinators: big tropical hibiscus in sunset colours, milkweed and a rainbow of native wildflowers under a live oak hung with Spanish moss; zebra longwings and monarchs working the flowers, hummingbirds at the firebush and sage, cicadas, bees and a breeze in the palms. Ten Florida birds (cardinal, mockingbird, Carolina wren, blue jay, red-bellied woodpecker, northern parula, tufted titmouse, mourning and ground doves, a red-shouldered hawk overhead), each shown in its own colours when it sings. |
 | **Everglades Storm** | Summer thunderstorms over the sawgrass, seen from under a big bald cypress hung with moss, its knees poking out of the slough. The scene opens as the gust front hits; it rains most of the time, the downpour with thunder overhead easing to steady rain as each storm moves off, then dripping, frogs starting up and a rainbow, a short steamy lull and the next thunderhead building. Thunder comes from as far away as the storm is. |
@@ -54,7 +54,9 @@ site/                 the app (no build step, plain ES modules)
   js/engine.js        Web Audio engine: beds, shots, bird flocks, thunder, clock, generated noise/wind/drone
   js/scenes.js        the scenes: which recordings, default levels, where sounds sit in space
   js/visuals.js       the animated paintings (canvas)
-  js/storm3d.js       Storm at Sea, in three dimensions (WebGL)
+  js/world.js         what the scenes drawn in three dimensions share (WebGL)
+  js/storm3d.js       Storm at Sea, in three dimensions
+  js/waterfall3d.js   Forest Waterfall, in three dimensions
   js/app.js           interface: home, player, mix sheet, timer, offline, install
   sw.js               service worker (offline)
   audio/              encoded sounds + manifest.json (generated)
@@ -80,12 +82,13 @@ tools/
 - **One acoustic space per scene.** Generated reverbs (hall, room, forest, open air, snow) glue the
   recordings into one place.
 
-### The scene in three dimensions
+### The scenes in three dimensions
 
-Storm at Sea has no drawing in it. For every pixel a ray is sent out from a point a few metres above the
-water and followed until it meets the sea, the buoy or the cloud; what it finds there is lit and coloured.
-The whole world is one fragment shader (`js/storm3d.js`), with no models and no textures but a 256 × 256
-table of random numbers.
+Two scenes have no drawing in them. For every pixel a ray is sent out from where you stand and followed until
+it meets something; what it finds there is lit and coloured. Each is one fragment shader, with no models and
+no textures but a 256 × 256 table of random numbers. `js/world.js` holds what the two share.
+
+**Storm at Sea** (`js/storm3d.js`) is worked out afresh every frame, because all of it moves.
 
 - **The sea is a sum of nine wave trains**, each with its own heading, length and height, each moving at the
   speed a wave of that length really moves at. The table that describes them is written out twice, once as
@@ -96,8 +99,27 @@ table of random numbers.
 - **It is drawn small and enlarged.** How small depends on the device: the size is steered to keep the
   graphics chip working about a third of the time (or, where a browser won't say how long the chip took,
   as large as still arrives on time), 30 frames a second at most, nothing while the screen is dimmed.
-- **The painting is still there.** Where WebGL is missing, or a device can't keep up at any size, the scene
-  falls back to the painting it used to be. Adding `?gl=off` to the address asks for the painting.
+
+**Forest Waterfall** (`js/waterfall3d.js`) is the other way about: you stand still in a ravine and almost
+nothing moves, so the place is worked out once and the moving parts are added to it.
+
+- **The survey.** When the scene opens, the place is worked out once, at the screen's full sharpness, a
+  strip at a time so the graphics chip is never asked for more than it can do in a frame. What's kept is not a
+  picture but what a picture is made from: for every pixel its colour in shade, the colour the sun would add,
+  how far away it is, whether there's water there, and what the pool would mirror.
+- **The picture.** Thirty times a second a much lighter pass turns that into a picture, and everything that
+  moves lives there: the water going down the falls, the pool's ripples and what's mirrored in them, foam,
+  spray, the sun coming and going through the leaves, the leaves stirring.
+- **Slate lies in flat beds**, so the land is shaped smooth and then snapped to a whole number of beds. The
+  stream's staircase and the ledges up the banks come out of the same rule.
+- **Leaves are hung in sheets** across the view, eight deep, each leaf a shape of its own on a twig with its
+  neighbours; trees stand between the sheets.
+- **The painting stands in.** The first time a browser meets the scene, building the shader for it can take a
+  few seconds; if it does, the painting is shown meanwhile and fades into the place when it's ready.
+
+**The paintings are still there.** Where WebGL is missing (the waterfall needs WebGL 2), or a device can't
+keep up, a scene falls back to the painting it used to be. Adding `?gl=off` to the address asks for the
+paintings.
 
 ### Swapping or adding a sound
 
