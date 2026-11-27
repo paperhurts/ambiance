@@ -2,6 +2,11 @@
 // Static parts are painted once per resize into an offscreen layer; only the living parts
 // (rain, water, snow, light) are redrawn, at most 30 times a second, and nothing is drawn
 // while the page is hidden or dimmed.
+//
+// One scene is not a painting: Storm at Sea is worked out in three dimensions on the graphics
+// chip (storm3d.js). The painting of it below is what's shown where that can't be done.
+
+import { Storm3D } from './storm3d.js';
 
 const TAU = Math.PI * 2;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -13430,6 +13435,10 @@ class Blank extends Painting {
 const PAINTINGS = { storm: Storm, waterfall: Waterfall, garden: Garden, butterfly: Butterfly, glades: Glades, pond: Pond, mansion: Mansion, snow: Snow, halloween: Halloween, christmas: Christmas, lake: LakeRoom, kitchens: Sett, den: Den, eyrie: Eyrie, study: Study, afloat: SunnySea, 'afloat-storm': StormySea, mixer: Blank };
 
 export function createPainting(id, canvas, engine) {
+  if (id === 'storm') {
+    const world = Storm3D.create(canvas, engine, () => new Storm(canvas, engine));
+    if (world) return world;
+  }
   const P = PAINTINGS[id] || Blank;
   return new P(canvas, engine);
 }

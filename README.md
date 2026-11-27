@@ -8,7 +8,7 @@ None of them loops audibly: long recordings crossfade between random points, and
 
 | | |
 |---|---|
-| **Storm at Sea** | Breakers, rain and a gale; thunder that arrives after its lightning, later and duller the further away it is. A red buoy rides the swell. |
+| **Storm at Sea** | Breakers, rain and a gale; thunder that arrives after its lightning, later and duller the further away it is. The one scene that isn't a painting: the sea, the sky and the weather are worked out in three dimensions as you watch (see below). Waves you look across rather than at, foam on the breaking crests and drawn out down the wind, a deck of cloud with the moon behind it finding a gap now and then, rain slanting past. Lightning is a light inside the cloud at the distance its thunder says it is: a far strike glows on the horizon, a near one comes down in front of you and lights the whole sea, green through the tops of the waves. A red bell buoy rides the swell, lurches when you hear its bell, and flashes its lamp every four seconds, the light strung out across the water toward you. |
 | **Forest Waterfall** | The East Hampton waterfall: a cascade stepping down mossy slate into a pool under a sunlit canopy, painted after the real one and sounding like it (recorded there for this app). A creek, forest air and leaves, and the birds of a Connecticut ravine, each keeping its own perch and singing in bouts: wood thrush, veery, the Louisiana waterthrush that lives along creeks, winter wren, red-eyed vireo, eastern wood-pewee, black-capped chickadee, white-breasted nuthatch, a far-off crow, and pileated and downy woodpeckers. |
 | **Sunrise Garden** | A real dawn chorus that builds over 25 minutes as the sky (and the birds) wake up. |
 | **Butterfly Garden** | A Florida yard full of pollinators: big tropical hibiscus in sunset colours, milkweed and a rainbow of native wildflowers under a live oak hung with Spanish moss; zebra longwings and monarchs working the flowers, hummingbirds at the firebush and sage, cicadas, bees and a breeze in the palms. Ten Florida birds (cardinal, mockingbird, Carolina wren, blue jay, red-bellied woodpecker, northern parula, tufted titmouse, mourning and ground doves, a red-shouldered hawk overhead), each shown in its own colours when it sings. |
@@ -54,6 +54,7 @@ site/                 the app (no build step, plain ES modules)
   js/engine.js        Web Audio engine: beds, shots, bird flocks, thunder, clock, generated noise/wind/drone
   js/scenes.js        the scenes: which recordings, default levels, where sounds sit in space
   js/visuals.js       the animated paintings (canvas)
+  js/storm3d.js       Storm at Sea, in three dimensions (WebGL)
   js/app.js           interface: home, player, mix sheet, timer, offline, install
   sw.js               service worker (offline)
   audio/              encoded sounds + manifest.json (generated)
@@ -61,6 +62,7 @@ tools/
   sources/*.json      every recording used: where it came from, its licence, which part of it we use
   build_audio.py      downloads the originals, cuts, cleans, loudness-matches and encodes them
   check.mjs           headless-browser smoke test, and offline renders of a scene to WAV
+  serve.mjs           serves the app on this machine, to look at it: node tools/serve.mjs
   make_icons.py       app icons from the painting in originals/app-icon-source.png
 ```
 
@@ -77,6 +79,25 @@ tools/
 - **Thunder obeys physics.** Lightning first; the thunder 2.9 s per km later, quieter and duller with distance.
 - **One acoustic space per scene.** Generated reverbs (hall, room, forest, open air, snow) glue the
   recordings into one place.
+
+### The scene in three dimensions
+
+Storm at Sea has no drawing in it. For every pixel a ray is sent out from a point a few metres above the
+water and followed until it meets the sea, the buoy or the cloud; what it finds there is lit and coloured.
+The whole world is one fragment shader (`js/storm3d.js`), with no models and no textures but a 256 × 256
+table of random numbers.
+
+- **The sea is a sum of nine wave trains**, each with its own heading, length and height, each moving at the
+  speed a wave of that length really moves at. The table that describes them is written out twice, once as
+  shader code and once as JavaScript, so the buoy and the eye ride exactly the water that is drawn.
+- **It listens to the mix.** The storm's strength, and the Breakers, Rain and Gale sliders, set the height of
+  the sea, how hard it rains, how far the rain leans and how fast the cloud goes over. Lightning fires when
+  the engine says the flash happens, at the distance it gives.
+- **It is drawn small and enlarged.** How small depends on the device: the size is steered to keep the
+  graphics chip working about a third of the time (or, where a browser won't say how long the chip took,
+  as large as still arrives on time), 30 frames a second at most, nothing while the screen is dimmed.
+- **The painting is still there.** Where WebGL is missing, or a device can't keep up at any size, the scene
+  falls back to the painting it used to be. Adding `?gl=off` to the address asks for the painting.
 
 ### Swapping or adding a sound
 

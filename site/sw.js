@@ -13,6 +13,7 @@ const SHELL_FILES = [
   'js/engine.js',
   'js/scenes.js',
   'js/visuals.js',
+  'js/storm3d.js',
   'js/art.js',
   'js/store.js',
   'fonts/fraunces.woff2',
